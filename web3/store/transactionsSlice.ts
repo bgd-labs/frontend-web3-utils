@@ -56,7 +56,7 @@ StoreSlice<ITransactionsSlice<T>, Web3ProvidersSlice> {
       );
       const txPool = get().transactionsPool;
       setLocalStorageTxPool(txPool);
-      get().waitForTx(data.hash);
+      await get().waitForTx(data.hash);
     },
 
     waitForTx: async (hash) => {
@@ -64,7 +64,8 @@ StoreSlice<ITransactionsSlice<T>, Web3ProvidersSlice> {
       if (txData) {
         const provider =
           txData.network == "L2" ? get().l2Provider : get().l1Provider;
-        const txn = await provider.getTransactionReceipt(hash);
+        const tx = await provider.getTransaction(hash);
+        const txn = await tx.wait();
         if (txn.status == 1) {
           get().callbackObserver(txData);
         } else {
