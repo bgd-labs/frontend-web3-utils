@@ -12,7 +12,7 @@ import {
   setLocalStorageTxPool,
 } from "../../utils/localStorage";
 
-type BaseTx = {
+export type BaseTx = {
   type: string;
   payload: object;
   network: "L2" | "L1";

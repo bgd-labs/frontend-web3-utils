@@ -1,10 +1,16 @@
 import { CoinbaseWallet } from "@web3-react/coinbase-wallet";
-import { MetaMask } from "@web3-react/metamask/dist";
+import { MetaMask } from "@web3-react/metamask";
 import { WalletConnect } from "@web3-react/walletconnect";
 import { providers } from "ethers";
 import { StoreSlice } from "../../types/store";
-import { LocalStorageKeys } from "../../utils/localStorage";
+import {
+  deleteLocalStorageWallet,
+  LocalStorageKeys,
+  setLocalStorageWallet,
+} from "../../utils/localStorage";
 import { ImpersonatedConnector } from "../connectors/impersonatedConnector";
+import type { AddEthereumChainParameter } from "@web3-react/types";
+import produce from "immer";
 
 export type WalletType =
   | "Metamask"
@@ -38,16 +44,20 @@ export type Web3Slice = {
 
 export function createWeb3Slice({
   walletConnected,
-  metaMask,
+  metamask,
   coinbaseWallet,
   walletConnect,
   impersonatedConnector,
+  getAddChainParameters,
 }: {
   walletConnected: (wallet: Wallet) => void;
-  metaMask: MetaMask | undefined;
+  metamask: MetaMask | undefined;
   coinbaseWallet: CoinbaseWallet | undefined;
   walletConnect: WalletConnect | undefined;
   impersonatedConnector: ImpersonatedConnector | undefined;
+  getAddChainParameters: (
+    chainId: number
+  ) => AddEthereumChainParameter | number;
 }): StoreSlice<Web3Slice> {
   return (set, get) => ({
     activeWallet: undefined,
@@ -60,8 +70,8 @@ export function createWeb3Slice({
       try {
         const impersonatedAddress = get()._impersonatedAddress;
 
-        if (lastConnectedWallet === "Metamask" && metaMask) {
-          await metaMask.connectEagerly();
+        if (lastConnectedWallet === "Metamask" && metamask) {
+          await metamask.connectEagerly();
         } else if (lastConnectedWallet == "Coinbase" && coinbaseWallet) {
           await coinbaseWallet.connectEagerly();
         } else if (lastConnectedWallet === "WalletConnect" && walletConnect) {
@@ -80,49 +90,60 @@ export function createWeb3Slice({
     },
     connectWallet: async (walletType: WalletType) => {
       get().disconnectActiveWallet();
-      const impersonatedAddress = get()._impersonatedAddress
+      const impersonatedAddress = get()._impersonatedAddress;
       try {
-        // if (walletType === "Metamask" && metaMask) {
-        //   await metaMask.activate(getAddChainParameters(desiredChainID));
-        //   setLocalStorageWallet("Metamask");
-        // } else if (walletType === "Coinbase" && coinbaseWallet) {
-        //   await coinbaseWallet.activate(getAddChainParameters(desiredChainID));
-        //   setLocalStorageWallet("Coinbase");
-        // } else if (walletType === "WalletConnect" && walletConnect) {
-        //   await walletConnect.activate(desiredChainID);
-        //   setLocalStorageWallet("WalletConnect");
-        // } else if (walletType === "Impersonated" && impersonatedConnector && impersonatedAddress) {
-        //   await impersonatedConnector.activate(impersonatedAddress);
-        //   setLocalStorageWallet("Impersonated");
-        // }
+        if (walletType === "Metamask" && metamask) {
+          await metamask.activate(getAddChainParameters(desiredChainID));
+          setLocalStorageWallet("Metamask");
+        } else if (walletType === "Coinbase" && coinbaseWallet) {
+          await coinbaseWallet.activate(getAddChainParameters(desiredChainID));
+          setLocalStorageWallet("Coinbase");
+        } else if (walletType === "WalletConnect" && walletConnect) {
+          await walletConnect.activate(desiredChainID);
+          setLocalStorageWallet("WalletConnect");
+        } else if (
+          walletType === "Impersonated" &&
+          impersonatedConnector &&
+          impersonatedAddress
+        ) {
+          await impersonatedConnector.activate(impersonatedAddress);
+          setLocalStorageWallet("Impersonated");
+        }
       } catch (e) {
         // TODO: handle connect error
         console.log(e);
       }
     },
     disconnectActiveWallet: async () => {
-      // const activeWallet = get().activeWallet;
-      // if (activeWallet) {
-      //   if (activeWallet.walletType == "Metamask") {
-      //     try {
-      //       await metaMask.deactivate();
-      //     } catch (e) {
-      //       // TODO: notify user
-      //       console.log(e);
-      //     }
-      //   } else if (activeWallet.walletType === "Coinbase") {
-      //     try {
-      //       await coinbaseWallet.deactivate();
-      //     } catch (e) {
-      //       // TODO: notify user
-      //       console.log(e);
-      //     }
-      //   } else if (activeWallet.walletType == "WalletConnect") {
-      //     await walletConnect.deactivate();
-      //   }
-      //   deleteLocalStorageWallet();
-      //   set({ activeWallet: undefined });
-      // }
+      const activeWallet = get().activeWallet;
+      if (activeWallet) {
+        if (
+          activeWallet.walletType == "Metamask" &&
+          metamask &&
+          metamask.deactivate
+        ) {
+          try {
+            await metamask.deactivate();
+          } catch (e) {
+            // TODO: notify user
+            console.log(e);
+          }
+        } else if (activeWallet.walletType === "Coinbase" && coinbaseWallet) {
+          try {
+            await coinbaseWallet.deactivate();
+          } catch (e) {
+            // TODO: notify user
+            console.log(e);
+          }
+        } else if (
+          activeWallet.walletType == "WalletConnect" &&
+          walletConnect
+        ) {
+          await walletConnect.deactivate();
+        }
+        deleteLocalStorageWallet();
+        set({ activeWallet: undefined });
+      }
     },
     /**
      * setActiveWallet is separate from connectWallet for a reason, after metaMask.activate()
@@ -130,29 +151,29 @@ export function createWeb3Slice({
      * is impossible to pull from .provider() still not the best approach and I'm looking to find proper way to handle it
      */
     setActiveWallet: (wallet: Omit<Wallet, "signer">) => {
-      // const providerSigner =
-      //   wallet.walletType == "Impersonated"
-      //     ? wallet.provider.getSigner(get()._impersonatedAddress)
-      //     : wallet.provider.getSigner(0);
-      // set({
-      //   activeWallet: {
-      //     ...wallet,
-      //     signer: providerSigner,
-      //   },
-      // });
-      // const activeWallet = get().activeWallet
-      // if (activeWallet) {
-      //   get().walletConnectedCallback(activeWallet)
-      // },
+      const providerSigner =
+        wallet.walletType == "Impersonated"
+          ? wallet.provider.getSigner(get()._impersonatedAddress)
+          : wallet.provider.getSigner(0);
+      set({
+        activeWallet: {
+          ...wallet,
+          signer: providerSigner,
+        },
+      });
+      const activeWallet = get().activeWallet;
+      if (activeWallet) {
+        walletConnected(activeWallet);
+      }
     },
     changeActiveWalletChainId: (chainId: number) => {
-      // set((state) =>
-      //   produce(state, (draft) => {
-      //     if (draft.activeWallet) {
-      //       draft.activeWallet.chainId = chainId;
-      //     }
-      //   })
-      // );
+      set((state) =>
+        produce(state, (draft) => {
+          if (draft.activeWallet) {
+            draft.activeWallet.chainId = chainId;
+          }
+        })
+      );
     },
 
     getActiveAddress: () => {
