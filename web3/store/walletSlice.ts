@@ -18,8 +18,6 @@ export type WalletType =
   | "Coinbase"
   | "Impersonated";
 
-export const desiredChainID = 1;
-
 export interface Wallet {
   walletType: WalletType;
   accounts: string[];
@@ -49,6 +47,7 @@ export function createWeb3Slice({
   walletConnect,
   impersonatedConnector,
   getAddChainParameters,
+  desiredChainID = 1,
 }: {
   walletConnected: (wallet: Wallet) => void;
   metamask: MetaMask | undefined;
@@ -58,6 +57,7 @@ export function createWeb3Slice({
   getAddChainParameters: (
     chainId: number
   ) => AddEthereumChainParameter | number;
+  desiredChainID?: number;
 }): StoreSlice<Web3Slice> {
   return (set, get) => ({
     activeWallet: undefined,
