@@ -1,9 +1,4 @@
-import { providers } from "ethers";
-
-type Web3ProvidersSlice = {
-  l1Provider: providers.JsonRpcProvider;
-  l2Provider: providers.JsonRpcProvider;
-};
+import { ethers, providers } from "ethers";
 
 import produce, { Draft } from "immer";
 import { StoreSlice } from "../../types/store";
@@ -14,24 +9,43 @@ import {
 
 export type BaseTx = {
   type: string;
-  payload: object;
-  network: "L2" | "L1";
   hash: string;
+  from: string;
+  to: string;
+  nonce: number;
+  payload?: object;
+  chainId: number;
 };
 
-export type CreateProposalTx<T extends BaseTx> = T;
+export type ProvidersRecord = Record<number, ethers.providers.JsonRpcProvider>;
 
 export type TransactionPool<T extends BaseTx> = Record<string, T>;
 
 export interface ITransactionsState<T extends BaseTx> {
-  transactionsPool: TransactionPool<T>;
+  transactionsPool: TransactionPool<
+    T & {
+      status?: number;
+      pending: boolean;
+    }
+  >;
 }
 
 interface ITransactionsActions<T extends BaseTx> {
-  callbackObserver: (data: T) => void;
-  addTx: (data: T) => void;
-  waitForTx: (hash: string) => void;
-  removeTx: (hash: string) => void;
+  callbackObserver: (
+    data: T & {
+      status?: number;
+    }
+  ) => void;
+  addTx: (data: {
+    tx: Pick<
+      ethers.providers.TransactionResponse,
+      "from" | "to" | "hash" | "chainId" | "nonce"
+    >;
+    payload: T["payload"];
+    type: T["type"];
+  }) => Promise<void>;
+  waitForTx: (hash: string) => Promise<void>;
+  updateTXStatus: (hash: string, status?: number) => void;
   initTxPool: () => void;
 }
 
@@ -40,49 +54,70 @@ export type ITransactionsSlice<T extends BaseTx> = ITransactionsActions<T> &
 
 export function createTransactionsSlice<T extends BaseTx>({
   callbackObserver,
+  providers,
 }: {
   callbackObserver: (tx: T) => void;
-}): // callbackObserver: (tx: T) => void
-StoreSlice<ITransactionsSlice<T>, Web3ProvidersSlice> {
+  providers: ProvidersRecord;
+}): StoreSlice<ITransactionsSlice<T>> {
   return (set, get) => ({
     transactionsPool: {},
     callbackObserver,
 
-    addTx: async (data) => {
-      set((state) =>
-        produce(state, (draft) => {
-          draft.transactionsPool[data.hash] = data as Draft<T>;
-        })
-      );
-      const txPool = get().transactionsPool;
-      setLocalStorageTxPool(txPool);
-      await get().waitForTx(data.hash);
+    addTx: async (transaction) => {
+      // fix for forks, which do not provider chainID
+      const chainId = Number(transaction.tx.chainId);
+      if (providers[chainId]) {
+        const tx = {
+          chainId,
+          hash: transaction.tx.hash,
+          type: transaction.type,
+          payload: transaction.payload,
+          from: transaction.tx.from,
+          to: transaction.tx.to,
+          nonce: transaction.tx.nonce,
+        };
+        set((state) =>
+          produce(state, (draft) => {
+            draft.transactionsPool[tx.hash] = {
+              ...tx,
+              pending: true,
+            } as Draft<
+              T & {
+                pending: boolean;
+              }
+            >;
+          })
+        );
+        const txPool = get().transactionsPool;
+        setLocalStorageTxPool(txPool);
+        await get().waitForTx(tx.hash);
+      }
     },
 
     waitForTx: async (hash) => {
       const txData = get().transactionsPool[hash];
       if (txData) {
-        const provider =
-          txData.network == "L2" ? get().l2Provider : get().l1Provider;
+        const provider = providers[txData.chainId] as providers.JsonRpcProvider;
+
         const tx = await provider.getTransaction(hash);
         const txn = await tx.wait();
-        if (txn.status == 1) {
-          get().callbackObserver(txData);
-        } else {
-          // TODO: notify about failed tx
-        }
-        get().removeTx(hash);
+        get().updateTXStatus(hash, txn.status);
+        const updatedTX = get().transactionsPool[hash]
+        get().callbackObserver({
+          ...updatedTX
+        });
       } else {
         // TODO: no transaction in waiting pool
       }
     },
-
-    removeTx: async (hash) => {
+    updateTXStatus: (hash, status) => {
       set((state) =>
         produce(state, (draft) => {
-          delete draft.transactionsPool[hash];
+          draft.transactionsPool[hash].status = status;
+          draft.transactionsPool[hash].pending = false;
         })
       );
+
       setLocalStorageTxPool(get().transactionsPool);
     },
     initTxPool: () => {
@@ -94,8 +129,10 @@ StoreSlice<ITransactionsSlice<T>, Web3ProvidersSlice> {
           transactionsPool,
         }));
       }
-      Object.keys(get().transactionsPool).forEach((hash) => {
-        get().waitForTx(hash);
+      Object.values(get().transactionsPool).forEach((tx) => {
+        if (tx.pending) {
+          get().waitForTx(tx.hash);
+        }
       });
     },
   });
