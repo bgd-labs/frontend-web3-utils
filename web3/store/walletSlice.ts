@@ -91,6 +91,7 @@ export function createWeb3Slice({
     connectWallet: async (walletType: WalletType) => {
       get().disconnectActiveWallet();
       const impersonatedAddress = get()._impersonatedAddress;
+      set({ walletActivating: true });
       try {
         if (walletType === "Metamask" && metamask) {
           await metamask.activate(getAddChainParameters(desiredChainID));
@@ -113,6 +114,7 @@ export function createWeb3Slice({
         // TODO: handle connect error
         console.log(e);
       }
+      set({ walletActivating: false });
     },
     disconnectActiveWallet: async () => {
       const activeWallet = get().activeWallet;
