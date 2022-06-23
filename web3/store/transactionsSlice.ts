@@ -102,9 +102,9 @@ export function createTransactionsSlice<T extends BaseTx>({
         const tx = await provider.getTransaction(hash);
         const txn = await tx.wait();
         get().updateTXStatus(hash, txn.status);
-        const updatedTX = get().transactionsPool[hash]
+        const updatedTX = get().transactionsPool[hash];
         get().callbackObserver({
-          ...updatedTX
+          ...updatedTX,
         });
       } else {
         // TODO: no transaction in waiting pool

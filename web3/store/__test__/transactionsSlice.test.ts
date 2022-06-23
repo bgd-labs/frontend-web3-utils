@@ -79,6 +79,7 @@ describe("Transactions slice", () => {
     useStore.setState({
       waitForTx,
     });
+
     useStore.getState().addTx({
       type: "TestTXWithSimplePayload",
       tx,
