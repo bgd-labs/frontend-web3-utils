@@ -87,6 +87,7 @@ export function createTransactionsSlice<T extends BaseTx>({
         produce(state, (draft) => {
           draft.transactionsPool[transaction.hash] = {
             ...transaction,
+            pending: true,
           } as Draft<
             T & {
               pending: boolean;
