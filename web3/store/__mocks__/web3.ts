@@ -16,3 +16,10 @@ export class MockedProvider {
     return getTransactionReceiptMock(hash);
   }
 }
+
+export const checkAndSwitchNetwork = jest.fn(() => {});
+export const createWeb3Slice = () => ({
+  checkAndSwitchNetwork,
+  l2Provider: new MockedProvider(),
+  l1Provider: new MockedProvider(),
+});

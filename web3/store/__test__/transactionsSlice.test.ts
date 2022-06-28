@@ -17,7 +17,8 @@ import {
   ITransactionsSlice,
   createTransactionsSlice as createBaseTransactionsSlice,
 } from "../transactionsSlice";
-import { MockedProvider } from "../__mocks__/web3";
+import { Web3Slice } from "../walletSlice";
+import { createWeb3Slice, MockedProvider } from "../__mocks__/web3";
 
 type SomeRandomTx = BaseTx & {
   type: "SomerandomTx";
@@ -45,10 +46,11 @@ export type TransactionsSlice = ITransactionsSlice<TransactionUnion> & {};
 
 const callbackObserver = jest.fn();
 
-export const createTransactionsSlice: StoreSlice<TransactionsSlice, {}> = (
+export const createTransactionsSlice: StoreSlice<TransactionsSlice, any> = (
   set,
   get
 ) => ({
+  ...createWeb3Slice() as any,
   ...createBaseTransactionsSlice<TransactionUnion>({
     callbackObserver,
     providers: providersRecord,

@@ -6,6 +6,7 @@ import {
   getLocalStorageTxPool,
   setLocalStorageTxPool,
 } from "../../utils/localStorage";
+import { Web3Slice } from "./walletSlice";
 
 export type BaseTx = {
   type: string;
@@ -36,14 +37,18 @@ interface ITransactionsActions<T extends BaseTx> {
       status?: number;
     }
   ) => void;
-  addTx: (data: {
-    tx: Pick<
-      ethers.providers.TransactionResponse,
-      "from" | "to" | "hash" | "chainId" | "nonce"
-    >;
-    payload: T["payload"];
-    type: T["type"];
-  }) => Promise<void>;
+  executeTx: (params: {
+    body: () => Promise<ethers.ContractTransaction>;
+    params: {
+      type: T["type"];
+      payload: T["payload"];
+    };
+  }) => Promise<
+    T & {
+      status?: number;
+      pending: boolean;
+    }
+  >;
   waitForTx: (hash: string) => Promise<void>;
   updateTXStatus: (hash: string, status?: number) => void;
   initTxPool: () => void;
@@ -58,40 +63,41 @@ export function createTransactionsSlice<T extends BaseTx>({
 }: {
   callbackObserver: (tx: T) => void;
   providers: ProvidersRecord;
-}): StoreSlice<ITransactionsSlice<T>> {
+}): StoreSlice<
+  ITransactionsSlice<T>,
+  Pick<Web3Slice, "checkAndSwitchNetwork">
+> {
   return (set, get) => ({
     transactionsPool: {},
     callbackObserver,
-
-    addTx: async (transaction) => {
-      // fix for forks, which do not provider chainID
-      const chainId = Number(transaction.tx.chainId);
-      if (providers[chainId]) {
-        const tx = {
-          chainId,
-          hash: transaction.tx.hash,
-          type: transaction.type,
-          payload: transaction.payload,
-          from: transaction.tx.from,
-          to: transaction.tx.to,
-          nonce: transaction.tx.nonce,
-        };
-        set((state) =>
-          produce(state, (draft) => {
-            draft.transactionsPool[tx.hash] = {
-              ...tx,
-              pending: true,
-            } as Draft<
-              T & {
-                pending: boolean;
-              }
-            >;
-          })
-        );
-        const txPool = get().transactionsPool;
-        setLocalStorageTxPool(txPool);
-        await get().waitForTx(tx.hash);
-      }
+    executeTx: async ({ body, params }) => {
+      await get().checkAndSwitchNetwork;
+      const tx = await body();
+      const chainId = Number(tx.chainId);
+      const transaction = {
+        chainId,
+        hash: tx.hash,
+        type: params.type,
+        payload: params.payload,
+        from: tx.from,
+        to: tx.to,
+        nonce: tx.nonce,
+      };
+      set((state) =>
+        produce(state, (draft) => {
+          draft.transactionsPool[transaction.hash] = {
+            ...transaction,
+          } as Draft<
+            T & {
+              pending: boolean;
+            }
+          >;
+        })
+      );
+      const txPool = get().transactionsPool;
+      setLocalStorageTxPool(txPool);
+      get().waitForTx(tx.hash);
+      return txPool[tx.hash];
     },
 
     waitForTx: async (hash) => {

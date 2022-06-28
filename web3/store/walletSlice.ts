@@ -1,22 +1,23 @@
-import { CoinbaseWallet } from "@web3-react/coinbase-wallet";
-import { MetaMask } from "@web3-react/metamask";
-import { WalletConnect } from "@web3-react/walletconnect";
-import { providers } from "ethers";
-import { StoreSlice } from "../../types/store";
+import { CoinbaseWallet } from '@web3-react/coinbase-wallet';
+import { MetaMask } from '@web3-react/metamask';
+import type { AddEthereumChainParameter } from '@web3-react/types';
+import { WalletConnect } from '@web3-react/walletconnect';
+import { providers } from 'ethers';
+import { produce } from 'immer';
+
+import { StoreSlice } from '../../types/store';
 import {
   deleteLocalStorageWallet,
   LocalStorageKeys,
   setLocalStorageWallet,
-} from "../../utils/localStorage";
-import { ImpersonatedConnector } from "../connectors/impersonatedConnector";
-import type { AddEthereumChainParameter } from "@web3-react/types";
-import produce from "immer";
+} from '../../utils/localStorage';
+import { ImpersonatedConnector } from '../connectors/impersonatedConnector';
 
 export type WalletType =
-  | "Metamask"
-  | "WalletConnect"
-  | "Coinbase"
-  | "Impersonated";
+  | 'Metamask'
+  | 'WalletConnect'
+  | 'Coinbase'
+  | 'Impersonated';
 
 export interface Wallet {
   walletType: WalletType;
@@ -35,8 +36,9 @@ export type Web3Slice = {
   disconnectActiveWallet: () => Promise<void>;
   walletActivating: boolean;
   initDefaultWallet: () => Promise<void>;
-  setActiveWallet: (wallet: Omit<Wallet, "signer">) => void;
+  setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => void;
   changeActiveWalletChainId: (chainId: number) => void;
+  checkAndSwitchNetwork: () => Promise<void>;
   _impersonatedAddress: string | undefined;
 };
 
@@ -55,7 +57,7 @@ export function createWeb3Slice({
   walletConnect: WalletConnect | undefined;
   impersonatedConnector: ImpersonatedConnector | undefined;
   getAddChainParameters: (
-    chainId: number
+    chainId: number,
   ) => AddEthereumChainParameter | number;
   desiredChainID?: number;
 }): StoreSlice<Web3Slice> {
@@ -65,19 +67,19 @@ export function createWeb3Slice({
     _impersonatedAddress: undefined,
     initDefaultWallet: async () => {
       const lastConnectedWallet = localStorage.getItem(
-        LocalStorageKeys.LastConnectedWallet
+        LocalStorageKeys.LastConnectedWallet,
       ) as WalletType | undefined;
       try {
         const impersonatedAddress = get()._impersonatedAddress;
 
-        if (lastConnectedWallet === "Metamask" && metamask) {
+        if (lastConnectedWallet === 'Metamask' && metamask) {
           await metamask.connectEagerly();
-        } else if (lastConnectedWallet == "Coinbase" && coinbaseWallet) {
+        } else if (lastConnectedWallet == 'Coinbase' && coinbaseWallet) {
           await coinbaseWallet.connectEagerly();
-        } else if (lastConnectedWallet === "WalletConnect" && walletConnect) {
+        } else if (lastConnectedWallet === 'WalletConnect' && walletConnect) {
           await walletConnect.connectEagerly();
         } else if (
-          lastConnectedWallet === "Impersonated" &&
+          lastConnectedWallet === 'Impersonated' &&
           impersonatedConnector &&
           impersonatedAddress
         ) {
@@ -93,22 +95,22 @@ export function createWeb3Slice({
       const impersonatedAddress = get()._impersonatedAddress;
       set({ walletActivating: true });
       try {
-        if (walletType === "Metamask" && metamask) {
+        if (walletType === 'Metamask' && metamask) {
           await metamask.activate(getAddChainParameters(desiredChainID));
-          setLocalStorageWallet("Metamask");
-        } else if (walletType === "Coinbase" && coinbaseWallet) {
+          setLocalStorageWallet('Metamask');
+        } else if (walletType === 'Coinbase' && coinbaseWallet) {
           await coinbaseWallet.activate(getAddChainParameters(desiredChainID));
-          setLocalStorageWallet("Coinbase");
-        } else if (walletType === "WalletConnect" && walletConnect) {
+          setLocalStorageWallet('Coinbase');
+        } else if (walletType === 'WalletConnect' && walletConnect) {
           await walletConnect.activate(desiredChainID);
-          setLocalStorageWallet("WalletConnect");
+          setLocalStorageWallet('WalletConnect');
         } else if (
-          walletType === "Impersonated" &&
+          walletType === 'Impersonated' &&
           impersonatedConnector &&
           impersonatedAddress
         ) {
           await impersonatedConnector.activate(impersonatedAddress);
-          setLocalStorageWallet("Impersonated");
+          setLocalStorageWallet('Impersonated');
         }
       } catch (e) {
         // TODO: handle connect error
@@ -116,11 +118,32 @@ export function createWeb3Slice({
       }
       set({ walletActivating: false });
     },
+    checkAndSwitchNetwork: async () => {
+      const activeWallet = get().activeWallet;
+      if (activeWallet) {
+        try {
+          await activeWallet.provider.send('wallet_switchEthereumChain', [
+            { chainId: `0x${desiredChainID.toString(16)}` },
+          ]);
+        } catch (e) {
+          try {
+            await activeWallet.provider.send('wallet_addEthereumChain', [
+              getAddChainParameters(desiredChainID),
+            ]);
+          } catch (e) {
+            // if (e.code === 4001) {
+            //   TODO: handle somehow differently
+            // }
+            throw e;
+          }
+        }
+      }
+    },
     disconnectActiveWallet: async () => {
       const activeWallet = get().activeWallet;
       if (activeWallet) {
         if (
-          activeWallet.walletType == "Metamask" &&
+          activeWallet.walletType == 'Metamask' &&
           metamask &&
           metamask.deactivate
         ) {
@@ -130,7 +153,7 @@ export function createWeb3Slice({
             // TODO: notify user
             console.log(e);
           }
-        } else if (activeWallet.walletType === "Coinbase" && coinbaseWallet) {
+        } else if (activeWallet.walletType === 'Coinbase' && coinbaseWallet) {
           try {
             await coinbaseWallet.deactivate();
           } catch (e) {
@@ -138,7 +161,7 @@ export function createWeb3Slice({
             console.log(e);
           }
         } else if (
-          activeWallet.walletType == "WalletConnect" &&
+          activeWallet.walletType == 'WalletConnect' &&
           walletConnect
         ) {
           await walletConnect.deactivate();
@@ -152,9 +175,9 @@ export function createWeb3Slice({
      * only provider is available in the returned type, but we also need accounts and chainID which for some reason
      * is impossible to pull from .provider() still not the best approach and I'm looking to find proper way to handle it
      */
-    setActiveWallet: (wallet: Omit<Wallet, "signer">) => {
+    setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => {
       const providerSigner =
-        wallet.walletType == "Impersonated"
+        wallet.walletType == 'Impersonated'
           ? wallet.provider.getSigner(get()._impersonatedAddress)
           : wallet.provider.getSigner(0);
       set({
@@ -174,7 +197,7 @@ export function createWeb3Slice({
           if (draft.activeWallet) {
             draft.activeWallet.chainId = chainId;
           }
-        })
+        }),
       );
     },
 
