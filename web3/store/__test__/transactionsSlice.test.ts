@@ -50,7 +50,7 @@ export const createTransactionsSlice: StoreSlice<TransactionsSlice, any> = (
   set,
   get
 ) => ({
-  ...createWeb3Slice() as any,
+  ...(createWeb3Slice() as any),
   ...createBaseTransactionsSlice<TransactionUnion>({
     callbackObserver,
     providers: providersRecord,
@@ -108,10 +108,14 @@ describe("Transactions slice", () => {
       callbackObserver,
     });
 
-    await useStore.getState().addTx({
-      type: "TestTXWithSimplePayload",
-      payload: {},
-      tx,
+    await useStore.getState().executeTx({
+      body: () => {
+        return new Promise((resolve) => resolve())
+      },
+      params: {
+        type: "TestTXWithSimplePayload",
+        payload: {},
+      },
     });
     expect(callbackObserver).toBeCalledWith({
       type: "TestTXWithSimplePayload",
