@@ -2,7 +2,7 @@ import { CoinbaseWallet } from '@web3-react/coinbase-wallet';
 import { MetaMask } from '@web3-react/metamask';
 import type { AddEthereumChainParameter } from '@web3-react/types';
 import { WalletConnect } from '@web3-react/walletconnect';
-import { providers } from 'ethers';
+import { ethers, providers } from 'ethers';
 import { produce } from 'immer';
 
 import { StoreSlice } from '../../types/store';
@@ -85,13 +85,16 @@ export function createWeb3Slice({
         ) {
           await impersonatedConnector.activate(impersonatedAddress);
         }
+        await get().checkAndSwitchNetwork();
       } catch (e) {
         // TODO: handle eager connect error
         console.log(e);
       }
     },
     connectWallet: async (walletType: WalletType) => {
-      get().disconnectActiveWallet();
+      if (get().activeWallet?.walletType !== walletType) {
+        get().disconnectActiveWallet();
+      }
       const impersonatedAddress = get()._impersonatedAddress;
       set({ walletActivating: true });
       try {
@@ -121,23 +124,26 @@ export function createWeb3Slice({
     checkAndSwitchNetwork: async () => {
       const activeWallet = get().activeWallet;
       if (activeWallet) {
-        try {
-          await activeWallet.provider.send('wallet_switchEthereumChain', [
-            { chainId: `0x${desiredChainID.toString(16)}` },
-          ]);
-        } catch (e) {
-          try {
-            await activeWallet.provider.send('wallet_addEthereumChain', [
-              getAddChainParameters(desiredChainID),
-            ]);
-          } catch (e) {
-            // if (e.code === 4001) {
-            //   TODO: handle somehow differently
-            // }
-            throw e;
-          }
-        }
+        await get().connectWallet(activeWallet.walletType);
       }
+      // if (activeWallet) {
+      //   try {
+      //     await activeWallet.provider.send('wallet_switchEthereumChain', [
+      //       { chainId: `0x${desiredChainID.toString(16)}` },
+      //     ]);
+      //   } catch (e) {
+      //     try {
+      //       await activeWallet.provider.send('wallet_addEthereumChain', [
+      //         getAddChainParameters(desiredChainID),
+      //       ]);
+      //     } catch (e) {
+      //       // if (e.code === 4001) {
+      //       //   TODO: handle somehow differently
+      //       // }
+      //       throw e;
+      //     }
+      //   }
+      // }
     },
     disconnectActiveWallet: async () => {
       const activeWallet = get().activeWallet;
