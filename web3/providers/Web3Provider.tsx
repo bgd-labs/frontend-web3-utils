@@ -36,7 +36,7 @@ function Child({ setActiveWallet, changeChainID }: Omit<Props, "connectors">) {
     if (walletType && accounts && isActive && provider) {
       // TODO: don't forget to change to different
       setActiveWallet({
-        walletType: walletType,
+        walletType,
         accounts,
         chainId,
         provider,

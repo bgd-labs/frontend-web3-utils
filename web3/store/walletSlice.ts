@@ -2,7 +2,7 @@ import { CoinbaseWallet } from '@web3-react/coinbase-wallet';
 import { MetaMask } from '@web3-react/metamask';
 import type { AddEthereumChainParameter } from '@web3-react/types';
 import { WalletConnect } from '@web3-react/walletconnect';
-import { ethers, providers } from 'ethers';
+import { providers } from 'ethers';
 import { produce } from 'immer';
 
 import { StoreSlice } from '../../types/store';
@@ -19,12 +19,19 @@ export type WalletType =
   | 'Coinbase'
   | 'Impersonated';
 
+
+export type ExtendedConnector =
+    { name: 'Metamask', connector: MetaMask } |
+    { name: 'Coinbase', connector: CoinbaseWallet } |
+    { name: 'WalletConnect', connector: WalletConnect} |
+    { name: 'Impersonated', connector: ImpersonatedConnector }
+
 export interface Wallet {
   walletType: WalletType;
   accounts: string[];
   chainId: number | undefined;
-  provider: providers.JsonRpcProvider;
-  signer: providers.JsonRpcSigner;
+  provider: providers.JsonRpcProvider;  // TODO: not correct
+  signer: providers.JsonRpcSigner; // TODO: not correct, it can be not only JsonRpc
   // isActive is added, because Wallet can be connected but not active, i.e. wrong network
   isActive: boolean;
 }
@@ -44,18 +51,12 @@ export type Web3Slice = {
 
 export function createWeb3Slice({
   walletConnected,
-  metamask,
-  coinbaseWallet,
-  walletConnect,
-  impersonatedConnector,
+  connectors,
   getAddChainParameters,
   desiredChainID = 1,
 }: {
-  walletConnected: (wallet: Wallet) => void;
-  metamask: MetaMask | undefined;
-  coinbaseWallet: CoinbaseWallet | undefined;
-  walletConnect: WalletConnect | undefined;
-  impersonatedConnector: ImpersonatedConnector | undefined;
+  walletConnected: (wallet: Wallet) => void; // TODO: why all of them here hardcoded
+  connectors: ExtendedConnector[];
   getAddChainParameters: (
     chainId: number,
   ) => AddEthereumChainParameter | number;
@@ -64,30 +65,35 @@ export function createWeb3Slice({
   return (set, get) => ({
     activeWallet: undefined,
     walletActivating: false,
-    _impersonatedAddress: undefined,
+    _impersonatedAddress: undefined, // why do we need it here?
     initDefaultWallet: async () => {
       const lastConnectedWallet = localStorage.getItem(
         LocalStorageKeys.LastConnectedWallet,
       ) as WalletType | undefined;
       try {
-        const impersonatedAddress = get()._impersonatedAddress;
-
-        if (lastConnectedWallet === 'Metamask' && metamask) {
-          await metamask.connectEagerly();
-        } else if (lastConnectedWallet == 'Coinbase' && coinbaseWallet) {
-          await coinbaseWallet.connectEagerly();
-        } else if (lastConnectedWallet === 'WalletConnect' && walletConnect) {
-          await walletConnect.connectEagerly();
-        } else if (
-          lastConnectedWallet === 'Impersonated' &&
-          impersonatedConnector &&
-          impersonatedAddress
-        ) {
-          await impersonatedConnector.activate(impersonatedAddress);
+        const connector = connectors.find(({ name }) => name === lastConnectedWallet);
+        if (connector) {
+          switch (connector.name) {
+            case 'Impersonated': {
+              const impersonatedAddress = get()._impersonatedAddress;
+              if (impersonatedAddress) {
+                await connector.connector.activate(impersonatedAddress);
+              }
+              break;
+            }
+            default: {
+              await connector.connector.connectEagerly();
+            }
+          }
+        } else {
+          console.error(`${lastConnectedWallet} adapter was not configured in this DAPP`)
         }
         await get().checkAndSwitchNetwork();
       } catch (e) {
         // TODO: handle eager connect error
+        // TODO: will not be any error, actually, because of connectEagerly
+        // most probably we should popup error about we failed to connect the wallet,
+        // and the same should be on any wallet connection, not only after page reload
         console.log(e);
       }
     },
@@ -126,6 +132,7 @@ export function createWeb3Slice({
       if (activeWallet) {
         await get().connectWallet(activeWallet.walletType);
       }
+      // TODO: should we clen it up?
       // if (activeWallet) {
       //   try {
       //     await activeWallet.provider.send('wallet_switchEthereumChain', [
