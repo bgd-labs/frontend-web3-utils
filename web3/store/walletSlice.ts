@@ -19,6 +19,7 @@ export type WalletType =
   | "Coinbase"
   | "Impersonated";
 
+
 export type ExtendedConnector =
   | { name: "Metamask"; connector: MetaMask }
   | { name: "Coinbase"; connector: CoinbaseWallet }
@@ -74,7 +75,7 @@ export function createWeb3Slice({
     },
     connectWallet: async (walletType: WalletType) => {
       if (get().activeWallet?.walletType !== walletType) {
-        get().disconnectActiveWallet();
+        await get().disconnectActiveWallet();
       }
       const impersonatedAddress = get()._impersonatedAddress;
       set({ walletActivating: true });

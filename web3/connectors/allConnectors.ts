@@ -17,14 +17,13 @@ export interface ExtendedChainInformation extends BasicChainInformation {
 
 export type AllConnectorsInitProps = {
   appName: string;
-  coinbaseUrl: string;
   chains: Record<number, BasicChainInformation | ExtendedChainInformation>;
   desiredChainId: number;
 };
 
 export const initAllConnectors = (props: AllConnectorsInitProps) => {
   const metaMask = initializeConnector<MetaMask>(
-    (actions) => new MetaMask(actions)
+    (actions) => new MetaMask({ actions })
   );
 
   const URLS: { [chainId: number]: string[] } = Object.keys(
@@ -41,17 +40,22 @@ export const initAllConnectors = (props: AllConnectorsInitProps) => {
 
   const walletConnect = initializeConnector<WalletConnect>(
     (actions) =>
-      new WalletConnect(actions, {
-        rpc: URLS,
-      }),
-    Object.keys(URLS).map((chainId) => Number(chainId))
+      new WalletConnect({
+        actions,
+        options: {
+          rpc: URLS,
+        }
+      })
   );
 
   const coinbase = initializeConnector<CoinbaseWallet>(
     (actions) =>
-      new CoinbaseWallet(actions, {
-        url: props.coinbaseUrl,
-        appName: props.appName,
+      new CoinbaseWallet({
+        actions, 
+        options: {
+          url: props.chains[props.desiredChainId].urls[0],
+          appName: props.appName,
+        }
       })
   );
 
