@@ -19,7 +19,6 @@ export type WalletType =
   | "Coinbase"
   | "Impersonated";
 
-
 export type ExtendedConnector =
   | { name: "Metamask"; connector: MetaMask }
   | { name: "Coinbase"; connector: CoinbaseWallet }
@@ -77,6 +76,7 @@ export function createWeb3Slice({
       if (get().activeWallet?.walletType !== walletType) {
         await get().disconnectActiveWallet();
       }
+
       const impersonatedAddress = get()._impersonatedAddress;
       set({ walletActivating: true });
       const connector = connectors.find(({ name }) => name === walletType);
@@ -115,8 +115,9 @@ export function createWeb3Slice({
         );
 
         if (activeConnector?.connector.deactivate) {
-          activeConnector.connector.deactivate();
+          await activeConnector.connector.deactivate();
         }
+        await activeConnector?.connector.resetState()
         set({ activeWallet: undefined });
       }
       deleteLocalStorageWallet();
