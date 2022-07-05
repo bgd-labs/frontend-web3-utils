@@ -1,6 +1,6 @@
-# FE Shared repo
+# Frontend Web3 Shared repo
 
-IMPORTANT REPO IN ALFA STATE
+**IMPORTANT:** REPO IS IN ALFA STATE
 
 The purpose of this repo is to have shared solutions for typical web3 related problems.
 
@@ -8,7 +8,11 @@ Transactions, signing, provider etc
 
 ### Limitations
 
-This is not a 1 size fit all library and more like a set of recipies to be used across multiple BGD projects. All solutions heavily rely on BGD tech stack, such as `ethers.js` `zustand` `web3-react` outside this stack using BGD solutions will be a problem and repo is provided as is. Feel free to use it as example
+This is not a 1 size fit all library and more like a set of recipes to be used across multiple BGD projects. 
+All solutions heavily rely on BGD tech stack, such as [ethers.js](https://docs.ethers.io/v5/), [zustand](https://github.com/pmndrs/zustand), [web3-react](https://github.com/NoahZinsmeister/web3-react).
+Outside this stack using BGD solutions will be a problem and repo is provided as is. Feel free to use it as example
+
+Although it is possible to use `TransactionsSlice` separately from `Web3Slice`, but it is unrealistic scenario.
 
 ### Requirements
 
@@ -16,15 +20,16 @@ Each solution should provide a complete flow with clear boundaries and entry poi
 
 ---
 
-## Web3Slice and TransactionsSlice
+## TransactionsSlice
 
-Although it is possible to use both of these slices separately, it’s unrealistic scenario.
+Is used as a “black box” to work with transactions life cycle in a DAPP. 
+It will add, wait, save them to `localstorage` and do all the necessary logic to check for a network status and updates
 
 *Transaction observer flow*
 
-First we need to define callbackObserver like so
+First we need to define callbackObserver - the component which will be called after tx got broadcast into a blockchain, like so:
 
-```typescript
+```tsx
 ...createTransactionsSlice<TransactionsUnion>({
     callbackObserver: (tx) => {
       switch (tx.type) {
@@ -45,11 +50,10 @@ and `providers: Record<number, ethers.providers.JsonRpcProvider>;`
 
 Providers will be used to watch tx on multiple chains if needed.
 
-`transactionSlice`  is used as a “black box” it will add, wait, save to localstorage and do all the necessary logic to check for network switch
+To make it all work, each tx should go through `.executeTx`  callback. It’s fire and forget flow at the end `callbackObserver` 
+will fire tx with type ‘wear’, custom payload and all the data from transaction
 
-To make it all work, each tx should go through `.executeTx`  callback. It’s fire and forget flow at the end `callbackObserver`  will fire tx with type ‘wear’, custom payload and all the data from transaction
-
-```typescript
+```tsx
 const tx = await get().executeTx({
       body: () => {
         return get().boredNFTService.wear(tokenID, {
@@ -66,19 +70,17 @@ const tx = await get().executeTx({
 
 ## Web3Slice
 
-Web3Slice is a set of ready solutions to work with web3-react
-
-[GitHub - NoahZinsmeister/web3-react: A simple, maximally extensible, dependency minimized framework for building modern Ethereum dApps](https://github.com/NoahZinsmeister/web3-react)
+Web3Slice is a set of ready solutions to work with [web3-react](https://github.com/NoahZinsmeister/web3-react)
 
 It will do appropriate logic to handle different connectors type and save the required states to zustand store
 
-Since web3-react properties are only available through React.Context. Custom <Web3Provider /> is required to make web3Slice work
+Since web3-react properties are only available through `React.Context`. Custom <Web3Provider /> is required to make `Web3Slice` work
 
-Example of how to use <Web3Provider /> in your own app
+Example of how to use `<Web3Provider />` in your own app
 
 `yourapp/web3Provider.tsx` →
 
-```typescript
+```tsx
 const connectors: [
   MetaMask | WalletConnect | CoinbaseWallet | ImpersonatedConnector,
   Web3ReactHooks
@@ -104,7 +106,7 @@ export default function Web3Provider() {
 
 `yourapp/App.tsx`  →
 
-```typescript
+```tsx
 function MyApp({ Component, pageProps }: AppProps) {
   // TODO: execute only on client side for now
   const initDefaultWallet = useStore((state) => state.initDefaultWallet);
@@ -130,7 +132,7 @@ export default MyApp;
 
 Once the setup is done you can finally initialize web3Slice
 
-```typescript
+```tsx
 ...createWeb3BaseSlice({
     walletConnected: () => {
       get().connectSigner();
@@ -143,9 +145,9 @@ Once the setup is done you can finally initialize web3Slice
   })(set, get),
 ```
 
-metmask, coinbaseWallet, walletConnect and impersonatedConnector are all web3-react connectors type
+`metamask`, `coinbaseWallet`, `walletConnect` and `impersonatedConnector` are all web3-react connectors type.
 
-wallet connected is a callback which will be executed once wallet is connected, meaning get().activeWallet is set.
+`walletConnected` is a callback which will be executed once wallet is connected, meaning get().activeWallet is set.
 
 All the logic is going **through** store and **NOT** through web3-react hooks
 
