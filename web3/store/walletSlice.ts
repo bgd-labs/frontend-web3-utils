@@ -74,7 +74,7 @@ export function createWeb3Slice({
     },
     connectWallet: async (walletType: WalletType) => {
       if (get().activeWallet?.walletType !== walletType) {
-        get().disconnectActiveWallet();
+        await get().disconnectActiveWallet();
       }
       const impersonatedAddress = get()._impersonatedAddress;
       set({ walletActivating: true });
