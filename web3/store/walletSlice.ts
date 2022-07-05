@@ -110,20 +110,20 @@ export function createWeb3Slice({
       const activeWallet = get().activeWallet;
       if (activeWallet) {
         const activeConnector = connectors.find(
-          ({ name }) => name == get().activeWallet?.walletType
+          ({ name }) => name == activeWallet.walletType
         );
 
-        if (activeConnector) {
+        if (activeConnector?.connector.deactivate) {
           activeConnector.connector.deactivate();
         }
-        deleteLocalStorageWallet();
         set({ activeWallet: undefined });
       }
+      deleteLocalStorageWallet();
     },
     /**
      * setActiveWallet is separate from connectWallet for a reason, after metaMask.activate()
      * only provider is available in the returned type, but we also need accounts and chainID which for some reason
-     * is impossible to pull from .provider() still not the best approach and I'm looking to find proper way to handle it
+     * is impossible to pull from .provider() still not the best approach, and I'm looking to find proper way to handle it
      */
     setActiveWallet: (wallet: Omit<Wallet, "signer">) => {
       const providerSigner =
