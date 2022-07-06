@@ -45,17 +45,17 @@ export type Web3Slice = {
   setActiveWallet: (wallet: Omit<Wallet, "signer">) => void;
   changeActiveWalletChainId: (chainId: number) => void;
   checkAndSwitchNetwork: () => Promise<void>;
+  connectors: ExtendedConnector[];
+  setConnectors: (connectors: ExtendedConnector[]) => void;
   _impersonatedAddress?: string;
 };
 
 export function createWeb3Slice({
   walletConnected,
-  connectors,
   getAddChainParameters,
   desiredChainID = 1,
 }: {
   walletConnected: (wallet: Wallet) => void; // TODO: why all of them here hardcoded
-  connectors: ExtendedConnector[];
   getAddChainParameters: (
     chainId: number
   ) => AddEthereumChainParameter | number;
@@ -63,6 +63,11 @@ export function createWeb3Slice({
 }): StoreSlice<Web3Slice> {
   return (set, get) => ({
     walletActivating: false,
+    connectors: [],
+    setConnectors: (connectors) => {
+      set(() => ({ connectors }));
+      void get().initDefaultWallet();
+    },
     initDefaultWallet: async () => {
       const lastConnectedWallet = localStorage.getItem(
         LocalStorageKeys.LastConnectedWallet
@@ -79,7 +84,9 @@ export function createWeb3Slice({
 
       const impersonatedAddress = get()._impersonatedAddress;
       set({ walletActivating: true });
-      const connector = connectors.find(({ name }) => name === walletType);
+      const connector = get().connectors.find(
+        ({ name }) => name === walletType
+      );
       if (connector) {
         switch (connector.name) {
           case "Impersonated":
@@ -110,14 +117,14 @@ export function createWeb3Slice({
     disconnectActiveWallet: async () => {
       const activeWallet = get().activeWallet;
       if (activeWallet) {
-        const activeConnector = connectors.find(
+        const activeConnector = get().connectors.find(
           ({ name }) => name == activeWallet.walletType
         );
 
         if (activeConnector?.connector.deactivate) {
           await activeConnector.connector.deactivate();
         }
-        await activeConnector?.connector.resetState()
+        await activeConnector?.connector.resetState();
         set({ activeWallet: undefined });
       }
       deleteLocalStorageWallet();

@@ -3,6 +3,7 @@ import { initializeConnector, Web3ReactHooks } from "@web3-react/core";
 import { MetaMask } from "@web3-react/metamask";
 import type { AddEthereumChainParameter } from "@web3-react/types";
 import { WalletConnect } from "@web3-react/walletconnect";
+import { ExtendedConnector } from "../store/walletSlice";
 import { ImpersonatedConnector } from "./impersonatedConnector";
 
 export interface BasicChainInformation {
@@ -21,7 +22,15 @@ export type AllConnectorsInitProps = {
   desiredChainId: number;
 };
 
-export const initAllConnectors = (props: AllConnectorsInitProps) => {
+export const initAllConnectors = (
+  props: AllConnectorsInitProps
+): {
+  mappedConnectors: [
+    MetaMask | WalletConnect | CoinbaseWallet | ImpersonatedConnector,
+    Web3ReactHooks
+  ][];
+  extendedConnectors: ExtendedConnector[];
+} => {
   const metaMask = initializeConnector<MetaMask>(
     (actions) => new MetaMask({ actions })
   );
@@ -44,18 +53,18 @@ export const initAllConnectors = (props: AllConnectorsInitProps) => {
         actions,
         options: {
           rpc: URLS,
-        }
+        },
       })
   );
 
   const coinbase = initializeConnector<CoinbaseWallet>(
     (actions) =>
       new CoinbaseWallet({
-        actions, 
+        actions,
         options: {
           url: props.chains[props.desiredChainId].urls[0],
           appName: props.appName,
-        }
+        },
       })
   );
 
@@ -76,11 +85,27 @@ export const initAllConnectors = (props: AllConnectorsInitProps) => {
     [impersonatedConnector[0], impersonatedConnector[1]],
   ];
 
+  const extendedConnectors: ExtendedConnector[] = [
+    {
+      name: "Metamask",
+      connector: metaMask[0],
+    },
+    {
+      name: "Coinbase",
+      connector: coinbase[0],
+    },
+    {
+      name: "WalletConnect",
+      connector: walletConnect[0],
+    },
+    {
+      name: "Impersonated",
+      connector: impersonatedConnector[0],
+    },
+  ];
+
   return {
-    metaMask,
-    walletConnect,
-    coinbase,
-    impersonatedConnector,
     mappedConnectors,
+    extendedConnectors,
   };
 };

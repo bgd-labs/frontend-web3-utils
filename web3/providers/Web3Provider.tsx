@@ -1,17 +1,17 @@
 import { UseBoundStore, StoreApi } from "zustand";
 import { CoinbaseWallet } from "@web3-react/coinbase-wallet";
-import {
-  useWeb3React,
-  Web3ReactProvider,
-} from "@web3-react/core";
+import { useWeb3React, Web3ReactProvider } from "@web3-react/core";
 import { MetaMask } from "@web3-react/metamask";
 import type { Connector } from "@web3-react/types";
 import { WalletConnect } from "@web3-react/walletconnect";
 import { useEffect } from "react";
 import { ImpersonatedConnector } from "../connectors/impersonatedConnector";
-import { Wallet, WalletType } from '../store/walletSlice';
-import { AllConnectorsInitProps, initAllConnectors } from '../connectors/allConnectors';
-import { BaseTx } from '../store/transactionsSlice';
+import { ExtendedConnector, Wallet, WalletType } from "../store/walletSlice";
+import {
+  AllConnectorsInitProps,
+  initAllConnectors,
+} from "../connectors/allConnectors";
+import { BaseTx } from "../store/transactionsSlice";
 
 function getName(connector: Connector): WalletType | undefined {
   if (connector instanceof MetaMask) return "Metamask";
@@ -21,20 +21,38 @@ function getName(connector: Connector): WalletType | undefined {
   return;
 }
 
-interface Props{
-  useStore: UseBoundStore<StoreApi<{
-    setActiveWallet: (wallet: Omit<Wallet, "signer">) => void;
-    changeChainID: (chainID: number) => void;
-  }>>
+interface Props {
+  useStore: UseBoundStore<
+    StoreApi<{
+      setActiveWallet: (wallet: Omit<Wallet, "signer">) => void;
+      changeActiveWalletChainId: (chainID: number) => void;
+      setConnectors: (connectors: ExtendedConnector[]) => void;
+      initTxPool: () => void;
+    }>
+  >;
   connectorsInitProps: AllConnectorsInitProps;
-
 }
 
-function Child<T extends BaseTx>({ useStore }: Omit<Props, "connectorsInitProps">) {
+function Child({
+  useStore,
+  connectors,
+}: Omit<Props, "connectorsInitProps"> & {
+  connectors: ExtendedConnector[];
+}) {
   const { connector, chainId, isActive, accounts, provider } = useWeb3React();
 
   const setActiveWallet = useStore((state) => state.setActiveWallet);
-  const changeChainID = useStore((state) => state.changeChainID);
+  const changeChainID = useStore((state) => state.changeActiveWalletChainId);
+  const setConnectors = useStore((state) => state.setConnectors);
+  const initTxPool = useStore((state) => state.initTxPool);
+
+  useEffect(() => {
+    setConnectors(connectors);
+  }, [connectors]);
+
+  useEffect(() => {
+    initTxPool();
+  }, [initTxPool]);
 
   useEffect(() => {
     const walletType = getName(connector);
@@ -58,14 +76,11 @@ function Child<T extends BaseTx>({ useStore }: Omit<Props, "connectorsInitProps"
   return null;
 }
 
-export const Web3Provider = <T extends BaseTx>({
-  useStore,
-  connectorsInitProps,
-}: Props) => {
+export const Web3Provider = ({ useStore, connectorsInitProps }: Props) => {
   const connectors = initAllConnectors(connectorsInitProps);
   return (
     <Web3ReactProvider connectors={connectors.mappedConnectors}>
-      <Child useStore={useStore} connectors={connectors} />
+      <Child useStore={useStore} connectors={connectors.extendedConnectors} />
     </Web3ReactProvider>
   );
 };
