@@ -1,9 +1,10 @@
 import { CoinbaseWallet } from "@web3-react/coinbase-wallet";
-import { initializeConnector, Web3ReactHooks } from "@web3-react/core";
+import { initializeConnector } from "@web3-react/core";
 import { MetaMask } from "@web3-react/metamask";
 import type { AddEthereumChainParameter } from "@web3-react/types";
 import { WalletConnect } from "@web3-react/walletconnect";
-import { ExtendedConnector } from "../store/walletSlice";
+import { Connector } from '@web3-react/types';
+
 import { ImpersonatedConnector } from "./impersonatedConnector";
 
 export interface BasicChainInformation {
@@ -24,13 +25,7 @@ export type AllConnectorsInitProps = {
 
 export const initAllConnectors = (
   props: AllConnectorsInitProps
-): {
-  mappedConnectors: [
-    MetaMask | WalletConnect | CoinbaseWallet | ImpersonatedConnector,
-    Web3ReactHooks
-  ][];
-  extendedConnectors: ExtendedConnector[];
-} => {
+) => {
   const metaMask = initializeConnector<MetaMask>(
     (actions) => new MetaMask({ actions })
   );
@@ -75,37 +70,20 @@ export const initAllConnectors = (
       })
   );
 
-  const mappedConnectors: [
-    MetaMask | WalletConnect | CoinbaseWallet | ImpersonatedConnector,
-    Web3ReactHooks
-  ][] = [
-    [metaMask[0], metaMask[1]],
-    [walletConnect[0], walletConnect[1]],
-    [coinbase[0], coinbase[1]],
-    [impersonatedConnector[0], impersonatedConnector[1]],
-  ];
-
-  const extendedConnectors: ExtendedConnector[] = [
-    {
-      name: "Metamask",
-      connector: metaMask[0],
-    },
-    {
-      name: "Coinbase",
-      connector: coinbase[0],
-    },
-    {
-      name: "WalletConnect",
-      connector: walletConnect[0],
-    },
-    {
-      name: "Impersonated",
-      connector: impersonatedConnector[0],
-    },
-  ];
-
-  return {
-    mappedConnectors,
-    extendedConnectors,
-  };
+  return [metaMask, walletConnect, coinbase, impersonatedConnector];
 };
+
+
+export type WalletType =
+    | "Metamask"
+    | "WalletConnect"
+    | "Coinbase"
+    | "Impersonated";
+
+export function getConnectorName(connector: Connector): WalletType | undefined {
+  if (connector instanceof MetaMask) return "Metamask";
+  if (connector instanceof WalletConnect) return "WalletConnect";
+  if (connector instanceof CoinbaseWallet) return "Coinbase";
+  if (connector instanceof ImpersonatedConnector) return "Impersonated";
+  return;
+}
