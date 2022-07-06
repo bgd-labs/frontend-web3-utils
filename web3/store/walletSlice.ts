@@ -1,7 +1,4 @@
-import { CoinbaseWallet } from "@web3-react/coinbase-wallet";
-import { MetaMask } from "@web3-react/metamask";
-import type { AddEthereumChainParameter } from "@web3-react/types";
-import { WalletConnect } from "@web3-react/walletconnect";
+import type { AddEthereumChainParameter, Connector } from "@web3-react/types";
 import { providers } from "ethers";
 import { produce } from "immer";
 
@@ -11,24 +8,12 @@ import {
   LocalStorageKeys,
   setLocalStorageWallet,
 } from "../../utils/localStorage";
-import { ImpersonatedConnector } from "../connectors/impersonatedConnector";
-
-export type WalletType =
-  | "Metamask"
-  | "WalletConnect"
-  | "Coinbase"
-  | "Impersonated";
-
-export type ExtendedConnector =
-  | { name: "Metamask"; connector: MetaMask }
-  | { name: "Coinbase"; connector: CoinbaseWallet }
-  | { name: "WalletConnect"; connector: WalletConnect }
-  | { name: "Impersonated"; connector: ImpersonatedConnector };
+import { getConnectorName, WalletType } from '../connectors';
 
 export interface Wallet {
   walletType: WalletType;
   accounts: string[];
-  chainId: number | undefined;
+  chainId?: number;
   provider: providers.JsonRpcProvider; // TODO: not correct
   signer: providers.JsonRpcSigner; // TODO: not correct, it can be not only JsonRpc
   // isActive is added, because Wallet can be connected but not active, i.e. wrong network
@@ -45,8 +30,8 @@ export type Web3Slice = {
   setActiveWallet: (wallet: Omit<Wallet, "signer">) => void;
   changeActiveWalletChainId: (chainId: number) => void;
   checkAndSwitchNetwork: () => Promise<void>;
-  connectors: ExtendedConnector[];
-  setConnectors: (connectors: ExtendedConnector[]) => void;
+  connectors: Connector[];
+  setConnectors: (connectors: Connector[]) => void;
   _impersonatedAddress?: string;
 };
 
@@ -85,26 +70,26 @@ export function createWeb3Slice({
       const impersonatedAddress = get()._impersonatedAddress;
       set({ walletActivating: true });
       const connector = get().connectors.find(
-        ({ name }) => name === walletType
+        connector => getConnectorName(connector) === walletType
       );
       if (connector) {
-        switch (connector.name) {
+        switch (walletType) {
           case "Impersonated":
             if (impersonatedAddress) {
-              await connector.connector.activate(impersonatedAddress);
+              await connector.activate(impersonatedAddress);
             }
             break;
           case "Coinbase":
           case "Metamask":
-            await connector.connector.activate(
+            await connector.activate(
               getAddChainParameters(desiredChainID)
             );
             break;
           case "WalletConnect":
-            await connector.connector.activate(desiredChainID);
+            await connector.activate(desiredChainID);
             break;
         }
-        setLocalStorageWallet(connector.name);
+        setLocalStorageWallet(walletType);
       }
       set({ walletActivating: false });
     },
@@ -118,13 +103,13 @@ export function createWeb3Slice({
       const activeWallet = get().activeWallet;
       if (activeWallet) {
         const activeConnector = get().connectors.find(
-          ({ name }) => name == activeWallet.walletType
+          connector => getConnectorName(connector) == activeWallet.walletType
         );
 
-        if (activeConnector?.connector.deactivate) {
-          await activeConnector.connector.deactivate();
+        if (activeConnector?.deactivate) {
+          await activeConnector.deactivate();
         }
-        await activeConnector?.connector.resetState();
+        await activeConnector?.resetState();
         set({ activeWallet: undefined });
       }
       deleteLocalStorageWallet();
