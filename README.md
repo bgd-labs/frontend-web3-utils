@@ -31,7 +31,7 @@ First we need to define callbackObserver - the component which will be called af
 
 ```tsx
 ...createTransactionsSlice<TransactionsUnion>({
-    callbackObserver: (tx) => {
+    txStatusChangedCallback: (tx) => {
       switch (tx.type) {
         case "somethingNotVeryImportantHappened":
           console.log(tx.payload.buzz);
@@ -74,51 +74,37 @@ Web3Slice is a set of ready solutions to work with [web3-react](https://github.c
 
 It will do appropriate logic to handle different connectors type and save the required states to zustand store
 
-Since web3-react properties are only available through `React.Context`. Custom <Web3Provider /> is required to make `Web3Slice` work
+Since web3-react properties are only available through `React.Context`. Custom <Web3Provider /> is required to make `Web3Slice` work.
+
 
 Example of how to use `<Web3Provider />` in your own app
 
 `yourapp/web3Provider.tsx` →
 
 ```tsx
-const connectors: [
-  MetaMask | WalletConnect | CoinbaseWallet | ImpersonatedConnector,
-  Web3ReactHooks
-][] = [
-  [metaMask, metaMaskHooks],
-  [walletConnect, walletConnectHooks],
-  [coinbaseWallet, coinbaseWalletHooks],
-  [impersonatedConnector, impersonatedHooks],
-];
+import { Web3Provider as Web3BaseProvider } from "../../packages/web3/providers/Web3Provider";
+import { useStore } from "../../store";
+import { CHAINS } from "../../utils/chains";
 
 export default function Web3Provider() {
-  const setActiveWallet = useStore((state) => state.setActiveWallet);
-  const changeChainID = useStore((state) => state.changeActiveWalletChainId);
   return (
     <Web3BaseProvider
-      connectors={connectors}
-      setActiveWallet={setActiveWallet}
-      changeChainID={changeChainID}
+      connectorsInitProps={{
+        appName: "AAVEGovernanceV3",
+        chains: CHAINS,
+        desiredChainId: 1,
+      }}
+      useStore={useStore}
     />
   );
 }
+
 ```
 
 `yourapp/App.tsx`  →
 
 ```tsx
 function MyApp({ Component, pageProps }: AppProps) {
-  // TODO: execute only on client side for now
-  const initDefaultWallet = useStore((state) => state.initDefaultWallet);
-  const initTransactionPool = useStore((state) => state.initTxPool);
-
-  useEffect(() => {
-    if (typeof window !== undefined) {
-      void initDefaultWallet();
-      void initTransactionPool();
-    }
-  }, []);
-
   return (
     <Fragment>
       <Web3Provider />
@@ -133,19 +119,15 @@ export default MyApp;
 Once the setup is done you can finally initialize web3Slice
 
 ```tsx
-...createWeb3BaseSlice({
+const createWeb3Slice: StoreSlice<IWeb3Slice> = (set, get) => ({
+  ...createWeb3BaseSlice({
     walletConnected: () => {
       get().connectSigner();
     },
-    metamask: metaMask,
-    coinbaseWallet: coinbaseWallet,
-    walletConnect: walletConnect,
-    impersonatedConnector: impersonatedConnector,
     getAddChainParameters,
   })(set, get),
+})
 ```
-
-`metamask`, `coinbaseWallet`, `walletConnect` and `impersonatedConnector` are all web3-react connectors type.
 
 `walletConnected` is a callback which will be executed once wallet is connected, meaning get().activeWallet is set.
 
