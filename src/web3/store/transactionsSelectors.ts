@@ -18,7 +18,5 @@ export const selectTXByHash = <T extends BaseTx>(
   state: ITransactionsState<T>,
   hash: string
 ) => {
-  if (state.transactionsPool[hash]) {
-    return state.transactionsPool[hash]
-  }
+  return state.transactionsPool[hash]
 };

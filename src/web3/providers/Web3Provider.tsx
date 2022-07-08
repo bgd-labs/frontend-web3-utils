@@ -1,19 +1,19 @@
-import { useEffect } from "react";
-import { UseBoundStore, StoreApi } from "zustand";
-import { useWeb3React, Web3ReactProvider } from "@web3-react/core";
+import React, { useEffect } from 'react';
+import { UseBoundStore, StoreApi } from 'zustand';
+import { useWeb3React, Web3ReactProvider } from '@web3-react/core';
 import { Connector } from '@web3-react/types';
 
-import { Wallet } from "../store/walletSlice";
+import { Wallet } from '../store/walletSlice';
 import {
   AllConnectorsInitProps,
   initAllConnectors,
-  getConnectorName
-} from "../connectors";
+  getConnectorName,
+} from '../connectors';
 
 interface Web3ProviderProps {
   useStore: UseBoundStore<
     StoreApi<{
-      setActiveWallet: (wallet: Omit<Wallet, "signer">) => void;
+      setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => void;
       changeActiveWalletChainId: (chainID: number) => void;
       setConnectors: (connectors: Connector[]) => void;
       initTxPool: () => void;
@@ -25,15 +25,15 @@ interface Web3ProviderProps {
 function Child({
   useStore,
   connectors,
-}: Omit<Web3ProviderProps, "connectorsInitProps"> & {
+}: Omit<Web3ProviderProps, 'connectorsInitProps'> & {
   connectors: Connector[];
 }) {
   const { connector, chainId, isActive, accounts, provider } = useWeb3React();
 
-  const setActiveWallet = useStore((state) => state.setActiveWallet);
-  const changeChainID = useStore((state) => state.changeActiveWalletChainId);
-  const setConnectors = useStore((state) => state.setConnectors);
-  const initTxPool = useStore((state) => state.initTxPool);
+  const setActiveWallet = useStore(state => state.setActiveWallet);
+  const changeChainID = useStore(state => state.changeActiveWalletChainId);
+  const setConnectors = useStore(state => state.setConnectors);
+  const initTxPool = useStore(state => state.initTxPool);
 
   useEffect(() => {
     setConnectors(connectors);
@@ -65,11 +65,17 @@ function Child({
   return null;
 }
 
-export function Web3Provider({ useStore, connectorsInitProps }: Web3ProviderProps) {
+export function Web3Provider({
+  useStore,
+  connectorsInitProps,
+}: Web3ProviderProps) {
   const connectors = initAllConnectors(connectorsInitProps);
   return (
-      <Web3ReactProvider connectors={connectors}>
-        <Child useStore={useStore} connectors={connectors.map(connector => connector[0])}/>
-      </Web3ReactProvider>
+    <Web3ReactProvider connectors={connectors}>
+      <Child
+        useStore={useStore}
+        connectors={connectors.map(connector => connector[0])}
+      />
+    </Web3ReactProvider>
   );
 }
