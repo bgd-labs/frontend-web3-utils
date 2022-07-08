@@ -17,7 +17,6 @@
     "@web3-react/walletconnect": "^8.0.34-beta.0",
     "ethers": "^5.6.8",
     "immer": "^9.0.15",
-    "next": "12.1.6",
     "react": "18.1.0",
     "react-dom": "18.1.0",
     "zustand": "^4.0.0-rc.1"
