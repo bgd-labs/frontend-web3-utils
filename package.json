@@ -37,7 +37,7 @@
     "trailingComma": "es5"
   },
   "name": "bgd-fe-utils",
-  "author": "satanworker",
+  "author": "BGD labs",
   "module": "dist/bgd-fe-utils.esm.js",
   "size-limit": [
     {
