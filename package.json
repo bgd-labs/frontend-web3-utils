@@ -38,6 +38,16 @@
   },
   "name": "bgd-fe-utils",
   "author": "BGD labs",
+  "contributors": [
+    {
+      "name": "Dmitriy Petrov",
+      "url": "https://github.com/satanworker"
+    },
+    {
+      "name": "Andrei Kozlov",
+      "url": "https://github.com/kyzia551"
+    }
+  ],
   "module": "dist/bgd-fe-utils.esm.js",
   "size-limit": [
     {
