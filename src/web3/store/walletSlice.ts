@@ -150,6 +150,7 @@ export function createWeb3Slice({
       if (activeWallet && activeWallet.accounts) {
         return activeWallet.accounts[0];
       }
+      return undefined
     },
   });
 }

@@ -32,7 +32,7 @@ export interface ITransactionsState<T extends BaseTx> {
 }
 
 interface ITransactionsActions<T extends BaseTx> {
-  callbackObserver: (
+  txStatusChangedCallback: (
     data: T & {
       status?: number;
     }
@@ -58,10 +58,10 @@ export type ITransactionsSlice<T extends BaseTx> = ITransactionsActions<T> &
   ITransactionsState<T>;
 
 export function createTransactionsSlice<T extends BaseTx>({
-  callbackObserver,
+  txStatusChangedCallback,
   providers,
 }: {
-  callbackObserver: (tx: T) => void;
+  txStatusChangedCallback: (tx: T) => void;
   providers: ProvidersRecord;
 }): StoreSlice<
   ITransactionsSlice<T>,
@@ -69,7 +69,7 @@ export function createTransactionsSlice<T extends BaseTx>({
 > {
   return (set, get) => ({
     transactionsPool: {},
-    callbackObserver,
+    txStatusChangedCallback,
     executeTx: async ({ body, params }) => {
       await get().checkAndSwitchNetwork();
       const tx = await body();
@@ -110,7 +110,7 @@ export function createTransactionsSlice<T extends BaseTx>({
         const txn = await tx.wait();
         get().updateTXStatus(hash, txn.status);
         const updatedTX = get().transactionsPool[hash];
-        get().callbackObserver({
+        get().txStatusChangedCallback({
           ...updatedTX,
         });
       } else {

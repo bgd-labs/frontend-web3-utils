@@ -1,4 +1,3 @@
-import { initializeConnector } from "@web3-react/core";
 import { Connector, Actions } from "@web3-react/types";
 import { ethers, providers } from "ethers";
 
@@ -34,11 +33,3 @@ export class ImpersonatedConnector extends Connector {
   }
 }
 
-//TODO: think about how to share impersonated connector
-// export const [impersonatedConnector, hooks] =
-//   initializeConnector<ImpersonatedConnector>(
-//     (actions) =>
-//       new ImpersonatedConnector(actions, {
-//         rpcUrl: 'getEnvOrFail("DEFAULT_L2_RPC")',
-//       })
-//   );
