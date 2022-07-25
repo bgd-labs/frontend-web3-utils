@@ -72,24 +72,26 @@ export function createWeb3Slice({
       const connector = get().connectors.find(
         connector => getConnectorName(connector) === walletType
       );
-      if (connector) {
-        switch (walletType) {
-          case "Impersonated":
-            if (impersonatedAddress) {
-              await connector.activate(impersonatedAddress);
-            }
-            break;
-          case "Coinbase":
-          case "Metamask":
-            await connector.activate(
-              getAddChainParameters(desiredChainID)
-            );
-            break;
-          case "WalletConnect":
-            await connector.activate(desiredChainID);
-            break;
+      try {
+        if (connector) {
+          switch (walletType) {
+            case 'Impersonated':
+              if (impersonatedAddress) {
+                await connector.activate(impersonatedAddress);
+              }
+              break;
+            case 'Coinbase':
+            case 'Metamask':
+              await connector.activate(getAddChainParameters(desiredChainID));
+              break;
+            case 'WalletConnect':
+              await connector.activate(desiredChainID);
+              break;
+          }
+          setLocalStorageWallet(walletType);
         }
-        setLocalStorageWallet(walletType);
+      } catch (e) {
+        console.error(e);
       }
       set({ walletActivating: false });
     },
