@@ -1,13 +1,13 @@
-import type { AddEthereumChainParameter, Connector } from "@web3-react/types";
-import { providers } from "ethers";
-import { produce } from "immer";
+import type { AddEthereumChainParameter, Connector } from '@web3-react/types';
+import { providers } from 'ethers';
+import { produce } from 'immer';
 
-import { StoreSlice } from "../../types/store";
+import { StoreSlice } from '../../types/store';
 import {
   deleteLocalStorageWallet,
   LocalStorageKeys,
   setLocalStorageWallet,
-} from "../../utils/localStorage";
+} from '../../utils/localStorage';
 import { getConnectorName, WalletType } from '../connectors';
 
 export interface Wallet {
@@ -26,8 +26,9 @@ export type Web3Slice = {
   connectWallet: (walletType: WalletType) => Promise<void>;
   disconnectActiveWallet: () => Promise<void>;
   walletActivating: boolean;
+  walletConnectionError: string;
   initDefaultWallet: () => Promise<void>;
-  setActiveWallet: (wallet: Omit<Wallet, "signer">) => void;
+  setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => void;
   changeActiveWalletChainId: (chainId: number) => void;
   checkAndSwitchNetwork: () => Promise<void>;
   connectors: Connector[];
@@ -48,6 +49,7 @@ export function createWeb3Slice({
 }): StoreSlice<Web3Slice> {
   return (set, get) => ({
     walletActivating: false,
+    walletConnectionError: '',
     connectors: [],
     setConnectors: (connectors) => {
       set(() => ({ connectors }));
@@ -69,8 +71,9 @@ export function createWeb3Slice({
 
       const impersonatedAddress = get()._impersonatedAddress;
       set({ walletActivating: true });
+      set({ walletConnectionError: '' });
       const connector = get().connectors.find(
-        connector => getConnectorName(connector) === walletType
+        (connector) => getConnectorName(connector) === walletType
       );
       try {
         if (connector) {
@@ -90,7 +93,8 @@ export function createWeb3Slice({
           }
           setLocalStorageWallet(walletType);
         }
-      } catch (e) {
+      } catch (e: any) {
+        set({ walletConnectionError: e.toString() });
         console.error(e);
       }
       set({ walletActivating: false });
@@ -105,7 +109,7 @@ export function createWeb3Slice({
       const activeWallet = get().activeWallet;
       if (activeWallet) {
         const activeConnector = get().connectors.find(
-          connector => getConnectorName(connector) == activeWallet.walletType
+          (connector) => getConnectorName(connector) == activeWallet.walletType
         );
 
         if (activeConnector?.deactivate) {
@@ -121,9 +125,9 @@ export function createWeb3Slice({
      * only provider is available in the returned type, but we also need accounts and chainID which for some reason
      * is impossible to pull from .provider() still not the best approach, and I'm looking to find proper way to handle it
      */
-    setActiveWallet: (wallet: Omit<Wallet, "signer">) => {
+    setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => {
       const providerSigner =
-        wallet.walletType == "Impersonated"
+        wallet.walletType == 'Impersonated'
           ? wallet.provider.getSigner(get()._impersonatedAddress)
           : wallet.provider.getSigner(0);
       set({
@@ -152,7 +156,7 @@ export function createWeb3Slice({
       if (activeWallet && activeWallet.accounts) {
         return activeWallet.accounts[0];
       }
-      return undefined
+      return undefined;
     },
   });
 }
