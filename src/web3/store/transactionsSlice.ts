@@ -16,6 +16,7 @@ export type BaseTx = {
   nonce: number;
   payload?: object;
   chainId: number;
+  timestamp?: number;
 };
 
 export type ProvidersRecord = Record<number, ethers.providers.JsonRpcProvider>;
@@ -82,6 +83,7 @@ export function createTransactionsSlice<T extends BaseTx>({
         from: tx.from,
         to: tx.to,
         nonce: tx.nonce,
+        timestamp: tx.timestamp || Math.floor(Date.now() / 1000),
       };
       set((state) =>
         produce(state, (draft) => {
