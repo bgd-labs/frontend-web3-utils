@@ -83,7 +83,7 @@ export function createTransactionsSlice<T extends BaseTx>({
         from: tx.from,
         to: tx.to,
         nonce: tx.nonce,
-        timestamp: tx.timestamp || Math.floor(Date.now() / 1000),
+        timestamp: Math.floor(Date.now() / 1000), // current unix data to get timestamp when transaction pending
       };
       set((state) =>
         produce(state, (draft) => {
@@ -110,10 +110,14 @@ export function createTransactionsSlice<T extends BaseTx>({
 
         const tx = await provider.getTransaction(hash);
         const txn = await tx.wait();
+
         get().updateTXStatus(hash, txn.status);
+
         const updatedTX = get().transactionsPool[hash];
+        const txBlock = await provider.getBlock(txn.blockNumber);
         get().txStatusChangedCallback({
           ...updatedTX,
+          timestamp: txBlock.timestamp, // timestamp from tx block number
         });
       } else {
         // TODO: no transaction in waiting pool
