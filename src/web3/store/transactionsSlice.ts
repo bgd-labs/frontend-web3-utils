@@ -16,6 +16,7 @@ export type BaseTx = {
   nonce: number;
   payload?: object;
   chainId: number;
+  timestamp?: number;
 };
 
 export type ProvidersRecord = Record<number, ethers.providers.JsonRpcProvider>;
@@ -108,10 +109,14 @@ export function createTransactionsSlice<T extends BaseTx>({
 
         const tx = await provider.getTransaction(hash);
         const txn = await tx.wait();
+
         get().updateTXStatus(hash, txn.status);
+
         const updatedTX = get().transactionsPool[hash];
+        const txBlock = await provider.getBlock(txn.blockNumber);
         get().txStatusChangedCallback({
           ...updatedTX,
+          timestamp: txBlock.timestamp,
         });
       } else {
         // TODO: no transaction in waiting pool
