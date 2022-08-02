@@ -1,14 +1,14 @@
-import React, { useEffect } from 'react';
-import { UseBoundStore, StoreApi } from 'zustand';
 import { useWeb3React, Web3ReactProvider } from '@web3-react/core';
 import { Connector } from '@web3-react/types';
+import React, { useEffect } from 'react';
+import { StoreApi, UseBoundStore } from 'zustand';
 
-import { Wallet } from '../store/walletSlice';
 import {
   AllConnectorsInitProps,
-  initAllConnectors,
   getConnectorName,
+  initAllConnectors,
 } from '../connectors';
+import { Wallet } from '../store/walletSlice';
 
 interface Web3ProviderProps {
   useStore: UseBoundStore<
@@ -30,10 +30,10 @@ function Child({
 }) {
   const { connector, chainId, isActive, accounts, provider } = useWeb3React();
 
-  const setActiveWallet = useStore(state => state.setActiveWallet);
-  const changeChainID = useStore(state => state.changeActiveWalletChainId);
-  const setConnectors = useStore(state => state.setConnectors);
-  const initTxPool = useStore(state => state.initTxPool);
+  const setActiveWallet = useStore((state) => state.setActiveWallet);
+  const changeChainID = useStore((state) => state.changeActiveWalletChainId);
+  const setConnectors = useStore((state) => state.setConnectors);
+  const initTxPool = useStore((state) => state.initTxPool);
 
   useEffect(() => {
     setConnectors(connectors);
@@ -74,7 +74,7 @@ export function Web3Provider({
     <Web3ReactProvider connectors={connectors}>
       <Child
         useStore={useStore}
-        connectors={connectors.map(connector => connector[0])}
+        connectors={connectors.map((connector) => connector[0])}
       />
     </Web3ReactProvider>
   );

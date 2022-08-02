@@ -93,8 +93,14 @@ export function createWeb3Slice({
           }
           setLocalStorageWallet(walletType);
         }
-      } catch (e: any) {
-        set({ walletConnectionError: e.message ? e.message.toString() : e.toString() });
+      } catch (e) {
+        if (e instanceof Error) {
+          set({
+            walletConnectionError: e.message
+              ? e.message.toString()
+              : e.toString(),
+          });
+        }
         console.error(e);
       }
       set({ walletActivating: false });
