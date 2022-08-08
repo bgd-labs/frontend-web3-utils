@@ -65,6 +65,7 @@ export const initAllConnectors = (props: AllConnectorsInitProps) => {
     (actions) =>
       new ImpersonatedConnector(actions, {
         rpcUrl: props.chains[props.desiredChainId].urls[0],
+        chainId: props.desiredChainId,
       })
   );
 

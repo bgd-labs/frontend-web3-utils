@@ -14,20 +14,23 @@ export class ImpersonatedProvider extends providers.JsonRpcProvider {
 
 export class ImpersonatedConnector extends Connector {
   private rpcURL: string;
+  private chainId: number;
   constructor(
     actions: Actions,
     options: {
       rpcUrl: string;
+      chainId: number;
     }
   ) {
     super(actions);
     this.rpcURL = options.rpcUrl;
+    this.chainId = options.chainId;
   }
   activate(address: string): void | Promise<void> {
     this.actions.startActivation();
     this.customProvider = new ImpersonatedProvider(this.rpcURL);
     this.actions.update({
-      chainId: 1,
+      chainId: this.chainId,
       accounts: [address],
     });
   }
