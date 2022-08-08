@@ -1,4 +1,4 @@
-import { BaseTx, ITransactionsState } from "./transactionsSlice";
+import { BaseTx, ITransactionsState } from './transactionsSlice';
 
 export const selectAllTransactions = <T extends BaseTx>(
   state: ITransactionsState<T>
@@ -18,5 +18,5 @@ export const selectTXByHash = <T extends BaseTx>(
   state: ITransactionsState<T>,
   hash: string
 ) => {
-  return state.transactionsPool[hash]
+  return state.transactionsPool[hash];
 };

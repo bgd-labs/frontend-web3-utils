@@ -1,5 +1,5 @@
-import { Connector, Actions } from "@web3-react/types";
-import { ethers, providers } from "ethers";
+import { Actions, Connector } from '@web3-react/types';
+import { ethers, providers } from 'ethers';
 
 export class ImpersonatedProvider extends providers.JsonRpcProvider {
   private copyProvider: providers.JsonRpcProvider;
@@ -32,4 +32,3 @@ export class ImpersonatedConnector extends Connector {
     });
   }
 }
-

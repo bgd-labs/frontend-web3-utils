@@ -1,12 +1,12 @@
-import { ethers, providers } from "ethers";
+import { ethers, providers } from 'ethers';
+import { Draft, produce } from 'immer';
 
-import produce, { Draft } from "immer";
-import { StoreSlice } from "../../types/store";
+import { StoreSlice } from '../../types/store';
 import {
   getLocalStorageTxPool,
   setLocalStorageTxPool,
-} from "../../utils/localStorage";
-import { Web3Slice } from "./walletSlice";
+} from '../../utils/localStorage';
+import { Web3Slice } from './walletSlice';
 
 export type BaseTx = {
   type: string;
@@ -41,8 +41,8 @@ interface ITransactionsActions<T extends BaseTx> {
   executeTx: (params: {
     body: () => Promise<ethers.ContractTransaction>;
     params: {
-      type: T["type"];
-      payload: T["payload"];
+      type: T['type'];
+      payload: T['payload'];
     };
   }) => Promise<
     T & {
@@ -66,7 +66,7 @@ export function createTransactionsSlice<T extends BaseTx>({
   providers: ProvidersRecord;
 }): StoreSlice<
   ITransactionsSlice<T>,
-  Pick<Web3Slice, "checkAndSwitchNetwork">
+  Pick<Web3Slice, 'checkAndSwitchNetwork'>
 > {
   return (set, get) => ({
     transactionsPool: {},
