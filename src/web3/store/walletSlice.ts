@@ -34,6 +34,7 @@ export type Web3Slice = {
   connectors: Connector[];
   setConnectors: (connectors: Connector[]) => void;
   _impersonatedAddress?: string;
+  setImpersonatedAddress: (address: string) => void;
 };
 
 export function createWeb3Slice({
@@ -163,6 +164,10 @@ export function createWeb3Slice({
         return activeWallet.accounts[0];
       }
       return undefined;
+    },
+
+    setImpersonatedAddress: (address) => {
+      set({ _impersonatedAddress: address });
     },
   });
 }
