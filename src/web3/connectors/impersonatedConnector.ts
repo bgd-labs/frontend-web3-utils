@@ -1,11 +1,11 @@
 import { Actions, Connector } from '@web3-react/types';
 import { ethers, providers } from 'ethers';
 
-export class ImpersonatedProvider extends providers.JsonRpcProvider {
-  private copyProvider: providers.JsonRpcProvider;
+export class ImpersonatedProvider extends providers.StaticJsonRpcProvider {
+  private copyProvider: providers.StaticJsonRpcProvider;
   constructor(url: string) {
     super(url);
-    this.copyProvider = new providers.JsonRpcProvider(url);
+    this.copyProvider = new providers.StaticJsonRpcProvider(url);
   }
   getSigner(address: string): ethers.providers.JsonRpcSigner {
     return this.copyProvider.getUncheckedSigner(address);
