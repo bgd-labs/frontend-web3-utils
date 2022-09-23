@@ -20,6 +20,7 @@ export interface ExtendedChainInformation extends BasicChainInformation {
 export type AllConnectorsInitProps = {
   appName: string;
   chains: Record<number, BasicChainInformation | ExtendedChainInformation>;
+  urls:  {[chainId: number]: string[]};
   desiredChainId: number;
 };
 
@@ -28,24 +29,12 @@ export const initAllConnectors = (props: AllConnectorsInitProps) => {
     (actions) => new MetaMask({ actions })
   );
 
-  const URLS: { [chainId: number]: string[] } = Object.keys(
-    props.chains
-  ).reduce<{ [chainId: number]: string[] }>((accumulator, chainId) => {
-    const validURLs: string[] = props.chains[Number(chainId)].urls;
-
-    if (validURLs.length) {
-      accumulator[Number(chainId)] = validURLs;
-    }
-
-    return accumulator;
-  }, {});
-
   const walletConnect = initializeConnector<WalletConnect>(
     (actions) =>
       new WalletConnect({
         actions,
         options: {
-          rpc: URLS,
+          rpc: props.urls,
         },
       })
   );
