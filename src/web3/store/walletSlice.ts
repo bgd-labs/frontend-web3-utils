@@ -1,4 +1,4 @@
-import type { AddEthereumChainParameter, Connector } from '@web3-react/types';
+import type { Connector } from '@web3-react/types';
 import { providers } from 'ethers';
 import { produce } from 'immer';
 
@@ -9,6 +9,7 @@ import {
   setLocalStorageWallet,
 } from '../../utils/localStorage';
 import { getConnectorName, WalletType } from '../connectors';
+import { IRpcProvidersSlice } from './rpcProvidersSlice';
 
 export interface Wallet {
   walletType: WalletType;
@@ -39,15 +40,11 @@ export type Web3Slice = {
 
 export function createWeb3Slice({
   walletConnected,
-  getAddChainParameters,
   desiredChainID = 1,
 }: {
   walletConnected: (wallet: Wallet) => void; // TODO: why all of them here hardcoded
-  getAddChainParameters: (
-    chainId: number
-  ) => AddEthereumChainParameter | number;
   desiredChainID?: number;
-}): StoreSlice<Web3Slice> {
+}): StoreSlice<Web3Slice, Pick<IRpcProvidersSlice, 'getChainParameters'>> {
   return (set, get) => ({
     walletActivating: false,
     walletConnectionError: '',
@@ -86,7 +83,9 @@ export function createWeb3Slice({
               break;
             case 'Coinbase':
             case 'Metamask':
-              await connector.activate(getAddChainParameters(desiredChainID));
+              await connector.activate(
+                get().getChainParameters(desiredChainID)
+              );
               break;
             case 'WalletConnect':
               await connector.activate(desiredChainID);

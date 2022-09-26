@@ -6,6 +6,7 @@ import {
   getLocalStorageTxPool,
   setLocalStorageTxPool,
 } from '../../utils/localStorage';
+import { IRpcProvidersSlice } from './rpcProvidersSlice';
 import { Web3Slice } from './walletSlice';
 
 export type BaseTx = {
@@ -18,8 +19,6 @@ export type BaseTx = {
   chainId: number;
   timestamp?: number;
 };
-
-export type ProvidersRecord = Record<number, ethers.providers.JsonRpcProvider>;
 
 export type TransactionPool<T extends BaseTx> = Record<string, T>;
 
@@ -41,6 +40,7 @@ interface ITransactionsActions<T extends BaseTx> {
   executeTx: (params: {
     body: () => Promise<ethers.ContractTransaction>;
     params: {
+      chainId: T['chainId'];
       type: T['type'];
       payload: T['payload'];
     };
@@ -60,13 +60,12 @@ export type ITransactionsSlice<T extends BaseTx> = ITransactionsActions<T> &
 
 export function createTransactionsSlice<T extends BaseTx>({
   txStatusChangedCallback,
-  providers,
 }: {
   txStatusChangedCallback: (tx: T) => void;
-  providers: ProvidersRecord;
 }): StoreSlice<
   ITransactionsSlice<T>,
-  Pick<Web3Slice, 'checkAndSwitchNetwork'>
+  Pick<Web3Slice, 'checkAndSwitchNetwork'> &
+    Pick<IRpcProvidersSlice, 'providers'>
 > {
   return (set, get) => ({
     transactionsPool: {},
@@ -74,7 +73,9 @@ export function createTransactionsSlice<T extends BaseTx>({
     executeTx: async ({ body, params }) => {
       await get().checkAndSwitchNetwork();
       const tx = await body();
-      const chainId = Number(tx.chainId);
+      // const chainId = Number(tx.chainId);
+      const chainId = Number(params.chainId);
+
       const transaction = {
         chainId,
         hash: tx.hash,
@@ -105,7 +106,9 @@ export function createTransactionsSlice<T extends BaseTx>({
     waitForTx: async (hash) => {
       const txData = get().transactionsPool[hash];
       if (txData) {
-        const provider = providers[txData.chainId] as providers.JsonRpcProvider;
+        const provider = get().providers[
+          txData.chainId
+        ] as providers.StaticJsonRpcProvider;
 
         const tx = await provider.getTransaction(hash);
         const txn = await tx.wait();

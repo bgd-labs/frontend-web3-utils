@@ -17,9 +17,13 @@ interface Web3ProviderProps {
       changeActiveWalletChainId: (chainID: number) => void;
       setConnectors: (connectors: Connector[]) => void;
       initTxPool: () => void;
+      urls: Record<number, string[]>;
     }>
   >;
-  connectorsInitProps: AllConnectorsInitProps;
+  connectorsInitProps: Pick<
+    AllConnectorsInitProps,
+    'appName' | 'chains' | 'desiredChainId'
+  >;
 }
 
 function Child({
@@ -69,7 +73,9 @@ export function Web3Provider({
   useStore,
   connectorsInitProps,
 }: Web3ProviderProps) {
-  const connectors = initAllConnectors(connectorsInitProps);
+  const urls = useStore((state) => state.urls);
+  const connectors = initAllConnectors({ urls, ...connectorsInitProps });
+
   return (
     <Web3ReactProvider connectors={connectors}>
       <Child

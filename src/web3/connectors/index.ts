@@ -1,25 +1,16 @@
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet';
 import { initializeConnector } from '@web3-react/core';
 import { MetaMask } from '@web3-react/metamask';
-import type { AddEthereumChainParameter } from '@web3-react/types';
 import { Connector } from '@web3-react/types';
 import { WalletConnect } from '@web3-react/walletconnect';
 
+import { ChainInformation } from '../store/rpcProvidersSlice';
 import { ImpersonatedConnector } from './impersonatedConnector';
-
-export interface BasicChainInformation {
-  urls: string[];
-  name: string;
-}
-
-export interface ExtendedChainInformation extends BasicChainInformation {
-  nativeCurrency: AddEthereumChainParameter['nativeCurrency'];
-  blockExplorerUrls: AddEthereumChainParameter['blockExplorerUrls'];
-}
 
 export type AllConnectorsInitProps = {
   appName: string;
-  chains: Record<number, BasicChainInformation | ExtendedChainInformation>;
+  chains: Record<number, ChainInformation>;
+  urls: { [chainId: number]: string[] };
   desiredChainId: number;
 };
 
@@ -28,24 +19,12 @@ export const initAllConnectors = (props: AllConnectorsInitProps) => {
     (actions) => new MetaMask({ actions })
   );
 
-  const URLS: { [chainId: number]: string[] } = Object.keys(
-    props.chains
-  ).reduce<{ [chainId: number]: string[] }>((accumulator, chainId) => {
-    const validURLs: string[] = props.chains[Number(chainId)].urls;
-
-    if (validURLs.length) {
-      accumulator[Number(chainId)] = validURLs;
-    }
-
-    return accumulator;
-  }, {});
-
   const walletConnect = initializeConnector<WalletConnect>(
     (actions) =>
       new WalletConnect({
         actions,
         options: {
-          rpc: URLS,
+          rpc: props.urls,
         },
       })
   );
