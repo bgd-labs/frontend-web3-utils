@@ -1,5 +1,5 @@
-import type { AddEthereumChainParameter } from "@web3-react/types";
-import { providers } from "ethers";
+import type { AddEthereumChainParameter } from '@web3-react/types';
+import { providers } from 'ethers';
 
 interface BasicChainInformation {
   urls: string[];
@@ -7,11 +7,11 @@ interface BasicChainInformation {
 }
 
 interface ExtendedChainInformation extends BasicChainInformation {
-  nativeCurrency: AddEthereumChainParameter["nativeCurrency"];
-  blockExplorerUrls: AddEthereumChainParameter["blockExplorerUrls"];
+  nativeCurrency: AddEthereumChainParameter['nativeCurrency'];
+  blockExplorerUrls: AddEthereumChainParameter['blockExplorerUrls'];
 }
 
-export type ChainInformation = BasicChainInformation | ExtendedChainInformation
+export type ChainInformation = BasicChainInformation | ExtendedChainInformation;
 
 function isExtendedChainInformation(
   chainInformation: BasicChainInformation | ExtendedChainInformation
@@ -51,9 +51,12 @@ export const initChainInformationConfig = (chains: {
         if (initalizedProviders[numberChainId]) {
           return initalizedProviders[numberChainId];
         } else {
-          // TODO: add fallback provider
-          initalizedProviders[numberChainId] =
-            new providers.JsonRpcBatchProvider(urls[numberChainId][0]);
+          // TODO: add fallback provider to utilize all the urls
+          let provider = new providers.JsonRpcBatchProvider(
+            urls[numberChainId][0]
+          );
+          initalizedProviders[numberChainId] = provider;
+          return provider;
         }
       },
     } as {
@@ -64,7 +67,7 @@ export const initChainInformationConfig = (chains: {
     return accumulator;
   }, {});
 
-  function getAddChainParameters(
+  function getChainParameters(
     chainId: number
   ): AddEthereumChainParameter | number {
     const chainInformation = chains[chainId];
@@ -84,6 +87,6 @@ export const initChainInformationConfig = (chains: {
   return {
     urls,
     providerInstances,
-    getAddChainParameters,
+    getChainParameters,
   };
 };
