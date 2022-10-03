@@ -39,11 +39,11 @@ export type Web3Slice = {
 
 export function createWeb3Slice({
   walletConnected,
-  getAddChainParameters,
+  getChainParameters,
   desiredChainID = 1,
 }: {
   walletConnected: (wallet: Wallet) => void; // TODO: why all of them here hardcoded
-  getAddChainParameters: (
+  getChainParameters: (
     chainId: number
   ) => AddEthereumChainParameter | number;
   desiredChainID?: number;
@@ -86,7 +86,7 @@ export function createWeb3Slice({
               break;
             case 'Coinbase':
             case 'Metamask':
-              await connector.activate(getAddChainParameters(desiredChainID));
+              await connector.activate(getChainParameters(desiredChainID));
               break;
             case 'WalletConnect':
               await connector.activate(desiredChainID);

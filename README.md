@@ -124,7 +124,7 @@ const createWeb3Slice: StoreSlice<IWeb3Slice> = (set, get) => ({
     walletConnected: () => {
       get().connectSigner();
     },
-    getAddChainParameters,
+    getChainParameters,
   })(set, get),
 })
 ```
