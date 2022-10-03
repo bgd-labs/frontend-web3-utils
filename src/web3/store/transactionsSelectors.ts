@@ -20,3 +20,17 @@ export const selectTXByHash = <T extends BaseTx>(
 ) => {
   return state.transactionsPool[hash];
 };
+
+export const selectAllTransactionByWallet = <T extends BaseTx>(
+  state: ITransactionsState<T>,
+  from: string
+) => {
+  return selectAllTransactions(state).filter((tx) => tx.from == from);
+};
+
+export const selectPendingTransactionByWallet = <T extends BaseTx>(
+  state: ITransactionsState<T>,
+  from: string
+) => {
+  return selectPendingTransactions(state).filter((tx) => tx.from == from);
+};
