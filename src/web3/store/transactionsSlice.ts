@@ -43,6 +43,7 @@ interface ITransactionsActions<T extends BaseTx> {
     params: {
       type: T['type'];
       payload: T['payload'];
+      desiredChainID?: number
     };
   }) => Promise<
     T & {

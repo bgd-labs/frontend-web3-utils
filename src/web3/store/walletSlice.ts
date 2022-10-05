@@ -23,14 +23,14 @@ export interface Wallet {
 export type Web3Slice = {
   activeWallet?: Wallet;
   getActiveAddress: () => string | undefined;
-  connectWallet: (walletType: WalletType) => Promise<void>;
+  connectWallet: (walletType: WalletType, chainID?: number) => Promise<void>;
   disconnectActiveWallet: () => Promise<void>;
   walletActivating: boolean;
   walletConnectionError: string;
   initDefaultWallet: () => Promise<void>;
   setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => void;
   changeActiveWalletChainId: (chainId: number) => void;
-  checkAndSwitchNetwork: () => Promise<void>;
+  checkAndSwitchNetwork: (chainId?: number) => Promise<void>;
   connectors: Connector[];
   setConnectors: (connectors: Connector[]) => void;
   _impersonatedAddress?: string;
@@ -65,7 +65,8 @@ export function createWeb3Slice({
         await get().checkAndSwitchNetwork();
       }
     },
-    connectWallet: async (walletType: WalletType) => {
+    connectWallet: async (walletType: WalletType, txChainID?: number) => {
+      const chainID = typeof txChainID != 'undefined' ? txChainID : desiredChainID;
       if (get().activeWallet?.walletType !== walletType) {
         await get().disconnectActiveWallet();
       }
@@ -86,10 +87,10 @@ export function createWeb3Slice({
               break;
             case 'Coinbase':
             case 'Metamask':
-              await connector.activate(getChainParameters(desiredChainID));
+              await connector.activate(getChainParameters(chainID));
               break;
             case 'WalletConnect':
-              await connector.activate(desiredChainID);
+              await connector.activate(chainID);
               break;
           }
           setLocalStorageWallet(walletType);
@@ -106,7 +107,7 @@ export function createWeb3Slice({
       }
       set({ walletActivating: false });
     },
-    checkAndSwitchNetwork: async () => {
+    checkAndSwitchNetwork: async (chainID?: number) => {
       const activeWallet = get().activeWallet;
       if (activeWallet) {
         await get().connectWallet(activeWallet.walletType);
