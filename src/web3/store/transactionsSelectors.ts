@@ -21,7 +21,7 @@ export const selectTXByHash = <T extends BaseTx>(
   return state.transactionsPool[hash];
 };
 
-export const selectAllTransactionByWallet = <T extends BaseTx>(
+export const selectAllTransactionsByWallet = <T extends BaseTx>(
   state: ITransactionsState<T>,
   from: string
 ) => {
