@@ -1,3 +1,5 @@
+// TODO: need set desiredChainID optional, for now required for Tenderly forks
+
 import { ethers, providers } from 'ethers';
 import { Draft, produce } from 'immer';
 
@@ -43,7 +45,7 @@ interface ITransactionsActions<T extends BaseTx> {
     params: {
       type: T['type'];
       payload: T['payload'];
-      desiredChainID?: number
+      desiredChainID: number;
     };
   }) => Promise<
     T & {
@@ -75,7 +77,8 @@ export function createTransactionsSlice<T extends BaseTx>({
     executeTx: async ({ body, params }) => {
       await get().checkAndSwitchNetwork(params.desiredChainID);
       const tx = await body();
-      const chainId = Number(tx.chainId);
+      // const chainId = Number(tx.chainId);
+      const chainId = Number(params.desiredChainID); // TODO: temporary for Tenderly forks
       const transaction = {
         chainId,
         hash: tx.hash,
