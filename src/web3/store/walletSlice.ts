@@ -43,9 +43,7 @@ export function createWeb3Slice({
   desiredChainID = 1,
 }: {
   walletConnected: (wallet: Wallet) => void; // TODO: why all of them here hardcoded
-  getChainParameters: (
-    chainId: number
-  ) => AddEthereumChainParameter | number;
+  getChainParameters: (chainId: number) => AddEthereumChainParameter | number;
   desiredChainID?: number;
 }): StoreSlice<Web3Slice> {
   return (set, get) => ({
@@ -66,7 +64,9 @@ export function createWeb3Slice({
       }
     },
     connectWallet: async (walletType: WalletType, txChainID?: number) => {
-      const chainID = typeof txChainID != 'undefined' ? txChainID : desiredChainID;
+      const chainID =
+        typeof txChainID != 'undefined' ? txChainID : desiredChainID;
+
       if (get().activeWallet?.walletType !== walletType) {
         await get().disconnectActiveWallet();
       }
@@ -82,7 +82,10 @@ export function createWeb3Slice({
           switch (walletType) {
             case 'Impersonated':
               if (impersonatedAddress) {
-                await connector.activate(impersonatedAddress);
+                await connector.activate({
+                  address: impersonatedAddress,
+                  chainId: chainID,
+                });
               }
               break;
             case 'Coinbase':
@@ -110,7 +113,7 @@ export function createWeb3Slice({
     checkAndSwitchNetwork: async (chainID?: number) => {
       const activeWallet = get().activeWallet;
       if (activeWallet) {
-        await get().connectWallet(activeWallet.walletType);
+        await get().connectWallet(activeWallet.walletType, chainID);
       }
     },
     disconnectActiveWallet: async () => {
