@@ -73,7 +73,7 @@ export function createTransactionsSlice<T extends BaseTx>({
     transactionsPool: {},
     txStatusChangedCallback,
     executeTx: async ({ body, params }) => {
-      await get().checkAndSwitchNetwork();
+      await get().checkAndSwitchNetwork(params.desiredChainID);
       const tx = await body();
       const chainId = Number(tx.chainId);
       const transaction = {
