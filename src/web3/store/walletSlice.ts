@@ -110,7 +110,7 @@ export function createWeb3Slice({
     checkAndSwitchNetwork: async (chainID?: number) => {
       const activeWallet = get().activeWallet;
       if (activeWallet) {
-        await get().connectWallet(activeWallet.walletType);
+        await get().connectWallet(activeWallet.walletType, chainID);
       }
     },
     disconnectActiveWallet: async () => {
