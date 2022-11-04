@@ -21,7 +21,10 @@ export type BaseTx = {
   timestamp?: number;
 };
 
-export type ProvidersRecord = Record<number, ethers.providers.JsonRpcProvider>;
+export type ProvidersRecord = Record<
+  number,
+  ethers.providers.JsonRpcBatchProvider
+>;
 
 export type TransactionPool<T extends BaseTx> = Record<string, T>;
 
@@ -109,7 +112,9 @@ export function createTransactionsSlice<T extends BaseTx>({
     waitForTx: async (hash) => {
       const txData = get().transactionsPool[hash];
       if (txData) {
-        const provider = providers[txData.chainId] as providers.JsonRpcProvider;
+        const provider = providers[
+          txData.chainId
+        ] as providers.JsonRpcBatchProvider;
 
         const tx = await provider.getTransaction(hash);
         const txn = await tx.wait();

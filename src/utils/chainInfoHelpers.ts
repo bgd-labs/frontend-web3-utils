@@ -1,5 +1,3 @@
-// TODO: need change all providers to JsonRpcBatchProvider for now I change to JsonRpcProvider for Tenderly
-
 import type { AddEthereumChainParameter } from '@web3-react/types';
 import { providers } from 'ethers';
 
@@ -39,11 +37,12 @@ export const initChainInformationConfig = (chains: {
   );
 
   // init provider instances from chain config
-  const initalizedProviders: Record<number, providers.JsonRpcProvider> = {};
+  const initalizedProviders: Record<number, providers.JsonRpcBatchProvider> =
+    {};
 
   const providerInstances = Object.keys(chains).reduce<{
     [chainId: number]: {
-      instance: providers.JsonRpcProvider;
+      instance: providers.JsonRpcBatchProvider;
     };
   }>((accumulator, chainId) => {
     const numberChainId = Number(chainId);
@@ -53,7 +52,7 @@ export const initChainInformationConfig = (chains: {
           return initalizedProviders[numberChainId];
         } else {
           // TODO: add fallback provider to utilize all the urls
-          const provider = new providers.JsonRpcProvider(
+          const provider = new providers.JsonRpcBatchProvider(
             urls[numberChainId][0]
           );
           initalizedProviders[numberChainId] = provider;
@@ -61,7 +60,7 @@ export const initChainInformationConfig = (chains: {
         }
       },
     } as {
-      instance: providers.JsonRpcProvider;
+      instance: providers.JsonRpcBatchProvider;
     };
 
     accumulator[numberChainId] = providerInstance;

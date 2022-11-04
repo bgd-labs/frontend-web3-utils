@@ -14,7 +14,7 @@ export interface Wallet {
   walletType: WalletType;
   accounts: string[];
   chainId?: number;
-  provider: providers.JsonRpcProvider; // TODO: not correct
+  provider: providers.JsonRpcBatchProvider; // TODO: not correct
   signer: providers.JsonRpcSigner; // TODO: not correct, it can be not only JsonRpc
   // isActive is added, because Wallet can be connected but not active, i.e. wrong network
   isActive: boolean;
