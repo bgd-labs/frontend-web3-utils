@@ -1,5 +1,3 @@
-// TODO: need set desiredChainID optional, for now required for Tenderly forks
-
 import { ethers, providers } from 'ethers';
 import { Draft, produce } from 'immer';
 
@@ -57,6 +55,11 @@ interface ITransactionsActions<T extends BaseTx> {
     }
   >;
   waitForTx: (hash: string) => Promise<void>;
+  waitForTxReceipt: (
+    tx: ethers.providers.TransactionResponse,
+    txHash: string,
+    provider: providers.JsonRpcBatchProvider
+  ) => Promise<void>;
   updateTXStatus: (hash: string, status?: number) => void;
   initTxPool: () => void;
 }
@@ -80,8 +83,7 @@ export function createTransactionsSlice<T extends BaseTx>({
     executeTx: async ({ body, params }) => {
       await get().checkAndSwitchNetwork(params.desiredChainID);
       const tx = await body();
-      // const chainId = Number(tx.chainId);
-      const chainId = Number(params.desiredChainID); // TODO: temporary for Tenderly forks
+      const chainId = Number(params.desiredChainID);
       const transaction = {
         chainId,
         hash: tx.hash,
@@ -116,21 +118,35 @@ export function createTransactionsSlice<T extends BaseTx>({
           txData.chainId
         ] as providers.JsonRpcBatchProvider;
 
-        const tx = await provider.getTransaction(hash);
-        const txn = await tx.wait();
-
-        get().updateTXStatus(hash, txn.status);
-
-        const updatedTX = get().transactionsPool[hash];
-        const txBlock = await provider.getBlock(txn.blockNumber);
-        get().txStatusChangedCallback({
-          ...updatedTX,
-          timestamp: txBlock.timestamp,
-        });
+        const tx = await provider.getTransaction(txData.hash);
+        if (tx) {
+          await get().waitForTxReceipt(tx, txData.hash, provider);
+        } else {
+          const tx2 = await provider.getTransaction(txData.hash);
+          await get().waitForTxReceipt(tx2, txData.hash, provider);
+        }
       } else {
         // TODO: no transaction in waiting pool
       }
     },
+
+    waitForTxReceipt: async (
+      tx: ethers.providers.TransactionResponse,
+      txHash: string,
+      provider: providers.JsonRpcBatchProvider
+    ) => {
+      const txn = await tx.wait();
+
+      get().updateTXStatus(txHash, txn.status);
+
+      const updatedTX = get().transactionsPool[txHash];
+      const txBlock = await provider.getBlock(txn.blockNumber);
+      get().txStatusChangedCallback({
+        ...updatedTX,
+        timestamp: txBlock.timestamp,
+      });
+    },
+
     updateTXStatus: (hash, status) => {
       set((state) =>
         produce(state, (draft) => {
