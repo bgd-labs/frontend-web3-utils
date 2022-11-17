@@ -1,4 +1,4 @@
-import { waitUntil } from 'async-wait-until';
+import { TimeoutError, waitUntil } from 'async-wait-until';
 import { ethers, providers } from 'ethers';
 import { Draft, produce } from 'immer';
 
@@ -119,14 +119,27 @@ export function createTransactionsSlice<T extends BaseTx>({
           txData.chainId
         ] as providers.JsonRpcBatchProvider;
 
-        const tx = await waitUntil<{
-          tx: ethers.providers.TransactionResponse;
-        }>(async () => {
-          return { tx: await provider.getTransaction(txData.hash) };
-        });
-
-        if (tx.tx) {
-          await get().waitForTxReceipt(tx.tx, txData.hash, provider);
+        try {
+          const tx = await waitUntil<{
+            tx: ethers.providers.TransactionResponse;
+          }>(
+            async () => {
+              return { tx: await provider.getTransaction(txData.hash) };
+            },
+            { timeout: 10000 }
+          );
+          if (tx.tx) {
+            await get().waitForTxReceipt(tx.tx, txData.hash, provider);
+          }
+        } catch (e) {
+          if (e instanceof TimeoutError) {
+            const tx = await provider.getTransaction(txData.hash);
+            if (tx) {
+              await get().waitForTxReceipt(tx, txData.hash, provider);
+            }
+          } else {
+            console.error(e);
+          }
         }
       } else {
         // TODO: no transaction in waiting pool
