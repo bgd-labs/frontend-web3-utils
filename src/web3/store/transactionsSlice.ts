@@ -1,3 +1,4 @@
+import { waitUntil } from 'async-wait-until';
 import { ethers, providers } from 'ethers';
 import { Draft, produce } from 'immer';
 
@@ -118,12 +119,14 @@ export function createTransactionsSlice<T extends BaseTx>({
           txData.chainId
         ] as providers.JsonRpcBatchProvider;
 
-        const tx = await provider.getTransaction(txData.hash);
-        if (tx) {
-          await get().waitForTxReceipt(tx, txData.hash, provider);
-        } else {
-          const tx2 = await provider.getTransaction(txData.hash);
-          await get().waitForTxReceipt(tx2, txData.hash, provider);
+        const tx = await waitUntil<{
+          tx: ethers.providers.TransactionResponse;
+        }>(async () => {
+          return { tx: await provider.getTransaction(txData.hash) };
+        });
+
+        if (tx.tx) {
+          await get().waitForTxReceipt(tx.tx, txData.hash, provider);
         }
       } else {
         // TODO: no transaction in waiting pool
