@@ -120,22 +120,23 @@ export function createTransactionsSlice<T extends BaseTx>({
         ] as providers.JsonRpcBatchProvider;
 
         try {
-          const tx = await waitUntil<{
-            tx: ethers.providers.TransactionResponse;
-          }>(
+          await waitUntil(
             async () => {
-              return { tx: await provider.getTransaction(txData.hash) };
+              const tx = await provider.getTransaction(txData.hash);
+              if (!!tx) {
+                await get().waitForTxReceipt(tx, txData.hash, provider);
+              }
+              return !!tx;
             },
-            { timeout: 10000 }
+            { timeout: 10000, intervalBetweenAttempts: 1000 }
           );
-          if (tx.tx) {
-            await get().waitForTxReceipt(tx.tx, txData.hash, provider);
-          }
         } catch (e) {
           if (e instanceof TimeoutError) {
             const tx = await provider.getTransaction(txData.hash);
-            if (tx) {
+            if (!!tx) {
               await get().waitForTxReceipt(tx, txData.hash, provider);
+            } else {
+              console.error(e);
             }
           } else {
             console.error(e);
