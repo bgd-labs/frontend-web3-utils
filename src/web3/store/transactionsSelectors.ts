@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import isEqual from 'lodash/isEqual';
 
 import { BaseTx, ITransactionsState } from './transactionsSlice';
 
@@ -30,7 +30,7 @@ export const selectLastTxByTypeAndPayload = <T extends BaseTx>(
 ) => {
   const allTransactions = selectAllTransactions(state);
   const filteredTransactions = allTransactions.filter(
-    (tx) => tx.type === type && _.isEqual(tx.payload, payload)
+    (tx) => tx.type === type && isEqual(tx.payload, payload)
   );
   const lastFilteredTransaction =
     filteredTransactions[filteredTransactions.length - 1];
