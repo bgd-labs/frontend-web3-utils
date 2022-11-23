@@ -35,7 +35,11 @@ export const selectLastTxByTypeAndPayload = <T extends BaseTx>(
   const lastFilteredTransaction =
     filteredTransactions[filteredTransactions.length - 1];
 
-  return selectTXByHash(state, lastFilteredTransaction.hash);
+  if (lastFilteredTransaction) {
+    return selectTXByHash(state, lastFilteredTransaction.hash);
+  } else {
+    return undefined;
+  }
 };
 
 export const selectAllTransactionsByWallet = <T extends BaseTx>(
