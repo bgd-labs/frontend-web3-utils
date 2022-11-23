@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 import { BaseTx, ITransactionsState } from './transactionsSlice';
 
 export const selectAllTransactions = <T extends BaseTx>(
@@ -19,6 +21,21 @@ export const selectTXByHash = <T extends BaseTx>(
   hash: string
 ) => {
   return state.transactionsPool[hash];
+};
+
+export const selectLastTxByTypeAndPayload = <T extends BaseTx>(
+  state: ITransactionsState<T>,
+  type: T['type'],
+  payload: T['payload']
+) => {
+  const allTransactions = selectAllTransactions(state);
+  const filteredTransactions = allTransactions.filter(
+    (tx) => tx.type === type && _.isEqual(tx.payload, payload)
+  );
+  const lastFilteredTransaction =
+    filteredTransactions[filteredTransactions.length - 1];
+
+  return selectTXByHash(state, lastFilteredTransaction.hash);
 };
 
 export const selectAllTransactionsByWallet = <T extends BaseTx>(
