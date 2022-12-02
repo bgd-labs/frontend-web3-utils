@@ -1,5 +1,5 @@
 import { TimeoutError, waitUntil } from 'async-wait-until';
-import { ethers, providers } from 'ethers';
+import { ethers } from 'ethers';
 import { Draft, produce } from 'immer';
 
 import { StoreSlice } from '../../types/store';
@@ -7,6 +7,7 @@ import {
   getLocalStorageTxPool,
   setLocalStorageTxPool,
 } from '../../utils/localStorage';
+import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvider';
 import { Web3Slice } from './walletSlice';
 
 export type BaseTx = {
@@ -20,10 +21,7 @@ export type BaseTx = {
   timestamp?: number;
 };
 
-export type ProvidersRecord = Record<
-  number,
-  ethers.providers.JsonRpcBatchProvider
->;
+export type ProvidersRecord = Record<number, StaticJsonRpcBatchProvider>;
 
 export type TransactionPool<T extends BaseTx> = Record<string, T>;
 
@@ -59,7 +57,7 @@ interface ITransactionsActions<T extends BaseTx> {
   waitForTxReceipt: (
     tx: ethers.providers.TransactionResponse,
     txHash: string,
-    provider: providers.JsonRpcBatchProvider
+    provider: StaticJsonRpcBatchProvider
   ) => Promise<void>;
   updateTXStatus: (hash: string, status?: number) => void;
   initTxPool: () => void;
@@ -117,7 +115,7 @@ export function createTransactionsSlice<T extends BaseTx>({
       if (txData) {
         const provider = providers[
           txData.chainId
-        ] as providers.JsonRpcBatchProvider;
+        ] as StaticJsonRpcBatchProvider;
 
         try {
           await waitUntil(
@@ -150,7 +148,7 @@ export function createTransactionsSlice<T extends BaseTx>({
     waitForTxReceipt: async (
       tx: ethers.providers.TransactionResponse,
       txHash: string,
-      provider: providers.JsonRpcBatchProvider
+      provider: StaticJsonRpcBatchProvider
     ) => {
       const txn = await tx.wait();
 

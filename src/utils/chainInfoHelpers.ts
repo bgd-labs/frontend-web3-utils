@@ -1,5 +1,6 @@
 import type { AddEthereumChainParameter } from '@web3-react/types';
-import { providers } from 'ethers';
+
+import { StaticJsonRpcBatchProvider } from './StaticJsonRpcBatchProvider';
 
 interface BasicChainInformation {
   urls: string[];
@@ -37,12 +38,11 @@ export const initChainInformationConfig = (chains: {
   );
 
   // init provider instances from chain config
-  const initalizedProviders: Record<number, providers.JsonRpcBatchProvider> =
-    {};
+  const initalizedProviders: Record<number, StaticJsonRpcBatchProvider> = {};
 
   const providerInstances = Object.keys(chains).reduce<{
     [chainId: number]: {
-      instance: providers.JsonRpcBatchProvider;
+      instance: StaticJsonRpcBatchProvider;
     };
   }>((accumulator, chainId) => {
     const numberChainId = Number(chainId);
@@ -52,7 +52,7 @@ export const initChainInformationConfig = (chains: {
           return initalizedProviders[numberChainId];
         } else {
           // TODO: add fallback provider to utilize all the urls
-          const provider = new providers.JsonRpcBatchProvider(
+          const provider = new StaticJsonRpcBatchProvider(
             urls[numberChainId][0]
           );
           initalizedProviders[numberChainId] = provider;
@@ -60,7 +60,7 @@ export const initChainInformationConfig = (chains: {
         }
       },
     } as {
-      instance: providers.JsonRpcBatchProvider;
+      instance: StaticJsonRpcBatchProvider;
     };
 
     accumulator[numberChainId] = providerInstance;
