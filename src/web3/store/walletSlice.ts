@@ -5,8 +5,10 @@ import { produce } from 'immer';
 import { StoreSlice } from '../../types/store';
 import {
   deleteLocalStorageWallet,
+  deleteLocalStorageWalletChainId,
   LocalStorageKeys,
   setLocalStorageWallet,
+  setLocalStorageWalletChainId,
 } from '../../utils/localStorage';
 import { getConnectorName, WalletType } from '../connectors';
 
@@ -58,14 +60,25 @@ export function createWeb3Slice({
       const lastConnectedWallet = localStorage.getItem(
         LocalStorageKeys.LastConnectedWallet
       ) as WalletType | undefined;
-      if (lastConnectedWallet) {
-        await get().connectWallet(lastConnectedWallet);
-        await get().checkAndSwitchNetwork();
+      const lastConnectedChainId = localStorage.getItem(
+        LocalStorageKeys.LastConnectedChainId
+      ) as string | undefined;
+
+      if (lastConnectedWallet && lastConnectedChainId) {
+        await get().connectWallet(lastConnectedWallet, +lastConnectedChainId);
       }
     },
     connectWallet: async (walletType: WalletType, txChainID?: number) => {
-      const chainID =
+      let chainID =
         typeof txChainID != 'undefined' ? txChainID : desiredChainID;
+
+      const activeWallet = get().activeWallet;
+
+      if (activeWallet && activeWallet.chainId) {
+        if (activeWallet.chainId !== chainID) {
+          chainID = activeWallet.chainId;
+        }
+      }
 
       if (get().activeWallet?.walletType !== walletType) {
         await get().disconnectActiveWallet();
@@ -97,6 +110,7 @@ export function createWeb3Slice({
               break;
           }
           setLocalStorageWallet(walletType);
+          setLocalStorageWalletChainId(chainID.toString());
         }
       } catch (e) {
         if (e instanceof Error) {
@@ -130,6 +144,7 @@ export function createWeb3Slice({
         set({ activeWallet: undefined });
       }
       deleteLocalStorageWallet();
+      deleteLocalStorageWalletChainId();
     },
     /**
      * setActiveWallet is separate from connectWallet for a reason, after metaMask.activate()
@@ -141,6 +156,7 @@ export function createWeb3Slice({
         wallet.walletType == 'Impersonated'
           ? wallet.provider.getSigner(get()._impersonatedAddress)
           : wallet.provider.getSigner(0);
+
       set({
         activeWallet: {
           ...wallet,
@@ -160,6 +176,7 @@ export function createWeb3Slice({
           }
         })
       );
+      setLocalStorageWalletChainId(chainId.toString());
     },
 
     getActiveAddress: () => {
