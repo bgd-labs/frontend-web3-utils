@@ -74,7 +74,11 @@ export function createWeb3Slice({
 
       const activeWallet = get().activeWallet;
 
-      if (activeWallet && activeWallet.chainId) {
+      if (
+        typeof txChainID === 'undefined' &&
+        activeWallet &&
+        activeWallet.chainId
+      ) {
         if (activeWallet.chainId !== chainID) {
           chainID = activeWallet.chainId;
         }
