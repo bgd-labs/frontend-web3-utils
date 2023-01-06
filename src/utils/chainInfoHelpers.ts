@@ -64,8 +64,10 @@ function isExtendedChainInformation(
 export const initChainInformationConfig = (chains: {
   [chainId: number]: BasicChainInformation | ExtendedChainInformation;
 }) => {
+  const CHAINS = Object.assign(chains, initialChains);
+
   // init urls from chains config
-  const urls = Object.keys({ ...chains, ...initialChains }).reduce<{
+  const urls = Object.keys(CHAINS).reduce<{
     [chainId: number]: string[];
   }>((accumulator, chainId) => {
     const validURLs: string[] = chains[Number(chainId)].urls;
@@ -80,7 +82,7 @@ export const initChainInformationConfig = (chains: {
   // init provider instances from chain config
   const initalizedProviders: Record<number, StaticJsonRpcBatchProvider> = {};
 
-  const providerInstances = Object.keys(chains).reduce<{
+  const providerInstances = Object.keys(CHAINS).reduce<{
     [chainId: number]: {
       instance: StaticJsonRpcBatchProvider;
     };
@@ -110,7 +112,7 @@ export const initChainInformationConfig = (chains: {
   function getChainParameters(
     chainId: number
   ): AddEthereumChainParameter | number {
-    const chainInformation = chains[chainId];
+    const chainInformation = CHAINS[chainId];
     if (isExtendedChainInformation(chainInformation)) {
       return {
         chainId,
