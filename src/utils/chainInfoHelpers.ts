@@ -32,6 +32,29 @@ interface ExtendedChainInformation extends BasicChainInformation {
 
 export type ChainInformation = BasicChainInformation | ExtendedChainInformation;
 
+export const initialChains: {
+  [chainId: number]: ChainInformation;
+} = {
+  1: {
+    urls: ['https://eth.llamarpc.com'],
+    nativeCurrency: ETH,
+    name: 'Ethereum',
+    blockExplorerUrls: ['https://etherscan.io'],
+  },
+  137: {
+    urls: ['https://polygon.llamarpc.com'],
+    nativeCurrency: MATIC,
+    name: 'Polygon',
+    blockExplorerUrls: ['https://polygonscan.com'],
+  },
+  43114: {
+    urls: ['https://rpc.ankr.com/avalanche'],
+    nativeCurrency: AVAX,
+    name: 'Avalanche',
+    blockExplorerUrls: ['https://snowtrace.io'],
+  },
+};
+
 function isExtendedChainInformation(
   chainInformation: BasicChainInformation | ExtendedChainInformation
 ): chainInformation is ExtendedChainInformation {
@@ -42,18 +65,17 @@ export const initChainInformationConfig = (chains: {
   [chainId: number]: BasicChainInformation | ExtendedChainInformation;
 }) => {
   // init urls from chains config
-  const urls = Object.keys(chains).reduce<{ [chainId: number]: string[] }>(
-    (accumulator, chainId) => {
-      const validURLs: string[] = chains[Number(chainId)].urls;
+  const urls = Object.keys({ ...chains, ...initialChains }).reduce<{
+    [chainId: number]: string[];
+  }>((accumulator, chainId) => {
+    const validURLs: string[] = chains[Number(chainId)].urls;
 
-      if (validURLs.length) {
-        accumulator[Number(chainId)] = validURLs;
-      }
+    if (validURLs.length) {
+      accumulator[Number(chainId)] = validURLs;
+    }
 
-      return accumulator;
-    },
-    {}
-  );
+    return accumulator;
+  }, {});
 
   // init provider instances from chain config
   const initalizedProviders: Record<number, StaticJsonRpcBatchProvider> = {};
