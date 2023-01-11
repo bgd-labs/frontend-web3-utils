@@ -109,9 +109,7 @@ export const initChainInformationConfig = (chains: {
     return accumulator;
   }, {});
 
-  function getChainParameters(
-    chainId: number
-  ): AddEthereumChainParameter | number {
+  function getChainParameters(chainId: number): AddEthereumChainParameter {
     const chainInformation = CHAINS[chainId];
     if (isExtendedChainInformation(chainInformation)) {
       return {
