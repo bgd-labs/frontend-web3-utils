@@ -112,6 +112,9 @@ export function createWeb3Slice({
             case 'WalletConnect':
               await connector.activate(chainID);
               break;
+            case 'GnosisSafe':
+              await connector.activate(chainID);
+              break;
           }
           setLocalStorageWallet(walletType);
           setLocalStorageWalletChainId(chainID.toString());
