@@ -16,10 +16,11 @@ export interface Wallet {
   walletType: WalletType;
   accounts: string[];
   chainId?: number;
-  provider: providers.JsonRpcProvider; // TODO: not correct
-  signer: providers.JsonRpcSigner; // TODO: not correct, it can be not only JsonRpc
+  provider: providers.JsonRpcProvider;
+  signer: providers.JsonRpcSigner;
   // isActive is added, because Wallet can be connected but not active, i.e. wrong network
   isActive: boolean;
+  isContractAddress: boolean;
 }
 
 export type Web3Slice = {
@@ -30,7 +31,7 @@ export type Web3Slice = {
   walletActivating: boolean;
   walletConnectionError: string;
   initDefaultWallet: () => Promise<void>;
-  setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => void;
+  setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => Promise<void>;
   changeActiveWalletChainId: (chainId: number) => void;
   checkAndSwitchNetwork: (chainId?: number) => Promise<void>;
   connectors: Connector[];
@@ -155,15 +156,18 @@ export function createWeb3Slice({
      * only provider is available in the returned type, but we also need accounts and chainID which for some reason
      * is impossible to pull from .provider() still not the best approach, and I'm looking to find proper way to handle it
      */
-    setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => {
+    setActiveWallet: async (wallet: Omit<Wallet, 'signer'>) => {
       const providerSigner =
         wallet.walletType == 'Impersonated'
           ? wallet.provider.getSigner(get()._impersonatedAddress)
           : wallet.provider.getSigner(0);
 
+      const codeOfAddress = await wallet.provider.getCode(wallet.accounts[0]);
+
       set({
         activeWallet: {
           ...wallet,
+          isContractAddress: codeOfAddress !== '0x',
           signer: providerSigner,
         },
       });
