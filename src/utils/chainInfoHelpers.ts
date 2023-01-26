@@ -61,16 +61,16 @@ function isExtendedChainInformation(
   return !!(chainInformation as ExtendedChainInformation)?.nativeCurrency;
 }
 
-export const initChainInformationConfig = (chains: {
+export const initChainInformationConfig = (chains?: {
   [chainId: number]: BasicChainInformation | ExtendedChainInformation;
 }) => {
-  const CHAINS = Object.assign(chains, initialChains);
+  const CHAINS = Object.assign(chains || {}, initialChains);
 
   // init urls from chains config
   const urls = Object.keys(CHAINS).reduce<{
     [chainId: number]: string[];
   }>((accumulator, chainId) => {
-    const validURLs: string[] = chains[Number(chainId)].urls;
+    const validURLs: string[] = CHAINS[Number(chainId)].urls;
 
     if (validURLs.length) {
       accumulator[Number(chainId)] = validURLs;
