@@ -1,6 +1,6 @@
 import { useWeb3React, Web3ReactProvider } from '@web3-react/core';
 import { Connector } from '@web3-react/types';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StoreApi, UseBoundStore } from 'zustand';
 
 import {
@@ -69,7 +69,7 @@ export function Web3Provider({
   useStore,
   connectorsInitProps,
 }: Web3ProviderProps) {
-  const connectors = initAllConnectors(connectorsInitProps);
+  const [connectors] = useState(initAllConnectors(connectorsInitProps));
   return (
     <Web3ReactProvider connectors={connectors}>
       <Child
