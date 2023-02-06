@@ -1,4 +1,3 @@
-import { TimeoutError, waitUntil } from 'async-wait-until';
 import { ethers } from 'ethers';
 import { Draft, produce } from 'immer';
 
@@ -109,29 +108,8 @@ export function createTransactionsSlice<T extends BaseTx>({
       const txData = get().transactionsPool[hash];
       const provider = get().activeWallet?.provider;
       if (txData && provider) {
-        try {
-          await waitUntil(
-            async () => {
-              const tx = await provider.getTransaction(txData.hash);
-              if (!!tx) {
-                await get().waitForTxReceipt(tx, txData.hash, provider);
-              }
-              return !!tx;
-            },
-            { timeout: 10000, intervalBetweenAttempts: 1000 }
-          );
-        } catch (e) {
-          if (e instanceof TimeoutError) {
-            const tx = await provider.getTransaction(txData.hash);
-            if (!!tx) {
-              await get().waitForTxReceipt(tx, txData.hash, provider);
-            } else {
-              console.error(e);
-            }
-          } else {
-            console.error(e);
-          }
-        }
+        const tx = await provider.getTransaction(txData.hash);
+        await get().waitForTxReceipt(tx, txData.hash, provider);
       } else {
         // TODO: no transaction in waiting pool
       }
