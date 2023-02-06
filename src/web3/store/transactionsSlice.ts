@@ -89,13 +89,19 @@ export function createTransactionsSlice<T extends BaseTx>({
       if (!tx.s && !tx.v && !tx.r) {
         const safeApiEndpoint = getGnosisSafeApiEndpoints[chainId];
         if (safeApiEndpoint) {
-          const safeTxDetails = await axios.get(
-            `${safeApiEndpoint}/v1/multisig-transactions/${txHash}`
+          await waitUntil(
+            async () => {
+              const safeTxDetails = await axios.get(
+                `${safeApiEndpoint}/v1/multisig-transactions/${txHash}`
+              );
+              const transactionHash = safeTxDetails.data.transactionHash;
+              if (!!transactionHash) {
+                txHash = transactionHash;
+              }
+              return !!transactionHash;
+            },
+            { timeout: 1000000, intervalBetweenAttempts: 1000 }
           );
-          if (safeTxDetails) {
-            console.log(safeTxDetails);
-            txHash = safeTxDetails.data.transactionHash;
-          }
         }
       }
       const transaction = {
@@ -121,8 +127,8 @@ export function createTransactionsSlice<T extends BaseTx>({
       );
       const txPool = get().transactionsPool;
       setLocalStorageTxPool(txPool);
-      get().waitForTx(tx.hash);
-      return txPool[tx.hash];
+      get().waitForTx(txHash);
+      return txPool[txHash];
     },
 
     waitForTx: async (hash) => {
