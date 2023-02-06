@@ -32,9 +32,11 @@ export interface ITransactionsState<T extends BaseTx> {
       pending: boolean;
     }
   >;
+  providers: ProvidersRecord
 }
 
 interface ITransactionsActions<T extends BaseTx> {
+  setProvider: (chainId: number, provider: StaticJsonRpcBatchProvider) => void,
   txStatusChangedCallback: (
     data: T & {
       status?: number;
@@ -68,20 +70,23 @@ export type ITransactionsSlice<T extends BaseTx> = ITransactionsActions<T> &
 
 export function createTransactionsSlice<T extends BaseTx>({
   txStatusChangedCallback,
-  providers,
+  defaultProviders,
 }: {
   txStatusChangedCallback: (tx: T) => void;
-  providers: ProvidersRecord;
+  defaultProviders: ProvidersRecord;
 }): StoreSlice<
   ITransactionsSlice<T>,
   Pick<Web3Slice, 'checkAndSwitchNetwork'>
 > {
   return (set, get) => ({
     transactionsPool: {},
+    providers: defaultProviders,
     txStatusChangedCallback,
     executeTx: async ({ body, params }) => {
       await get().checkAndSwitchNetwork(params.desiredChainID);
       const tx = await body();
+      const txRec = await tx.wait()
+      console.log(txRec, 'txRec')
       const chainId = Number(params.desiredChainID);
       const transaction = {
         chainId,
@@ -105,15 +110,15 @@ export function createTransactionsSlice<T extends BaseTx>({
         })
       );
       const txPool = get().transactionsPool;
-      setLocalStorageTxPool(txPool);
-      get().waitForTx(tx.hash);
+      // setLocalStorageTxPool(txPool);
+      // get().waitForTx(tx.hash);
       return txPool[tx.hash];
     },
 
     waitForTx: async (hash) => {
       const txData = get().transactionsPool[hash];
       if (txData) {
-        const provider = providers[
+        const provider = get().providers[
           txData.chainId
         ] as StaticJsonRpcBatchProvider;
 
@@ -186,6 +191,10 @@ export function createTransactionsSlice<T extends BaseTx>({
           get().waitForTx(tx.hash);
         }
       });
+    },
+
+    setProvider: (chainID: number, provider: StaticJsonRpcBatchProvider) => {
+      
     },
   });
 }

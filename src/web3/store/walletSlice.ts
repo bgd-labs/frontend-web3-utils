@@ -10,7 +10,9 @@ import {
   setLocalStorageWallet,
   setLocalStorageWalletChainId,
 } from '../../utils/localStorage';
+import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvider';
 import { getConnectorName, WalletType } from '../connectors';
+import { TransactionsSlice } from './__test__/transactionsSlice.test';
 
 export interface Wallet {
   walletType: WalletType;
@@ -47,7 +49,7 @@ export function createWeb3Slice({
   walletConnected: (wallet: Wallet) => void; // TODO: why all of them here hardcoded
   getChainParameters: (chainId: number) => AddEthereumChainParameter | number;
   desiredChainID?: number;
-}): StoreSlice<Web3Slice> {
+}): StoreSlice<Web3Slice, TransactionsSlice> {
   return (set, get) => ({
     walletActivating: false,
     walletConnectionError: '',
@@ -163,6 +165,10 @@ export function createWeb3Slice({
         wallet.walletType == 'Impersonated'
           ? wallet.provider.getSigner(get()._impersonatedAddress)
           : wallet.provider.getSigner(0);
+
+          if (wallet.chainId !== undefined) {
+            get().setProvider(wallet.chainId, wallet.provider as StaticJsonRpcBatchProvider)
+          }
 
       set({
         activeWallet: {
