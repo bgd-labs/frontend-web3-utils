@@ -1,8 +1,10 @@
 import { TimeoutError, waitUntil } from 'async-wait-until';
+import axios from 'axios';
 import { ethers } from 'ethers';
 import { Draft, produce } from 'immer';
 
 import { StoreSlice } from '../../types/store';
+import { getGnosisSafeApiEndpoints } from '../../utils/gnosisSafeApiEndpoints';
 import {
   getLocalStorageTxPool,
   setLocalStorageTxPool,
@@ -83,9 +85,22 @@ export function createTransactionsSlice<T extends BaseTx>({
       await get().checkAndSwitchNetwork(params.desiredChainID);
       const tx = await body();
       const chainId = Number(params.desiredChainID);
+      let txHash = tx.hash;
+      if (!tx.s && !tx.v && !tx.r) {
+        const safeApiEndpoint = getGnosisSafeApiEndpoints[chainId];
+        if (safeApiEndpoint) {
+          const safeTxDetails = await axios.get(
+            `${safeApiEndpoint}/v1/multisig-transactions/${txHash}`
+          );
+          if (safeTxDetails) {
+            console.log(safeTxDetails);
+            txHash = safeTxDetails.data.transactionHash;
+          }
+        }
+      }
       const transaction = {
         chainId,
-        hash: tx.hash,
+        hash: txHash,
         type: params.type,
         payload: params.payload,
         from: tx.from,
