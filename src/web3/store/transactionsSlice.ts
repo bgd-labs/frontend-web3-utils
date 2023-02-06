@@ -7,7 +7,6 @@ import {
   getLocalStorageTxPool,
   setLocalStorageTxPool,
 } from '../../utils/localStorage';
-import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvider';
 import { Web3Slice } from './walletSlice';
 
 export type BaseTx = {
@@ -20,8 +19,6 @@ export type BaseTx = {
   chainId: number;
   timestamp?: number;
 };
-
-export type ProvidersRecord = Record<number, StaticJsonRpcBatchProvider>;
 
 export type TransactionPool<T extends BaseTx> = Record<string, T>;
 
@@ -57,7 +54,7 @@ interface ITransactionsActions<T extends BaseTx> {
   waitForTxReceipt: (
     tx: ethers.providers.TransactionResponse,
     txHash: string,
-    provider: StaticJsonRpcBatchProvider
+    provider: ethers.providers.JsonRpcProvider
   ) => Promise<void>;
   updateTXStatus: (hash: string, status?: number) => void;
   initTxPool: () => void;
@@ -68,13 +65,11 @@ export type ITransactionsSlice<T extends BaseTx> = ITransactionsActions<T> &
 
 export function createTransactionsSlice<T extends BaseTx>({
   txStatusChangedCallback,
-  providers,
 }: {
   txStatusChangedCallback: (tx: T) => void;
-  providers: ProvidersRecord;
 }): StoreSlice<
   ITransactionsSlice<T>,
-  Pick<Web3Slice, 'checkAndSwitchNetwork'>
+  Pick<Web3Slice, 'checkAndSwitchNetwork' | 'activeWallet'>
 > {
   return (set, get) => ({
     transactionsPool: {},
@@ -112,11 +107,8 @@ export function createTransactionsSlice<T extends BaseTx>({
 
     waitForTx: async (hash) => {
       const txData = get().transactionsPool[hash];
-      if (txData) {
-        const provider = providers[
-          txData.chainId
-        ] as StaticJsonRpcBatchProvider;
-
+      const provider = get().activeWallet?.provider;
+      if (txData && provider) {
         try {
           await waitUntil(
             async () => {
@@ -145,11 +137,7 @@ export function createTransactionsSlice<T extends BaseTx>({
       }
     },
 
-    waitForTxReceipt: async (
-      tx: ethers.providers.TransactionResponse,
-      txHash: string,
-      provider: StaticJsonRpcBatchProvider
-    ) => {
+    waitForTxReceipt: async (tx, txHash, provider) => {
       const txn = await tx.wait();
 
       get().updateTXStatus(txHash, txn.status);
