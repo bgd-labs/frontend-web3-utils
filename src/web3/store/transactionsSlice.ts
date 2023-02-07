@@ -23,6 +23,12 @@ export type BaseTx = {
 
 export type ProvidersRecord = Record<number, StaticJsonRpcBatchProvider>;
 
+export type TransactionsBaseType = {
+  providers: ProvidersRecord;
+  setProvider: (chainId: number, provider: StaticJsonRpcBatchProvider) => void;
+  initTxPool: () => void;
+};
+
 export type TransactionPool<T extends BaseTx> = Record<string, T>;
 
 export interface ITransactionsState<T extends BaseTx> {
@@ -33,11 +39,9 @@ export interface ITransactionsState<T extends BaseTx> {
       walletType: WalletType;
     }
   >;
-  providers: ProvidersRecord;
 }
 
 interface ITransactionsActions<T extends BaseTx> {
-  setProvider: (chainId: number, provider: StaticJsonRpcBatchProvider) => void;
   txStatusChangedCallback: (
     data: T & {
       status?: number;
@@ -62,11 +66,11 @@ interface ITransactionsActions<T extends BaseTx> {
     txHash: string
   ) => Promise<void>;
   updateTXStatus: (hash: string, status?: number) => void;
-  initTxPool: () => void;
 }
 
 export type ITransactionsSlice<T extends BaseTx> = ITransactionsActions<T> &
-  ITransactionsState<T>;
+  ITransactionsState<T> &
+  TransactionsBaseType;
 
 export function createTransactionsSlice<T extends BaseTx>({
   txStatusChangedCallback,
@@ -178,7 +182,7 @@ export function createTransactionsSlice<T extends BaseTx>({
       });
     },
 
-    setProvider: (chainID: number, provider: StaticJsonRpcBatchProvider) => {
+    setProvider: (chainID, provider) => {
       set((state) =>
         produce(state, (draft) => {
           draft.providers[chainID] = provider;

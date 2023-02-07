@@ -12,7 +12,7 @@ import {
 } from '../../utils/localStorage';
 import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvider';
 import { getConnectorName, WalletType } from '../connectors';
-import { BaseTx, ITransactionsSlice } from './transactionsSlice';
+import { TransactionsBaseType } from './transactionsSlice';
 
 export interface Wallet {
   walletType: WalletType;
@@ -51,7 +51,7 @@ export function createWalletSlice({
   walletConnected: (wallet: Wallet) => void; // TODO: why all of them here hardcoded
   getChainParameters: (chainId: number) => AddEthereumChainParameter | number;
   desiredChainID?: number;
-}): StoreSlice<IWalletSlice, ITransactionsSlice<BaseTx>> {
+}): StoreSlice<IWalletSlice, TransactionsBaseType> {
   return (set, get) => ({
     walletActivating: false,
     walletConnectionError: '',
