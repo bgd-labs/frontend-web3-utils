@@ -4,6 +4,7 @@ import { produce } from 'immer';
 
 import { StoreSlice } from '../../types/store';
 import {
+  clearWalletConnectLocalStorage,
   deleteLocalStorageWallet,
   deleteLocalStorageWalletChainId,
   LocalStorageKeys,
@@ -151,35 +152,13 @@ export function createWalletSlice({
 
         if (activeConnector?.deactivate) {
           await activeConnector.deactivate();
-
-          localStorage.removeItem('walletconnect');
-          localStorage.removeItem(
-            '-walletlink:https://www.walletlink.org:version'
-          );
-          localStorage.removeItem(
-            '-walletlink:https://www.walletlink.org:session:id'
-          );
-          localStorage.removeItem(
-            '-walletlink:https://www.walletlink.org:session:secret'
-          );
-          localStorage.removeItem(
-            '-walletlink:https://www.walletlink.org:session:linked'
-          );
-          localStorage.removeItem(
-            '-walletlink:https://www.walletlink.org:AppVersion'
-          );
-          localStorage.removeItem(
-            '-walletlink:https://www.walletlink.org:Addresses'
-          );
-          localStorage.removeItem(
-            '-walletlink:https://www.walletlink.org:walletUsername'
-          );
         }
         await activeConnector?.resetState();
         set({ activeWallet: undefined });
       }
       deleteLocalStorageWallet();
       deleteLocalStorageWalletChainId();
+      clearWalletConnectLocalStorage();
     },
     /**
      * setActiveWallet is separate from connectWallet for a reason, after metaMask.activate()
