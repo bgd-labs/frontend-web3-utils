@@ -34,7 +34,9 @@ function Child({
   const setConnectors = useStore((state) => state.setConnectors);
 
   useEffect(() => {
-    setConnectors(connectors);
+    if (connectors) {
+      setConnectors(connectors);
+    }
   }, [connectors]);
 
   useEffect(() => {
@@ -65,12 +67,12 @@ export function Web3Provider({
   connectorsInitProps,
 }: Web3ProviderProps) {
   const [connectors] = useState(initAllConnectors(connectorsInitProps));
+  const [mappedConnectors] = useState(
+    connectors.map((connector) => connector[0])
+  );
   return (
     <Web3ReactProvider connectors={connectors}>
-      <Child
-        useStore={useStore}
-        connectors={connectors.map((connector) => connector[0])}
-      />
+      <Child useStore={useStore} connectors={mappedConnectors} />
     </Web3ReactProvider>
   );
 }
