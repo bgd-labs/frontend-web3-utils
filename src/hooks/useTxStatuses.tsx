@@ -1,35 +1,22 @@
 import { useEffect, useState } from 'react';
-import { StoreApi, UseBoundStore } from 'zustand';
 
 import { selectLastTxByTypeAndPayload } from '../web3/store/transactionsSelectors';
 import { BaseTx, ITransactionsState } from '../web3/store/transactionsSlice';
 
 interface TxStatusesParams<T extends BaseTx> {
-  useStore: UseBoundStore<
-    StoreApi<{
-      getActiveAddress: () => string | undefined;
-    }>
-  >;
   state: ITransactionsState<T>;
+  activeAddress: string;
   type: T['type'];
   payload: T['payload'];
 }
 
 export const useTxStatuses = <T extends BaseTx>({
-  useStore,
   state,
+  activeAddress,
   type,
   payload,
 }: TxStatusesParams<T>) => {
-  const getActiveAddress = useStore((state) => state.getActiveAddress);
-  const activeAddress = getActiveAddress();
-
-  const tx = selectLastTxByTypeAndPayload(
-    state,
-    activeAddress || '',
-    type,
-    payload
-  );
+  const tx = selectLastTxByTypeAndPayload(state, activeAddress, type, payload);
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
