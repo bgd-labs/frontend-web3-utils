@@ -199,14 +199,16 @@ export function createWalletSlice({
         );
       }
 
-      const codeOfWalletAddress = await wallet.provider.getCode(
-        wallet.accounts[0]
-      );
+      // TODO: need fix, get error when chainId changed in tx flow
+      // const codeOfWalletAddress = await wallet.provider.getCode(
+      //   wallet.accounts[0]
+      // );
 
       set({
         activeWallet: {
           ...wallet,
-          isContractAddress: codeOfWalletAddress !== '0x',
+          // isContractAddress: codeOfWalletAddress !== '0x',
+          isContractAddress: false,
           signer: providerSigner,
         },
       });

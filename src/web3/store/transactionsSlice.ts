@@ -136,10 +136,7 @@ export function createTransactionsSlice<T extends BaseTx>({
       }
     },
 
-    waitForTxReceipt: async (
-      tx: ethers.providers.TransactionResponse,
-      txHash: string
-    ) => {
+    waitForTxReceipt: async (tx, txHash) => {
       const chainId = tx.chainId || get().transactionsPool[txHash].chainId;
       const provider = get().providers[chainId] as StaticJsonRpcBatchProvider;
       const txn = await tx.wait();
