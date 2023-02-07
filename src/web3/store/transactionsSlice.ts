@@ -8,7 +8,7 @@ import {
 } from '../../utils/localStorage';
 import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvider';
 import { WalletType } from '../connectors';
-import { Web3Slice } from './walletSlice';
+import { IWalletSlice } from './walletSlice';
 
 export type BaseTx = {
   type: string;
@@ -30,14 +30,14 @@ export interface ITransactionsState<T extends BaseTx> {
     T & {
       status?: number;
       pending: boolean;
-      walletType: WalletType
+      walletType: WalletType;
     }
   >;
-  providers: ProvidersRecord
+  providers: ProvidersRecord;
 }
 
 interface ITransactionsActions<T extends BaseTx> {
-  setProvider: (chainId: number, provider: StaticJsonRpcBatchProvider) => void,
+  setProvider: (chainId: number, provider: StaticJsonRpcBatchProvider) => void;
   txStatusChangedCallback: (
     data: T & {
       status?: number;
@@ -59,7 +59,7 @@ interface ITransactionsActions<T extends BaseTx> {
   waitForTx: (hash: string) => Promise<void>;
   waitForTxReceipt: (
     tx: ethers.providers.TransactionResponse,
-    txHash: string,
+    txHash: string
   ) => Promise<void>;
   updateTXStatus: (hash: string, status?: number) => void;
   initTxPool: () => void;
@@ -76,7 +76,7 @@ export function createTransactionsSlice<T extends BaseTx>({
   defaultProviders: ProvidersRecord;
 }): StoreSlice<
   ITransactionsSlice<T>,
-  Pick<Web3Slice, 'checkAndSwitchNetwork' | 'activeWallet'>
+  Pick<IWalletSlice, 'checkAndSwitchNetwork' | 'activeWallet'>
 > {
   return (set, get) => ({
     transactionsPool: {},
@@ -84,9 +84,9 @@ export function createTransactionsSlice<T extends BaseTx>({
     txStatusChangedCallback,
     executeTx: async ({ body, params }) => {
       await get().checkAndSwitchNetwork(params.desiredChainID);
-      const activeWallet = get().activeWallet
+      const activeWallet = get().activeWallet;
       if (!activeWallet) {
-        throw new Error('No wallet connected')
+        throw new Error('No wallet connected');
       }
       const tx = await body();
       const chainId = Number(params.desiredChainID);
@@ -104,11 +104,11 @@ export function createTransactionsSlice<T extends BaseTx>({
           draft.transactionsPool[transaction.hash] = {
             ...transaction,
             pending: true,
-            walletType: activeWallet.walletType
+            walletType: activeWallet.walletType,
           } as Draft<
             T & {
               pending: boolean;
-              walletType: WalletType
+              walletType: WalletType;
             }
           >;
         })
@@ -134,7 +134,7 @@ export function createTransactionsSlice<T extends BaseTx>({
 
     waitForTxReceipt: async (
       tx: ethers.providers.TransactionResponse,
-      txHash: string,
+      txHash: string
     ) => {
       const chainId = tx.chainId || get().transactionsPool[txHash].chainId;
       const provider = get().providers[chainId] as StaticJsonRpcBatchProvider;
@@ -170,8 +170,8 @@ export function createTransactionsSlice<T extends BaseTx>({
         }));
       }
       Object.values(get().transactionsPool).forEach((tx) => {
-        // ingore transactions from GnosisSafe is gnosis is not connected due to different tx hashes
-        const txObservable = tx.walletType != 'GnosisSafe'
+        // ignore transactions from GnosisSafe is gnosis is not connected due to different tx hashes
+        const txObservable = tx.walletType != 'GnosisSafe';
         if (tx.pending && txObservable) {
           get().waitForTx(tx.hash);
         }
@@ -179,9 +179,11 @@ export function createTransactionsSlice<T extends BaseTx>({
     },
 
     setProvider: (chainID: number, provider: StaticJsonRpcBatchProvider) => {
-      set((state) => produce(state, (draft) => {
-        draft.providers[chainID] = provider
-      }))
+      set((state) =>
+        produce(state, (draft) => {
+          draft.providers[chainID] = provider;
+        })
+      );
     },
   });
 }

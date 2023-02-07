@@ -24,7 +24,7 @@ export interface Wallet {
   isActive: boolean;
 }
 
-export type Web3Slice = {
+export type IWalletSlice = {
   activeWallet?: Wallet;
   getActiveAddress: () => string | undefined;
   connectWallet: (walletType: WalletType, chainID?: number) => Promise<void>;
@@ -41,7 +41,7 @@ export type Web3Slice = {
   setImpersonatedAddress: (address: string) => void;
 };
 
-export function createWeb3Slice({
+export function createWalletSlice({
   walletConnected,
   getChainParameters,
   desiredChainID = 1,
@@ -49,7 +49,7 @@ export function createWeb3Slice({
   walletConnected: (wallet: Wallet) => void; // TODO: why all of them here hardcoded
   getChainParameters: (chainId: number) => AddEthereumChainParameter | number;
   desiredChainID?: number;
-}): StoreSlice<Web3Slice, TransactionsSlice> {
+}): StoreSlice<IWalletSlice, TransactionsSlice> {
   return (set, get) => ({
     walletActivating: false,
     walletConnectionError: '',
@@ -57,7 +57,7 @@ export function createWeb3Slice({
     setConnectors: async (connectors) => {
       set(() => ({ connectors }));
       await get().initDefaultWallet();
-      get().initTxPool()
+      get().initTxPool();
     },
     initDefaultWallet: async () => {
       const lastConnectedWallet = localStorage.getItem(
@@ -149,6 +149,29 @@ export function createWeb3Slice({
 
         if (activeConnector?.deactivate) {
           await activeConnector.deactivate();
+
+          localStorage.removeItem('walletconnect');
+          localStorage.removeItem(
+            '-walletlink:https://www.walletlink.org:version'
+          );
+          localStorage.removeItem(
+            '-walletlink:https://www.walletlink.org:session:id'
+          );
+          localStorage.removeItem(
+            '-walletlink:https://www.walletlink.org:session:secret'
+          );
+          localStorage.removeItem(
+            '-walletlink:https://www.walletlink.org:session:linked'
+          );
+          localStorage.removeItem(
+            '-walletlink:https://www.walletlink.org:AppVersion'
+          );
+          localStorage.removeItem(
+            '-walletlink:https://www.walletlink.org:Addresses'
+          );
+          localStorage.removeItem(
+            '-walletlink:https://www.walletlink.org:walletUsername'
+          );
         }
         await activeConnector?.resetState();
         set({ activeWallet: undefined });
@@ -167,9 +190,12 @@ export function createWeb3Slice({
           ? wallet.provider.getSigner(get()._impersonatedAddress)
           : wallet.provider.getSigner(0);
 
-          if (wallet.chainId !== undefined) {
-            get().setProvider(wallet.chainId, wallet.provider as StaticJsonRpcBatchProvider)
-          }
+      if (wallet.chainId !== undefined) {
+        get().setProvider(
+          wallet.chainId,
+          wallet.provider as StaticJsonRpcBatchProvider
+        );
+      }
 
       set({
         activeWallet: {

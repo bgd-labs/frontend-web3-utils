@@ -30,7 +30,7 @@ interface ExtendedChainInformation extends BasicChainInformation {
   blockExplorerUrls: AddEthereumChainParameter['blockExplorerUrls'];
 }
 
-export type ChainInformation = BasicChainInformation | ExtendedChainInformation;
+export type ChainInformation = BasicChainInformation & ExtendedChainInformation;
 
 export const initialChains: {
   [chainId: number]: ChainInformation;
@@ -125,9 +125,9 @@ export const initChainInformationConfig = (chains?: {
       return {
         chainId,
         chainName: `unknown network: ${chainId}`,
-        nativeCurrency: ETH,
-        rpcUrls: ['https://ethereum.publicnode.com'],
-        blockExplorerUrls: ['https://etherscan.io'],
+        nativeCurrency: initialChains[1].nativeCurrency,
+        rpcUrls: initialChains[1].urls,
+        blockExplorerUrls: initialChains[1].blockExplorerUrls,
       };
     }
   }

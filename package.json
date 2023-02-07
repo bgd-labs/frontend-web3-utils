@@ -46,6 +46,10 @@
     {
       "name": "Andrei Kozlov",
       "url": "https://github.com/kyzia551"
+    },
+    {
+      "name": "Oleksandr Tkach",
+      "url": "https://github.com/Argeare5"
     }
   ],
   "module": "dist/bgd-fe-utils.esm.js",
@@ -90,7 +94,6 @@
     "@web3-react/metamask": "8.0.29-beta.0",
     "@web3-react/types": "8.0.20-beta.0",
     "@web3-react/walletconnect": "8.0.36-beta.0",
-    "async-wait-until": "^2.0.12",
     "lodash": "^4.17.21"
   }
 }
