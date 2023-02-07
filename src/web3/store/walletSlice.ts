@@ -61,7 +61,6 @@ export function createWalletSlice({
       if (get().connectors.length !== connectors.length) {
         set(() => ({ connectors }));
         await get().initDefaultWallet();
-        console.log('initTxPool');
         get().initTxPool();
       }
     },
