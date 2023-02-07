@@ -22,6 +22,8 @@ export interface Wallet {
   signer: providers.JsonRpcSigner;
   // isActive is added, because Wallet can be connected but not active, i.e. wrong network
   isActive: boolean;
+  // isContractAddress is added, to check if wallet address is contract
+  isContractAddress: boolean;
 }
 
 export type IWalletSlice = {
@@ -32,7 +34,7 @@ export type IWalletSlice = {
   walletActivating: boolean;
   walletConnectionError: string;
   initDefaultWallet: () => Promise<void>;
-  setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => void;
+  setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => Promise<void>;
   changeActiveWalletChainId: (chainId: number) => void;
   checkAndSwitchNetwork: (chainId?: number) => Promise<void>;
   connectors: Connector[];
@@ -184,7 +186,7 @@ export function createWalletSlice({
      * only provider is available in the returned type, but we also need accounts and chainID which for some reason
      * is impossible to pull from .provider() still not the best approach, and I'm looking to find proper way to handle it
      */
-    setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => {
+    setActiveWallet: async (wallet: Omit<Wallet, 'signer'>) => {
       const providerSigner =
         wallet.walletType == 'Impersonated'
           ? wallet.provider.getSigner(get()._impersonatedAddress)
@@ -197,9 +199,14 @@ export function createWalletSlice({
         );
       }
 
+      const codeOfWalletAddress = await wallet.provider.getCode(
+        wallet.accounts[0]
+      );
+
       set({
         activeWallet: {
           ...wallet,
+          isContractAddress: codeOfWalletAddress !== '0x',
           signer: providerSigner,
         },
       });

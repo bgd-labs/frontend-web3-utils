@@ -48,6 +48,7 @@ function Child({
         chainId,
         provider,
         isActive,
+        isContractAddress: false,
       });
     }
   }, [isActive, chainId, provider, accounts]);
