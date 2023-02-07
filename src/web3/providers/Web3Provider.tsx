@@ -16,7 +16,6 @@ interface Web3ProviderProps {
       setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => void;
       changeActiveWalletChainId: (chainID: number) => void;
       setConnectors: (connectors: Connector[]) => void;
-      initTxPool: () => void;
     }>
   >;
   connectorsInitProps: AllConnectorsInitProps;
