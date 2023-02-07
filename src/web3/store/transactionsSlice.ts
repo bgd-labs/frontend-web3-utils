@@ -23,7 +23,7 @@ export type BaseTx = {
 
 export type ProvidersRecord = Record<number, StaticJsonRpcBatchProvider>;
 
-export type TransactionsBaseType = {
+export type TransactionsSliceBaseType = {
   providers: ProvidersRecord;
   setProvider: (chainId: number, provider: StaticJsonRpcBatchProvider) => void;
   initTxPool: () => void;
@@ -70,7 +70,7 @@ interface ITransactionsActions<T extends BaseTx> {
 
 export type ITransactionsSlice<T extends BaseTx> = ITransactionsActions<T> &
   ITransactionsState<T> &
-  TransactionsBaseType;
+  TransactionsSliceBaseType;
 
 export function createTransactionsSlice<T extends BaseTx>({
   txStatusChangedCallback,

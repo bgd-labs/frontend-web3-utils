@@ -1,3 +1,4 @@
+export * from './hooks/useTxStatuses';
 export * from './types/store';
 export * from './utils/chainInfoHelpers';
 export * from './utils/generateTxFunction';
