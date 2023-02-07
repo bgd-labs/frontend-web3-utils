@@ -33,15 +33,10 @@ function Child({
   const setActiveWallet = useStore((state) => state.setActiveWallet);
   const changeChainID = useStore((state) => state.changeActiveWalletChainId);
   const setConnectors = useStore((state) => state.setConnectors);
-  const initTxPool = useStore((state) => state.initTxPool);
 
   useEffect(() => {
     setConnectors(connectors);
   }, [connectors]);
-
-  useEffect(() => {
-    initTxPool();
-  }, [initTxPool]);
 
   useEffect(() => {
     const walletType = connector && getConnectorName(connector);

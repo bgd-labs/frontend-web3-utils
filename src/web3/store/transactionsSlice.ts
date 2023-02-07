@@ -1,4 +1,3 @@
-import { TimeoutError, waitUntil } from 'async-wait-until';
 import { ethers } from 'ethers';
 import { Draft, produce } from 'immer';
 
@@ -8,6 +7,7 @@ import {
   setLocalStorageTxPool,
 } from '../../utils/localStorage';
 import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvider';
+import { WalletType } from '../connectors';
 import { Web3Slice } from './walletSlice';
 
 export type BaseTx = {
@@ -30,6 +30,7 @@ export interface ITransactionsState<T extends BaseTx> {
     T & {
       status?: number;
       pending: boolean;
+      walletType: WalletType
     }
   >;
   providers: ProvidersRecord
@@ -59,7 +60,6 @@ interface ITransactionsActions<T extends BaseTx> {
   waitForTxReceipt: (
     tx: ethers.providers.TransactionResponse,
     txHash: string,
-    provider: StaticJsonRpcBatchProvider
   ) => Promise<void>;
   updateTXStatus: (hash: string, status?: number) => void;
   initTxPool: () => void;
@@ -76,7 +76,7 @@ export function createTransactionsSlice<T extends BaseTx>({
   defaultProviders: ProvidersRecord;
 }): StoreSlice<
   ITransactionsSlice<T>,
-  Pick<Web3Slice, 'checkAndSwitchNetwork'>
+  Pick<Web3Slice, 'checkAndSwitchNetwork' | 'activeWallet'>
 > {
   return (set, get) => ({
     transactionsPool: {},
@@ -84,9 +84,11 @@ export function createTransactionsSlice<T extends BaseTx>({
     txStatusChangedCallback,
     executeTx: async ({ body, params }) => {
       await get().checkAndSwitchNetwork(params.desiredChainID);
+      const activeWallet = get().activeWallet
+      if (!activeWallet) {
+        throw new Error('No wallet connected')
+      }
       const tx = await body();
-      const txRec = await tx.wait()
-      console.log(txRec, 'txRec')
       const chainId = Number(params.desiredChainID);
       const transaction = {
         chainId,
@@ -102,16 +104,18 @@ export function createTransactionsSlice<T extends BaseTx>({
           draft.transactionsPool[transaction.hash] = {
             ...transaction,
             pending: true,
+            walletType: activeWallet.walletType
           } as Draft<
             T & {
               pending: boolean;
+              walletType: WalletType
             }
           >;
         })
       );
       const txPool = get().transactionsPool;
-      // setLocalStorageTxPool(txPool);
-      // get().waitForTx(tx.hash);
+      setLocalStorageTxPool(txPool);
+      get().waitForTxReceipt(tx, tx.hash);
       return txPool[tx.hash];
     },
 
@@ -121,30 +125,8 @@ export function createTransactionsSlice<T extends BaseTx>({
         const provider = get().providers[
           txData.chainId
         ] as StaticJsonRpcBatchProvider;
-
-        try {
-          await waitUntil(
-            async () => {
-              const tx = await provider.getTransaction(txData.hash);
-              if (!!tx) {
-                await get().waitForTxReceipt(tx, txData.hash, provider);
-              }
-              return !!tx;
-            },
-            { timeout: 10000, intervalBetweenAttempts: 1000 }
-          );
-        } catch (e) {
-          if (e instanceof TimeoutError) {
-            const tx = await provider.getTransaction(txData.hash);
-            if (!!tx) {
-              await get().waitForTxReceipt(tx, txData.hash, provider);
-            } else {
-              console.error(e);
-            }
-          } else {
-            console.error(e);
-          }
-        }
+        const tx = await provider.getTransaction(txData.hash);
+        await get().waitForTxReceipt(tx, txData.hash);
       } else {
         // TODO: no transaction in waiting pool
       }
@@ -153,8 +135,9 @@ export function createTransactionsSlice<T extends BaseTx>({
     waitForTxReceipt: async (
       tx: ethers.providers.TransactionResponse,
       txHash: string,
-      provider: StaticJsonRpcBatchProvider
     ) => {
+      const chainId = tx.chainId || get().transactionsPool[txHash].chainId;
+      const provider = get().providers[chainId] as StaticJsonRpcBatchProvider;
       const txn = await tx.wait();
 
       get().updateTXStatus(txHash, txn.status);
@@ -187,14 +170,18 @@ export function createTransactionsSlice<T extends BaseTx>({
         }));
       }
       Object.values(get().transactionsPool).forEach((tx) => {
-        if (tx.pending) {
+        // ingore transactions from GnosisSafe is gnosis is not connected due to different tx hashes
+        const txObservable = tx.walletType != 'GnosisSafe'
+        if (tx.pending && txObservable) {
           get().waitForTx(tx.hash);
         }
       });
     },
 
     setProvider: (chainID: number, provider: StaticJsonRpcBatchProvider) => {
-      
+      set((state) => produce(state, (draft) => {
+        draft.providers[chainID] = provider
+      }))
     },
   });
 }

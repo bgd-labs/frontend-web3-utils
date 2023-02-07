@@ -54,9 +54,10 @@ export function createWeb3Slice({
     walletActivating: false,
     walletConnectionError: '',
     connectors: [],
-    setConnectors: (connectors) => {
+    setConnectors: async (connectors) => {
       set(() => ({ connectors }));
-      void get().initDefaultWallet();
+      await get().initDefaultWallet();
+      get().initTxPool()
     },
     initDefaultWallet: async () => {
       const lastConnectedWallet = localStorage.getItem(
