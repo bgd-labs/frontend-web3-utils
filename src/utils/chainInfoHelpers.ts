@@ -27,7 +27,7 @@ interface BasicChainInformation {
 
 interface ExtendedChainInformation extends BasicChainInformation {
   nativeCurrency: AddEthereumChainParameter['nativeCurrency'];
-  blockExplorerUrls: string[];
+  blockExplorerUrls: AddEthereumChainParameter['blockExplorerUrls'];
 }
 
 export type ChainInformation = BasicChainInformation & ExtendedChainInformation;

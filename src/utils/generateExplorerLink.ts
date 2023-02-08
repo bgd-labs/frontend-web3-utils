@@ -1,7 +1,9 @@
+import { AddEthereumChainParameter } from '@web3-react/types';
+
 import { WalletType } from '../web3/connectors';
 
 export function generateExplorerLink(
-  blockExplorerUrls: Record<number, string[]>,
+  getChainParameters: (chainId: number) => AddEthereumChainParameter,
   txWalletType: WalletType,
   txChainId: number,
   txHash: string,
@@ -13,7 +15,9 @@ export function generateExplorerLink(
   };
 
   if (txWalletType !== 'GnosisSafe') {
-    return `${blockExplorerUrls[txChainId][0]}/tx/${txHash}`;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return `${getChainParameters(txChainId).blockExplorerUrls[0]}/tx/${txHash}`;
   } else {
     return `${gnosisSafeLinksHelper[txChainId]}${activeWallet}/transactions/tx?id=multisig_${activeWallet}_${txHash}`;
   }
