@@ -26,6 +26,7 @@ export const useTxStatuses = <T extends BaseTx>({
   const txPending = tx && tx.pending;
   const txSuccess = tx && tx.status === 1;
   const txChainId = tx && tx.chainId;
+  const txWalletType = tx && tx.walletType;
 
   useEffect(() => {
     if (txPending || !!error) {
@@ -44,5 +45,6 @@ export const useTxStatuses = <T extends BaseTx>({
     txPending,
     txSuccess,
     txChainId,
+    txWalletType,
   };
 };
