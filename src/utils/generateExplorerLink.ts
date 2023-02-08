@@ -1,7 +1,7 @@
 import { WalletType } from '../web3/connectors';
 
 export function generateExplorerLink(
-  blockExplorerUrls: string,
+  blockExplorerUrls: Record<number, string[]>,
   txWalletType: WalletType,
   txChainId: number,
   txHash: string,
@@ -13,7 +13,7 @@ export function generateExplorerLink(
   };
 
   if (txWalletType !== 'GnosisSafe') {
-    return `${blockExplorerUrls}/tx/${txHash}`;
+    return `${blockExplorerUrls[txChainId][0]}/tx/${txHash}`;
   } else {
     return `${gnosisSafeLinksHelper[txChainId]}${activeWallet}/transactions/tx?id=multisig_${activeWallet}_${txHash}`;
   }
