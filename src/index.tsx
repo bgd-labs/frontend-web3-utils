@@ -1,6 +1,7 @@
 export * from './hooks/useTxStatuses';
 export * from './types/store';
 export * from './utils/chainInfoHelpers';
+export * from './utils/generateExplorerLink';
 export * from './utils/generateTxFunction';
 export * from './utils/localStorage';
 export * from './web3/connectors/impersonatedConnector';
