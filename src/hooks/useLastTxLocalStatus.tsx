@@ -3,19 +3,24 @@ import { useEffect, useState } from 'react';
 import { selectLastTxByTypeAndPayload } from '../web3/store/transactionsSelectors';
 import { BaseTx, ITransactionsState } from '../web3/store/transactionsSlice';
 
-interface TxStatusesParams<T extends BaseTx> {
+interface LastTxStatusesParams<T extends BaseTx> {
   state: ITransactionsState<T>;
   activeAddress: string;
   type: T['type'];
   payload: T['payload'];
 }
 
-export const useTxStatuses = <T extends BaseTx>({
+type ExecuteTxWithLocalStatusesParams = {
+  errorMessage: string;
+  callbackFunction: () => Promise<void>;
+};
+
+export const useLastTxLocalStatus = <T extends BaseTx>({
   state,
   activeAddress,
   type,
   payload,
-}: TxStatusesParams<T>) => {
+}: LastTxStatusesParams<T>) => {
   const tx = selectLastTxByTypeAndPayload(state, activeAddress, type, payload);
 
   const [error, setError] = useState('');
@@ -34,6 +39,21 @@ export const useTxStatuses = <T extends BaseTx>({
     }
   }, [txPending, error]);
 
+  async function executeTxWithLocalStatuses({
+    errorMessage,
+    callbackFunction,
+  }: ExecuteTxWithLocalStatusesParams) {
+    setError('');
+    setLoading(true);
+    try {
+      await callbackFunction();
+    } catch (e) {
+      console.error('TX error: ', e);
+      setError(errorMessage);
+    }
+    setLoading(false);
+  }
+
   return {
     error,
     setError,
@@ -46,5 +66,6 @@ export const useTxStatuses = <T extends BaseTx>({
     txSuccess,
     txChainId,
     txWalletType,
+    executeTxWithLocalStatuses,
   };
 };
