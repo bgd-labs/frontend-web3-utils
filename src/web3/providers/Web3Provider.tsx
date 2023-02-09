@@ -30,7 +30,6 @@ function Child({
   const { connector, chainId, isActive, accounts, provider } = useWeb3React();
 
   const setActiveWallet = useStore((state) => state.setActiveWallet);
-  const changeChainID = useStore((state) => state.changeActiveWalletChainId);
   const setConnectors = useStore((state) => state.setConnectors);
 
   useEffect(() => {
@@ -53,12 +52,6 @@ function Child({
       });
     }
   }, [isActive, chainId, provider, accounts]);
-
-  useEffect(() => {
-    if (chainId) {
-      changeChainID(chainId);
-    }
-  }, [chainId]);
   return null;
 }
 

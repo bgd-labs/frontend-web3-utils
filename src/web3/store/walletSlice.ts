@@ -28,6 +28,7 @@ export interface Wallet {
 }
 
 export type IWalletSlice = {
+  isContractWalletRecord: Record<string, boolean>
   activeWallet?: Wallet;
   getActiveAddress: () => string | undefined;
   connectWallet: (walletType: WalletType, chainID?: number) => Promise<void>;
@@ -36,12 +37,13 @@ export type IWalletSlice = {
   walletConnectionError: string;
   initDefaultWallet: () => Promise<void>;
   setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => Promise<void>;
-  changeActiveWalletChainId: (chainId: number) => void;
+  changeActiveWalletChainId: (chainId?: number) => void;
   checkAndSwitchNetwork: (chainId?: number) => Promise<void>;
   connectors: Connector[];
   setConnectors: (connectors: Connector[]) => void;
   _impersonatedAddress?: string;
   setImpersonatedAddress: (address: string) => void;
+  checkIsContractWallet: (wallet: Omit<Wallet, 'signer'>) => Promise<boolean>
 };
 
 export function createWalletSlice({
@@ -54,6 +56,7 @@ export function createWalletSlice({
   desiredChainID?: number;
 }): StoreSlice<IWalletSlice, TransactionsSliceBaseType> {
   return (set, get) => ({
+    isContractWalletRecord: {},
     walletActivating: false,
     walletConnectionError: '',
     connectors: [],
@@ -162,6 +165,21 @@ export function createWalletSlice({
       deleteLocalStorageWalletChainId();
       clearWalletConnectLocalStorage();
     },
+    checkIsContractWallet: async (wallet: Omit<Wallet, 'signer'>) => {
+      const account = wallet.accounts[0]
+      const walletRecord = get().isContractWalletRecord[account]
+      if (walletRecord !== undefined) {
+        return walletRecord
+      }
+      const codeOfWalletAddress = await wallet.provider.getCode(
+        wallet.accounts[0]
+      );
+      const isContractWallet = codeOfWalletAddress !== '0x'
+      set((state) => produce(state, (draft) => {
+        draft.isContractWalletRecord[account] = isContractWallet
+      }))
+      return isContractWallet
+    },
     /**
      * setActiveWallet is separate from connectWallet for a reason, after metaMask.activate()
      * only provider is available in the returned type, but we also need accounts and chainID which for some reason
@@ -179,17 +197,11 @@ export function createWalletSlice({
           wallet.provider as StaticJsonRpcBatchProvider
         );
       }
-
-      // TODO: need fix, get error when chainId changed in tx flow
-      // const codeOfWalletAddress = await wallet.provider.getCode(
-      //   wallet.accounts[0]
-      // );
-
+      const isContractAddress = await get().checkIsContractWallet(wallet)
       set({
         activeWallet: {
           ...wallet,
-          // isContractAddress: codeOfWalletAddress !== '0x',
-          isContractAddress: false,
+          isContractAddress: isContractAddress,
           signer: providerSigner,
         },
       });
@@ -198,15 +210,17 @@ export function createWalletSlice({
         walletConnected(activeWallet);
       }
     },
-    changeActiveWalletChainId: (chainId: number) => {
-      set((state) =>
-        produce(state, (draft) => {
-          if (draft.activeWallet) {
-            draft.activeWallet.chainId = chainId;
-          }
-        })
-      );
-      setLocalStorageWalletChainId(chainId.toString());
+    changeActiveWalletChainId: (chainId?: number) => {
+      if (chainId !== undefined) {
+          set((state) =>
+          produce(state, (draft) => {
+            if (draft.activeWallet) {
+              draft.activeWallet.chainId = chainId;
+            }
+          })
+        );
+        setLocalStorageWalletChainId(chainId.toString()); 
+      }
     },
 
     getActiveAddress: () => {
