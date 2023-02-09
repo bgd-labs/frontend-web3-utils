@@ -1,9 +1,3 @@
-import { WalletIdentityFlag, WalletLabel } from './types';
-
-const metamask = {
-  identityFlag: WalletIdentityFlag.MetaMask,
-  label: WalletLabel.MetaMask,
-  icon: async () => (await import('./icons/metamask.js')).default,
-};
+import { metamask } from './wallets/metamask';
 
 export const wallets = [metamask];

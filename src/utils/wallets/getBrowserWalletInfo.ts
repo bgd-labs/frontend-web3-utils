@@ -1,4 +1,5 @@
 import { wallets } from './wallets';
+import { defaultWallet } from './wallets/defaultWallet';
 
 export function getBrowserWalletInfo() {
   if (typeof window !== 'undefined') {
@@ -9,8 +10,8 @@ export function getBrowserWalletInfo() {
     );
     if (userBrowserWallets.length > 1 || userBrowserWallets.length === 0) {
       return {
-        label: 'Browser wallet',
-        icon: async () => (await import('./icons/defaultIcon.js')).default,
+        label: defaultWallet.label,
+        icon: defaultWallet.icon,
       };
     } else {
       return {
