@@ -4,25 +4,31 @@ import { produce } from 'immer';
 
 import { StoreSlice } from '../../types/store';
 import {
+  clearWalletConnectLocalStorage,
   deleteLocalStorageWallet,
   deleteLocalStorageWalletChainId,
   LocalStorageKeys,
   setLocalStorageWallet,
   setLocalStorageWalletChainId,
 } from '../../utils/localStorage';
+import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvider';
 import { getConnectorName, WalletType } from '../connectors';
+import { TransactionsSliceBaseType } from './transactionsSlice';
 
 export interface Wallet {
   walletType: WalletType;
   accounts: string[];
   chainId?: number;
-  provider: providers.JsonRpcProvider; // TODO: not correct
-  signer: providers.JsonRpcSigner; // TODO: not correct, it can be not only JsonRpc
+  provider: providers.JsonRpcProvider;
+  signer: providers.JsonRpcSigner;
   // isActive is added, because Wallet can be connected but not active, i.e. wrong network
   isActive: boolean;
+  // isContractAddress is added, to check if wallet address is contract
+  isContractAddress: boolean;
 }
 
-export type Web3Slice = {
+export type IWalletSlice = {
+  isContractWalletRecord: Record<string, boolean>;
   activeWallet?: Wallet;
   getActiveAddress: () => string | undefined;
   connectWallet: (walletType: WalletType, chainID?: number) => Promise<void>;
@@ -30,16 +36,17 @@ export type Web3Slice = {
   walletActivating: boolean;
   walletConnectionError: string;
   initDefaultWallet: () => Promise<void>;
-  setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => void;
-  changeActiveWalletChainId: (chainId: number) => void;
+  setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => Promise<void>;
+  changeActiveWalletChainId: (chainId?: number) => void;
   checkAndSwitchNetwork: (chainId?: number) => Promise<void>;
   connectors: Connector[];
   setConnectors: (connectors: Connector[]) => void;
   _impersonatedAddress?: string;
   setImpersonatedAddress: (address: string) => void;
+  checkIsContractWallet: (wallet: Omit<Wallet, 'signer'>) => Promise<boolean>;
 };
 
-export function createWeb3Slice({
+export function createWalletSlice({
   walletConnected,
   getChainParameters,
   desiredChainID = 1,
@@ -47,14 +54,18 @@ export function createWeb3Slice({
   walletConnected: (wallet: Wallet) => void; // TODO: why all of them here hardcoded
   getChainParameters: (chainId: number) => AddEthereumChainParameter | number;
   desiredChainID?: number;
-}): StoreSlice<Web3Slice> {
+}): StoreSlice<IWalletSlice, TransactionsSliceBaseType> {
   return (set, get) => ({
+    isContractWalletRecord: {},
     walletActivating: false,
     walletConnectionError: '',
     connectors: [],
-    setConnectors: (connectors) => {
-      set(() => ({ connectors }));
-      void get().initDefaultWallet();
+    setConnectors: async (connectors) => {
+      if (get().connectors.length !== connectors.length) {
+        set(() => ({ connectors }));
+        await get().initDefaultWallet();
+        get().initTxPool();
+      }
     },
     initDefaultWallet: async () => {
       const lastConnectedWallet = localStorage.getItem(
@@ -112,16 +123,22 @@ export function createWeb3Slice({
             case 'WalletConnect':
               await connector.activate(chainID);
               break;
+            case 'GnosisSafe':
+              await connector.activate(chainID);
+              break;
           }
           setLocalStorageWallet(walletType);
           setLocalStorageWalletChainId(chainID.toString());
         }
       } catch (e) {
         if (e instanceof Error) {
+          let errorMessage = e.message ? e.message.toString() : e.toString();
+          if (errorMessage === 'MetaMask not installed') {
+            errorMessage = 'Browser wallet not installed';
+          }
+
           set({
-            walletConnectionError: e.message
-              ? e.message.toString()
-              : e.toString(),
+            walletConnectionError: errorMessage,
           });
         }
         console.error(e);
@@ -149,21 +166,47 @@ export function createWeb3Slice({
       }
       deleteLocalStorageWallet();
       deleteLocalStorageWalletChainId();
+      clearWalletConnectLocalStorage();
+    },
+    checkIsContractWallet: async (wallet: Omit<Wallet, 'signer'>) => {
+      const account = wallet.accounts[0];
+      const walletRecord = get().isContractWalletRecord[account];
+      if (walletRecord !== undefined) {
+        return walletRecord;
+      }
+      const codeOfWalletAddress = await wallet.provider.getCode(
+        wallet.accounts[0]
+      );
+      const isContractWallet = codeOfWalletAddress !== '0x';
+      set((state) =>
+        produce(state, (draft) => {
+          draft.isContractWalletRecord[account] = isContractWallet;
+        })
+      );
+      return isContractWallet;
     },
     /**
      * setActiveWallet is separate from connectWallet for a reason, after metaMask.activate()
      * only provider is available in the returned type, but we also need accounts and chainID which for some reason
      * is impossible to pull from .provider() still not the best approach, and I'm looking to find proper way to handle it
      */
-    setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => {
+    setActiveWallet: async (wallet: Omit<Wallet, 'signer'>) => {
       const providerSigner =
         wallet.walletType == 'Impersonated'
           ? wallet.provider.getSigner(get()._impersonatedAddress)
           : wallet.provider.getSigner(0);
 
+      if (wallet.chainId !== undefined) {
+        get().setProvider(
+          wallet.chainId,
+          wallet.provider as StaticJsonRpcBatchProvider
+        );
+      }
+      const isContractAddress = await get().checkIsContractWallet(wallet);
       set({
         activeWallet: {
           ...wallet,
+          isContractAddress: isContractAddress,
           signer: providerSigner,
         },
       });
@@ -172,15 +215,17 @@ export function createWeb3Slice({
         walletConnected(activeWallet);
       }
     },
-    changeActiveWalletChainId: (chainId: number) => {
-      set((state) =>
-        produce(state, (draft) => {
-          if (draft.activeWallet) {
-            draft.activeWallet.chainId = chainId;
-          }
-        })
-      );
-      setLocalStorageWalletChainId(chainId.toString());
+    changeActiveWalletChainId: (chainId?: number) => {
+      if (chainId !== undefined) {
+        set((state) =>
+          produce(state, (draft) => {
+            if (draft.activeWallet) {
+              draft.activeWallet.chainId = chainId;
+            }
+          })
+        );
+        setLocalStorageWalletChainId(chainId.toString());
+      }
     },
 
     getActiveAddress: () => {

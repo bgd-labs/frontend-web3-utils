@@ -33,3 +33,20 @@ export const setLocalStorageWalletChainId = (chainId: string) => {
 export const deleteLocalStorageWalletChainId = () => {
   localStorage.removeItem(LocalStorageKeys.LastConnectedChainId);
 };
+
+export const clearWalletConnectLocalStorage = () => {
+  localStorage.removeItem('walletconnect');
+  localStorage.removeItem('-walletlink:https://www.walletlink.org:version');
+  localStorage.removeItem('-walletlink:https://www.walletlink.org:session:id');
+  localStorage.removeItem(
+    '-walletlink:https://www.walletlink.org:session:secret'
+  );
+  localStorage.removeItem(
+    '-walletlink:https://www.walletlink.org:session:linked'
+  );
+  localStorage.removeItem('-walletlink:https://www.walletlink.org:AppVersion');
+  localStorage.removeItem('-walletlink:https://www.walletlink.org:Addresses');
+  localStorage.removeItem(
+    '-walletlink:https://www.walletlink.org:walletUsername'
+  );
+};

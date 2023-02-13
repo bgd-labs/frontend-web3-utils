@@ -8,20 +8,21 @@
 //   VotingTx,
 // } from "../transactionsSlice";
 
-import { providers } from "ethers";
-import create, { GetState, SetState } from "zustand";
-import { StoreSlice } from "../../../types/store";
-import { LocalStorageKeys } from "../../../utils/localStorage";
+import { providers } from 'ethers';
+import create, { GetState, SetState } from 'zustand';
+
+import { StoreSlice } from '../../../types/store';
+import { LocalStorageKeys } from '../../../utils/localStorage';
+import { createWalletSlice, MockedProvider } from '../__mocks__/web3';
 import {
   BaseTx,
-  ITransactionsSlice,
   createTransactionsSlice as createBaseTransactionsSlice,
-} from "../transactionsSlice";
-import { Web3Slice } from "../walletSlice";
-import { createWeb3Slice, MockedProvider } from "../__mocks__/web3";
+  ITransactionsSlice,
+} from '../transactionsSlice';
+import { IWalletSlice } from '../walletSlice';
 
 type SomeRandomTx = BaseTx & {
-  type: "SomerandomTx";
+  type: 'SomerandomTx';
 };
 
 const providersRecord = {
@@ -29,14 +30,14 @@ const providersRecord = {
 };
 
 type TestTXWithComplexPayload = BaseTx & {
-  type: "TestTXWithComplexPayload";
+  type: 'TestTXWithComplexPayload';
   payload: {
-    fizz: "fizz";
+    fizz: 'fizz';
   };
 };
 
 type TestTxWithSimplePayload = BaseTx & {
-  type: "TestTXWithSimplePayload";
+  type: 'TestTXWithSimplePayload';
   payload: {};
 };
 
@@ -50,7 +51,7 @@ export const createTransactionsSlice: StoreSlice<TransactionsSlice, any> = (
   set,
   get
 ) => ({
-  ...(createWeb3Slice() as any),
+  ...(createWalletSlice() as any),
   ...createBaseTransactionsSlice<TransactionUnion>({
     callbackObserver,
     providers: providersRecord,
@@ -68,33 +69,33 @@ const createRootSlice = (
 
 const useStore = create(createRootSlice);
 
-describe("Transactions slice", () => {
+describe('Transactions slice', () => {
   const tx = {
-    hash: "0x0000000",
+    hash: '0x0000000',
     chainId: 0,
-    from: "0x00001",
+    from: '0x00001',
     nonce: 1,
-    to: "0x0002",
+    to: '0x0002',
   };
-  it("Should add tx to poll and call wait", async () => {
+  it('Should add tx to poll and call wait', async () => {
     const waitForTx = jest.fn();
     useStore.setState({
       waitForTx,
     });
 
     useStore.getState().addTx({
-      type: "TestTXWithSimplePayload",
+      type: 'TestTXWithSimplePayload',
       tx,
       payload: {},
     });
 
     expect(
-      JSON.parse(localStorage.getItem(LocalStorageKeys.TransactionPool) || "")[
+      JSON.parse(localStorage.getItem(LocalStorageKeys.TransactionPool) || '')[
         tx.hash
       ]
     ).toEqual({
       ...tx,
-      type: "TestTXWithSimplePayload",
+      type: 'TestTXWithSimplePayload',
       payload: {},
       pending: true,
     });
@@ -102,7 +103,7 @@ describe("Transactions slice", () => {
     expect(waitForTx).toBeCalledWith(tx.hash);
   });
 
-  it("Should wait for tx, call callback and remove tx from poll", async () => {
+  it('Should wait for tx, call callback and remove tx from poll', async () => {
     const callbackObserver = jest.fn();
     useStore.setState({
       callbackObserver,
@@ -110,15 +111,15 @@ describe("Transactions slice", () => {
 
     await useStore.getState().executeTx({
       body: () => {
-        return new Promise((resolve) => resolve())
+        return new Promise((resolve) => resolve());
       },
       params: {
-        type: "TestTXWithSimplePayload",
+        type: 'TestTXWithSimplePayload',
         payload: {},
       },
     });
     expect(callbackObserver).toBeCalledWith({
-      type: "TestTXWithSimplePayload",
+      type: 'TestTXWithSimplePayload',
       ...tx,
       pending: false,
       status: 1,

@@ -1,6 +1,6 @@
 import { useWeb3React, Web3ReactProvider } from '@web3-react/core';
 import { Connector } from '@web3-react/types';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StoreApi, UseBoundStore } from 'zustand';
 
 import {
@@ -16,7 +16,6 @@ interface Web3ProviderProps {
       setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => void;
       changeActiveWalletChainId: (chainID: number) => void;
       setConnectors: (connectors: Connector[]) => void;
-      initTxPool: () => void;
     }>
   >;
   connectorsInitProps: AllConnectorsInitProps;
@@ -31,17 +30,13 @@ function Child({
   const { connector, chainId, isActive, accounts, provider } = useWeb3React();
 
   const setActiveWallet = useStore((state) => state.setActiveWallet);
-  const changeChainID = useStore((state) => state.changeActiveWalletChainId);
   const setConnectors = useStore((state) => state.setConnectors);
-  const initTxPool = useStore((state) => state.initTxPool);
 
   useEffect(() => {
-    setConnectors(connectors);
+    if (connectors) {
+      setConnectors(connectors);
+    }
   }, [connectors]);
-
-  useEffect(() => {
-    initTxPool();
-  }, [initTxPool]);
 
   useEffect(() => {
     const walletType = connector && getConnectorName(connector);
@@ -53,15 +48,10 @@ function Child({
         chainId,
         provider,
         isActive,
+        isContractAddress: false,
       });
     }
   }, [isActive, chainId, provider, accounts]);
-
-  useEffect(() => {
-    if (chainId) {
-      changeChainID(chainId);
-    }
-  }, [chainId]);
   return null;
 }
 
@@ -69,13 +59,13 @@ export function Web3Provider({
   useStore,
   connectorsInitProps,
 }: Web3ProviderProps) {
-  const connectors = initAllConnectors(connectorsInitProps);
+  const [connectors] = useState(initAllConnectors(connectorsInitProps));
+  const [mappedConnectors] = useState(
+    connectors.map((connector) => connector[0])
+  );
   return (
     <Web3ReactProvider connectors={connectors}>
-      <Child
-        useStore={useStore}
-        connectors={connectors.map((connector) => connector[0])}
-      />
+      <Child useStore={useStore} connectors={mappedConnectors} />
     </Web3ReactProvider>
   );
 }
