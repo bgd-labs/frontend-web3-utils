@@ -1,6 +1,5 @@
 /**
- * The `ProviderIdentityFlag` is a property on an injected provider
- * that uniquely identifies that provider
+ * The `ProviderIdentityFlag` is a property on an etherium provider
  */
 export enum WalletIdentityFlag {
   AlphaWallet = 'isAlphaWallet',
@@ -52,22 +51,22 @@ export enum WalletIdentityFlag {
 }
 
 export enum WalletLabel {
-  AlphaWallet = 'AlphaWallet',
-  AToken = 'AToken',
+  AlphaWallet = 'Alpha Wallet',
+  AToken = 'AToken Wallet',
   Binance = 'Binance Smart Wallet',
-  Bitpie = 'Bitpie',
-  Bitski = 'Bitski',
-  BlockWallet = 'BlockWallet',
+  Bitpie = 'Bitpie Wallet',
+  Bitski = 'Bitski Wallet',
+  BlockWallet = 'Block Wallet',
   Brave = 'Brave Wallet',
   Coinbase = 'Coinbase Wallet',
-  Dcent = `D'CENT`,
+  Dcent = `D'CENT Wallet`,
   Detected = 'Detected Wallet',
   Exodus = 'Exodus',
   Frame = 'Frame',
   Frontier = 'Frontier',
   HuobiWallet = 'Huobi Wallet',
   HyperPay = 'HyperPay',
-  ImToken = 'imToken',
+  ImToken = 'imToken Wallet',
   Liquality = 'Liquality',
   MeetOne = 'MeetOne',
   MetaMask = 'MetaMask',
@@ -83,15 +82,15 @@ export enum WalletLabel {
   OneInch = '1inch Wallet',
   Tokenary = 'Tokenary Wallet',
   Tally = 'Tally Ho Wallet',
-  Rabby = 'Rabby',
+  Rabby = 'Rabby Wallet',
   MathWallet = 'MathWallet',
   GameStop = 'GameStop Wallet',
-  BitKeep = 'BitKeep',
+  BitKeep = 'BitKeep Wallet',
   Sequence = 'Sequence',
-  Core = 'Core',
+  Core = 'Core Wallet',
   Enkrypt = 'Enkrypt',
-  Zeal = 'Zeal',
-  Phantom = 'Phantom',
+  Zeal = 'Zeal Wallet',
+  Phantom = 'Phantom Wallet',
   OKXWallet = 'OKX Wallet',
   Zerion = 'Zerion',
   Rainbow = 'Rainbow',
