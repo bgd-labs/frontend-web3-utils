@@ -1,7 +1,7 @@
 import { wallets } from './wallets';
 import { defaultWallet } from './wallets/defaultWallet';
 
-export function v() {
+export function getBrowserWalletLabelAndIcon() {
   if (typeof window !== 'undefined') {
     const userBrowserWallets = wallets.filter(
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
