@@ -1,11 +1,7 @@
 export const defaultWallet = {
   label: 'Browser wallet',
-  icon: `<svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="0.5" y="0.5" width="24" height="24" rx="2.5" stroke="#1B2030"/>
-<path d="M0 7.14282H25" stroke="#1B2030"/>
-<rect x="6.5" y="11.5" width="12.0952" height="8.52381" stroke="#1B2030"/>
-<rect x="6.25" y="10.25" width="11.5" height="0.5" stroke="#1B2030" stroke-width="0.5"/>
-<circle cx="16" cy="16" r="0.5" stroke="#1B2030"/>
+  icon: `<svg width="100%" height="100%" viewBox="0 0 27 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M1 8.14286H26M7 12H20.0952V21.5238H7V12ZM7 12H19V11H7V12ZM20.5 4L23 6.5M23 4L20.5 6.5M15 6H13M4 26H23C24.6569 26 26 24.6569 26 23V4C26 2.34315 24.6569 1 23 1H4C2.34315 1 1 2.34315 1 4V23C1 24.6569 2.34315 26 4 26ZM18 17C18 17.5523 17.5523 18 17 18C16.4477 18 16 17.5523 16 17C16 16.4477 16.4477 16 17 16C17.5523 16 18 16.4477 18 17ZM16.5 4H19V6.5H16.5V4Z" stroke="#1B2030"/>
 </svg>
 `,
 };

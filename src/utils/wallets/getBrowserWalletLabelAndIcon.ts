@@ -2,6 +2,11 @@ import { wallets } from './wallets';
 import { defaultWallet } from './wallets/defaultWallet';
 
 export function getBrowserWalletLabelAndIcon() {
+  const defaultBrowserWallet = {
+    label: defaultWallet.label,
+    icon: defaultWallet.icon,
+  };
+
   if (typeof window !== 'undefined') {
     if (!!window.ethereum) {
       const userBrowserWallets = wallets.filter(
@@ -10,10 +15,7 @@ export function getBrowserWalletLabelAndIcon() {
         (wallet) => !!window.ethereum[wallet.identityFlag]
       );
       if (userBrowserWallets.length > 1 || userBrowserWallets.length === 0) {
-        return {
-          label: defaultWallet.label,
-          icon: defaultWallet.icon,
-        };
+        return defaultBrowserWallet;
       } else {
         return {
           label: userBrowserWallets[0].label,
@@ -21,9 +23,9 @@ export function getBrowserWalletLabelAndIcon() {
         };
       }
     } else {
-      return undefined;
+      return defaultBrowserWallet;
     }
   } else {
-    return undefined;
+    return defaultBrowserWallet;
   }
 }
