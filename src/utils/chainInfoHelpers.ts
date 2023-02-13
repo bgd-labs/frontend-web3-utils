@@ -30,7 +30,7 @@ interface ExtendedChainInformation extends BasicChainInformation {
   blockExplorerUrls: AddEthereumChainParameter['blockExplorerUrls'];
 }
 
-export type ChainInformation = BasicChainInformation | ExtendedChainInformation;
+export type ChainInformation = BasicChainInformation & ExtendedChainInformation;
 
 export const initialChains: {
   [chainId: number]: ChainInformation;
@@ -61,16 +61,16 @@ function isExtendedChainInformation(
   return !!(chainInformation as ExtendedChainInformation)?.nativeCurrency;
 }
 
-export const initChainInformationConfig = (chains: {
+export const initChainInformationConfig = (chains?: {
   [chainId: number]: BasicChainInformation | ExtendedChainInformation;
 }) => {
-  const CHAINS = Object.assign(chains, initialChains);
+  const CHAINS = Object.assign(chains || {}, initialChains);
 
   // init urls from chains config
   const urls = Object.keys(CHAINS).reduce<{
     [chainId: number]: string[];
   }>((accumulator, chainId) => {
-    const validURLs: string[] = chains[Number(chainId)].urls;
+    const validURLs: string[] = CHAINS[Number(chainId)].urls;
 
     if (validURLs.length) {
       accumulator[Number(chainId)] = validURLs;
@@ -125,9 +125,9 @@ export const initChainInformationConfig = (chains: {
       return {
         chainId,
         chainName: `unknown network: ${chainId}`,
-        nativeCurrency: ETH,
-        rpcUrls: ['https://ethereum.publicnode.com'],
-        blockExplorerUrls: ['https://etherscan.io'],
+        nativeCurrency: initialChains[1].nativeCurrency,
+        rpcUrls: initialChains[1].urls,
+        blockExplorerUrls: initialChains[1].blockExplorerUrls,
       };
     }
   }
