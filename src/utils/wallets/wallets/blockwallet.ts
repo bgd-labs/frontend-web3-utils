@@ -3,8 +3,5 @@ import { WalletIdentityFlag, WalletLabel } from '../types';
 export const blockwallet = {
   identityFlag: WalletIdentityFlag.BlockWallet,
   label: WalletLabel.BlockWallet,
-  icon: `<svg width="100%" height="100%" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-		<path fill-rule="evenodd" clip-rule="evenodd" d="M15 30C23.2843 30 30 23.2843 30 15C30 6.71573 23.2843 0 15 0C6.71573 0 0 6.71573 0 15C0 23.2843 6.71573 30 15 30ZM23.125 6.875H6.875V23.125H23.125V6.875Z" fill="#000"/>
-	</svg>
-`,
+  icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 30 30"><path fill="#000" fill-rule="evenodd" d="M15 30c8.284 0 15-6.716 15-15 0-8.284-6.716-15-15-15C6.716 0 0 6.716 0 15c0 8.284 6.716 15 15 15Zm8.125-23.125H6.875v16.25h16.25V6.875Z" clip-rule="evenodd"/></svg>`,
 };

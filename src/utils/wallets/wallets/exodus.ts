@@ -3,38 +3,5 @@ import { WalletIdentityFlag, WalletLabel } from '../types';
 export const exodus = {
   identityFlag: WalletIdentityFlag.Exodus,
   label: WalletLabel.Exodus,
-  icon: `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 227 230" fill="none"><script xmlns="" async="false" type="text/javascript" src="chrome-extension://fnjhmkhhmkbjkkabndcnnogagogbneec/in-page.js"/>
-<path d="M226.623 64.2194L128.678 0V35.9054L191.51 76.735L184.118 100.125H128.678V129.875H184.118L191.51 153.265L128.678 194.095V230L226.623 165.986L210.607 115.103L226.623 64.2194Z" fill="url(#paint0_linear_68_536)"/>
-<path d="M43.464 129.875H98.6991V100.125H43.2587L36.072 76.735L98.6991 35.9054V0L0.754395 64.2194L16.7705 115.103L0.754395 165.986L98.9044 230V194.095L36.072 153.265L43.464 129.875Z" fill="url(#paint1_linear_68_536)"/>
-<mask id="mask0_68_536" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="227" height="230">
-<path d="M226.623 64.2194L128.678 0V35.9054L191.511 76.735L184.119 100.125H128.678V129.875H184.119L191.511 153.265L128.678 194.095V230L226.623 165.986L210.607 115.103L226.623 64.2194Z" fill="url(#paint2_linear_68_536)"/>
-<path d="M43.4643 129.875H98.6993V100.125H43.2589L36.0722 76.735L98.6993 35.9054V0L0.754639 64.2194L16.7708 115.103L0.754639 165.986L98.9047 230V194.095L36.0722 153.265L43.4643 129.875Z" fill="url(#paint3_linear_68_536)"/>
-</mask>
-<g mask="url(#mask0_68_536)">
-<rect x="0.875488" width="224.25" height="230" fill="url(#paint4_linear_68_536)"/>
-</g>
-<defs>
-<linearGradient id="paint0_linear_68_536" x1="194.938" y1="245.813" x2="129.33" y2="-25.2585" gradientUnits="userSpaceOnUse">
-<stop stop-color="#0B46F9"/>
-<stop offset="1" stop-color="#BBFBE0"/>
-</linearGradient>
-<linearGradient id="paint1_linear_68_536" x1="194.938" y1="245.813" x2="129.33" y2="-25.2585" gradientUnits="userSpaceOnUse">
-<stop stop-color="#0B46F9"/>
-<stop offset="1" stop-color="#BBFBE0"/>
-</linearGradient>
-<linearGradient id="paint2_linear_68_536" x1="194.938" y1="245.813" x2="129.33" y2="-25.2585" gradientUnits="userSpaceOnUse">
-<stop stop-color="#0B46F9"/>
-<stop offset="1" stop-color="#BBFBE0"/>
-</linearGradient>
-<linearGradient id="paint3_linear_68_536" x1="194.938" y1="245.813" x2="129.33" y2="-25.2585" gradientUnits="userSpaceOnUse">
-<stop stop-color="#0B46F9"/>
-<stop offset="1" stop-color="#BBFBE0"/>
-</linearGradient>
-<linearGradient id="paint4_linear_68_536" x1="15.2505" y1="51.75" x2="128.813" y2="136.562" gradientUnits="userSpaceOnUse">
-<stop offset="0.119792" stop-color="#8952FF" stop-opacity="0.87"/>
-<stop offset="1" stop-color="#DABDFF" stop-opacity="0"/>
-</linearGradient>
-</defs>
-</svg>
-`,
+  icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 227 230"><path fill="url(#a)" d="M226.623 64.22 128.678 0v35.905l62.832 40.83-7.392 23.39h-55.44v29.75h55.44l7.392 23.39-62.832 40.83V230l97.945-64.014-16.016-50.883 16.016-50.884Z"/><path fill="url(#b)" d="M43.464 129.875h55.235v-29.75H43.26l-7.187-23.39 62.627-40.83V0L.754 64.22l16.016 50.883L.755 165.986 98.904 230v-35.905l-62.832-40.83 7.392-23.39Z"/><mask id="e" width="227" height="230" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type:alpha"><path fill="url(#c)" d="M226.623 64.22 128.678 0v35.905l62.833 40.83-7.392 23.39h-55.441v29.75h55.441l7.392 23.39-62.833 40.83V230l97.945-64.014-16.016-50.883 16.016-50.884Z"/><path fill="url(#d)" d="M43.464 129.875H98.7v-29.75H43.26l-7.187-23.39L98.7 35.905V0L.755 64.22l16.016 50.883L.755 165.986 98.905 230v-35.905l-62.833-40.83 7.392-23.39Z"/></mask><g mask="url(#e)"><path fill="url(#f)" d="M.875 0h224.25v230H.875z"/></g><defs><linearGradient id="a" x1="194.938" x2="129.33" y1="245.813" y2="-25.259" gradientUnits="userSpaceOnUse"><stop stop-color="#0B46F9"/><stop offset="1" stop-color="#BBFBE0"/></linearGradient><linearGradient id="b" x1="194.938" x2="129.33" y1="245.813" y2="-25.259" gradientUnits="userSpaceOnUse"><stop stop-color="#0B46F9"/><stop offset="1" stop-color="#BBFBE0"/></linearGradient><linearGradient id="c" x1="194.938" x2="129.33" y1="245.813" y2="-25.259" gradientUnits="userSpaceOnUse"><stop stop-color="#0B46F9"/><stop offset="1" stop-color="#BBFBE0"/></linearGradient><linearGradient id="d" x1="194.938" x2="129.33" y1="245.813" y2="-25.259" gradientUnits="userSpaceOnUse"><stop stop-color="#0B46F9"/><stop offset="1" stop-color="#BBFBE0"/></linearGradient><linearGradient id="f" x1="15.251" x2="128.813" y1="51.75" y2="136.562" gradientUnits="userSpaceOnUse"><stop offset=".12" stop-color="#8952FF" stop-opacity=".87"/><stop offset="1" stop-color="#DABDFF" stop-opacity="0"/></linearGradient></defs></svg>`,
 };

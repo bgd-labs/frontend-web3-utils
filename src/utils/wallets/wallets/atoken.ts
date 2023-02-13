@@ -3,29 +3,5 @@ import { WalletIdentityFlag, WalletLabel } from '../types';
 export const atoken = {
   identityFlag: WalletIdentityFlag.AToken,
   label: WalletLabel.AToken,
-  icon: `<svg width="100%" height="100%" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0)">
-<path d="M12.8862 509.82H83.3388C86.3489 509.82 89.1018 508.123 90.454 505.434L298.671 91.3397C299.832 89.0308 299.8 86.3022 298.586 84.0208L260.211 11.9014C257.779 7.33195 251.202 7.41537 248.887 12.045L5.76289 498.294C3.11521 503.589 6.96582 509.82 12.8862 509.82Z" fill="url(#paint0_linear)"/>
-<path d="M321.91 510.615H254.41H188.853C182.869 510.615 179.023 504.263 181.795 498.961L250.319 367.9C253.34 362.123 261.642 362.224 264.522 368.072L329.054 499.133C331.66 504.425 327.809 510.615 321.91 510.615Z" fill="url(#paint1_linear)"/>
-<path d="M499.1 510.615H427.077C424.064 510.615 421.309 508.915 419.958 506.222L301.499 270.074C300.383 267.848 300.372 265.227 301.47 262.992L337.172 190.313C340.075 184.402 348.49 184.369 351.44 190.256L506.22 499.082C508.874 504.378 505.024 510.615 499.1 510.615Z" fill="url(#paint2_linear)"/>
-</g>
-<defs>
-<linearGradient id="paint0_linear" x1="17.4907" y1="509.82" x2="257.59" y2="7.36026" gradientUnits="userSpaceOnUse">
-<stop stop-color="#1FA2F2"/>
-<stop offset="1" stop-color="#3ECCF9"/>
-</linearGradient>
-<linearGradient id="paint1_linear" x1="255.205" y1="363.534" x2="255.205" y2="510.615" gradientUnits="userSpaceOnUse">
-<stop stop-color="#27AEF4"/>
-<stop offset="1" stop-color="#1EA2F2"/>
-</linearGradient>
-<linearGradient id="paint2_linear" x1="345.044" y1="184.652" x2="461.913" y2="501.075" gradientUnits="userSpaceOnUse">
-<stop stop-color="#33BDF7"/>
-<stop offset="1" stop-color="#1EA1F2"/>
-</linearGradient>
-<clipPath id="clip0">
-<rect width="512" height="512" fill="white"/>
-</clipPath>
-</defs>
-</svg>
-`,
+  icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 512 512"><g clip-path="url(#a)"><path fill="url(#b)" d="M12.886 509.82H83.34a7.964 7.964 0 0 0 7.115-4.386L298.671 91.34a7.964 7.964 0 0 0-.085-7.32l-38.375-72.119c-2.432-4.569-9.009-4.486-11.324.144L5.763 498.294c-2.648 5.295 1.203 11.526 7.123 11.526Z"/><path fill="url(#c)" d="M321.91 510.615H188.853c-5.984 0-9.83-6.352-7.058-11.654L250.319 367.9c3.021-5.777 11.323-5.676 14.203.172l64.532 131.061c2.606 5.292-1.245 11.482-7.144 11.482Z"/><path fill="url(#d)" d="M499.1 510.615h-72.023a7.964 7.964 0 0 1-7.119-4.393L301.499 270.074a7.966 7.966 0 0 1-.029-7.082l35.702-72.679c2.903-5.911 11.318-5.944 14.268-.057l154.78 308.826c2.654 5.296-1.196 11.533-7.12 11.533Z"/></g><defs><linearGradient id="b" x1="17.491" x2="257.59" y1="509.82" y2="7.36" gradientUnits="userSpaceOnUse"><stop stop-color="#1FA2F2"/><stop offset="1" stop-color="#3ECCF9"/></linearGradient><linearGradient id="c" x1="255.205" x2="255.205" y1="363.534" y2="510.615" gradientUnits="userSpaceOnUse"><stop stop-color="#27AEF4"/><stop offset="1" stop-color="#1EA2F2"/></linearGradient><linearGradient id="d" x1="345.044" x2="461.913" y1="184.652" y2="501.075" gradientUnits="userSpaceOnUse"><stop stop-color="#33BDF7"/><stop offset="1" stop-color="#1EA1F2"/></linearGradient><clipPath id="a"><path fill="#fff" d="M0 0h512v512H0z"/></clipPath></defs></svg>`,
 };
