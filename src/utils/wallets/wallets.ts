@@ -10,7 +10,6 @@ import { coinbase } from './wallets/coinbase';
 import { core } from './wallets/core';
 import { dcent } from './wallets/dcent';
 import { defiwallet } from './wallets/defiwallet';
-import { detected } from './wallets/detected';
 import { enkrypt } from './wallets/enkrypt';
 import { exodus } from './wallets/exodus';
 import { frame } from './wallets/frame';
@@ -57,7 +56,6 @@ export const wallets = [
   core,
   dcent,
   defiwallet,
-  detected,
   enkrypt,
   exodus,
   frame,
