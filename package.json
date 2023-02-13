@@ -46,6 +46,10 @@
     {
       "name": "Andrei Kozlov",
       "url": "https://github.com/kyzia551"
+    },
+    {
+      "name": "Oleksandr Tkach",
+      "url": "https://github.com/Argeare5"
     }
   ],
   "module": "dist/bgd-fe-utils.esm.js",
@@ -61,6 +65,7 @@
   ],
   "devDependencies": {
     "@size-limit/preset-small-lib": "^7.0.8",
+    "@types/lodash": "^4.14.189",
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
     "eslint": "8.16.0",
@@ -83,10 +88,12 @@
     "zustand": "^4.0.0-rc.1"
   },
   "dependencies": {
-    "@web3-react/coinbase-wallet": "^8.0.33-beta.0",
-    "@web3-react/core": "^8.0.33-beta.0",
-    "@web3-react/metamask": "^8.0.26-beta.0",
-    "@web3-react/types": "^8.0.19-beta.0",
-    "@web3-react/walletconnect": "^8.0.34-beta.0"
+    "@web3-react/coinbase-wallet": "8.0.34-beta.0",
+    "@web3-react/core": "8.0.35-beta.0",
+    "@web3-react/gnosis-safe": "8.0.7-beta.0",
+    "@web3-react/metamask": "8.0.29-beta.0",
+    "@web3-react/types": "8.0.20-beta.0",
+    "@web3-react/walletconnect": "8.0.36-beta.0",
+    "lodash": "^4.17.21"
   }
 }

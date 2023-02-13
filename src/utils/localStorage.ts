@@ -3,6 +3,7 @@ import { BaseTx, TransactionPool } from '../web3/store/transactionsSlice';
 
 export enum LocalStorageKeys {
   LastConnectedWallet = 'LastConnectedWallet',
+  LastConnectedChainId = 'LastConnectedChainId',
   TransactionPool = 'TransactionPool',
 }
 
@@ -23,4 +24,29 @@ export const setLocalStorageWallet = (walletType: WalletType) => {
 
 export const deleteLocalStorageWallet = () => {
   localStorage.removeItem(LocalStorageKeys.LastConnectedWallet);
+};
+
+export const setLocalStorageWalletChainId = (chainId: string) => {
+  localStorage.setItem(LocalStorageKeys.LastConnectedChainId, chainId);
+};
+
+export const deleteLocalStorageWalletChainId = () => {
+  localStorage.removeItem(LocalStorageKeys.LastConnectedChainId);
+};
+
+export const clearWalletConnectLocalStorage = () => {
+  localStorage.removeItem('walletconnect');
+  localStorage.removeItem('-walletlink:https://www.walletlink.org:version');
+  localStorage.removeItem('-walletlink:https://www.walletlink.org:session:id');
+  localStorage.removeItem(
+    '-walletlink:https://www.walletlink.org:session:secret'
+  );
+  localStorage.removeItem(
+    '-walletlink:https://www.walletlink.org:session:linked'
+  );
+  localStorage.removeItem('-walletlink:https://www.walletlink.org:AppVersion');
+  localStorage.removeItem('-walletlink:https://www.walletlink.org:Addresses');
+  localStorage.removeItem(
+    '-walletlink:https://www.walletlink.org:walletUsername'
+  );
 };

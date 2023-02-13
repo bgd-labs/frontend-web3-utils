@@ -7,8 +7,8 @@ export const getTransactionReceiptMock = jest.fn((hash: string) => {
           hash,
         });
       });
-    }
-  }
+    },
+  };
 });
 
 export class MockedProvider {
@@ -18,7 +18,7 @@ export class MockedProvider {
 }
 
 export const checkAndSwitchNetwork = jest.fn(() => {});
-export const createWeb3Slice = () => ({
+export const createWalletSlice = () => ({
   checkAndSwitchNetwork,
   l2Provider: new MockedProvider(),
   l1Provider: new MockedProvider(),
