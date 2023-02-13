@@ -28,7 +28,7 @@ export interface Wallet {
 }
 
 export type IWalletSlice = {
-  isContractWalletRecord: Record<string, boolean>
+  isContractWalletRecord: Record<string, boolean>;
   activeWallet?: Wallet;
   getActiveAddress: () => string | undefined;
   connectWallet: (walletType: WalletType, chainID?: number) => Promise<void>;
@@ -43,7 +43,7 @@ export type IWalletSlice = {
   setConnectors: (connectors: Connector[]) => void;
   _impersonatedAddress?: string;
   setImpersonatedAddress: (address: string) => void;
-  checkIsContractWallet: (wallet: Omit<Wallet, 'signer'>) => Promise<boolean>
+  checkIsContractWallet: (wallet: Omit<Wallet, 'signer'>) => Promise<boolean>;
 };
 
 export function createWalletSlice({
@@ -132,10 +132,13 @@ export function createWalletSlice({
         }
       } catch (e) {
         if (e instanceof Error) {
+          let errorMessage = e.message ? e.message.toString() : e.toString();
+          if (errorMessage === 'MetaMask not installed') {
+            errorMessage = 'Browser wallet not installed';
+          }
+
           set({
-            walletConnectionError: e.message
-              ? e.message.toString()
-              : e.toString(),
+            walletConnectionError: errorMessage,
           });
         }
         console.error(e);
@@ -166,19 +169,21 @@ export function createWalletSlice({
       clearWalletConnectLocalStorage();
     },
     checkIsContractWallet: async (wallet: Omit<Wallet, 'signer'>) => {
-      const account = wallet.accounts[0]
-      const walletRecord = get().isContractWalletRecord[account]
+      const account = wallet.accounts[0];
+      const walletRecord = get().isContractWalletRecord[account];
       if (walletRecord !== undefined) {
-        return walletRecord
+        return walletRecord;
       }
       const codeOfWalletAddress = await wallet.provider.getCode(
         wallet.accounts[0]
       );
-      const isContractWallet = codeOfWalletAddress !== '0x'
-      set((state) => produce(state, (draft) => {
-        draft.isContractWalletRecord[account] = isContractWallet
-      }))
-      return isContractWallet
+      const isContractWallet = codeOfWalletAddress !== '0x';
+      set((state) =>
+        produce(state, (draft) => {
+          draft.isContractWalletRecord[account] = isContractWallet;
+        })
+      );
+      return isContractWallet;
     },
     /**
      * setActiveWallet is separate from connectWallet for a reason, after metaMask.activate()
@@ -197,7 +202,7 @@ export function createWalletSlice({
           wallet.provider as StaticJsonRpcBatchProvider
         );
       }
-      const isContractAddress = await get().checkIsContractWallet(wallet)
+      const isContractAddress = await get().checkIsContractWallet(wallet);
       set({
         activeWallet: {
           ...wallet,
@@ -212,14 +217,14 @@ export function createWalletSlice({
     },
     changeActiveWalletChainId: (chainId?: number) => {
       if (chainId !== undefined) {
-          set((state) =>
+        set((state) =>
           produce(state, (draft) => {
             if (draft.activeWallet) {
               draft.activeWallet.chainId = chainId;
             }
           })
         );
-        setLocalStorageWalletChainId(chainId.toString()); 
+        setLocalStorageWalletChainId(chainId.toString());
       }
     },
 

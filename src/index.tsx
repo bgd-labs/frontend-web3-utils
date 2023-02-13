@@ -2,6 +2,7 @@ export * from './hooks/useLastTxLocalStatus';
 export * from './types/store';
 export * from './utils/chainInfoHelpers';
 export * from './utils/localStorage';
+export * from './utils/wallets/getBrowserWalletLabelAndIcon';
 export * from './web3/connectors/impersonatedConnector';
 export * from './web3/connectors/index';
 export * from './web3/providers/Web3Provider';
