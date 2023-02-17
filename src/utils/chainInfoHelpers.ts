@@ -36,7 +36,7 @@ export const initialChains: {
   [chainId: number]: ChainInformation;
 } = {
   1: {
-    urls: ['https://eth.llamarpc.com'],
+    urls: ['https://cloudflare-eth.com'],
     nativeCurrency: ETH,
     name: 'Ethereum',
     blockExplorerUrls: ['https://etherscan.io'],
