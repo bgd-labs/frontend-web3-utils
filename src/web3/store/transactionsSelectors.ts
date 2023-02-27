@@ -7,7 +7,7 @@ export const selectAllTransactions = <T extends BaseTx>(
   state: ITransactionsState<T>
 ) => {
   return Object.values(state.transactionsPool).sort(
-    (a, b) => a.nonce - b.nonce
+    (a, b) => Number(a.timestamp) - Number(b.timestamp)
   );
 };
 

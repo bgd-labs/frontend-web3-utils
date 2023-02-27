@@ -10,16 +10,32 @@ import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvid
 import { WalletType } from '../connectors';
 import { IWalletSlice } from './walletSlice';
 
-export type BaseTx = {
+export type BaseTx = EthBaseTx | GelatoBaseTx
+
+type EthBaseTx = {
   type: string;
+  payload?: object;
   hash: string;
   from: string;
   to: string;
   nonce: number;
-  payload?: object;
   chainId: number;
   timestamp?: number;
-};
+}
+
+type GelatoBaseTx = {
+  from: string;
+  taskID: string;
+  type: string;
+  chainId: number;
+  timestamp?: number;
+  payload?: object;
+  hash?: string
+}
+
+type GelatoTx = {
+  taskID: string
+}
 
 export type ProvidersRecord = Record<number, StaticJsonRpcBatchProvider>;
 
@@ -41,14 +57,23 @@ export interface ITransactionsState<T extends BaseTx> {
   >;
 }
 
+
+function isGelatoTx(tx: ethers.ContractTransaction | GelatoTx): tx is GelatoTx {
+  return (tx as GelatoTx).taskID !== undefined
+}
+
+function isGelatoBaseTx(tx: BaseTx): tx is GelatoBaseTx {
+  return (tx as GelatoBaseTx).taskID !== undefined
+}
 interface ITransactionsActions<T extends BaseTx> {
   txStatusChangedCallback: (
     data: T & {
       status?: number;
+      timestamp?: number
     }
   ) => void;
   executeTx: (params: {
-    body: () => Promise<ethers.ContractTransaction>;
+    body: () => Promise<ethers.ContractTransaction | GelatoTx>;
     params: {
       type: T['type'];
       payload: T['payload'];
@@ -92,51 +117,89 @@ export function createTransactionsSlice<T extends BaseTx>({
       if (!activeWallet) {
         throw new Error('No wallet connected');
       }
-      const tx = await body();
       const chainId = Number(params.desiredChainID);
-      const transaction = {
-        chainId,
-        hash: tx.hash,
-        type: params.type,
-        payload: params.payload,
-        from: tx.from,
-        to: tx.to,
-        nonce: tx.nonce,
-      };
-      set((state) =>
-        produce(state, (draft) => {
-          draft.transactionsPool[transaction.hash] = {
-            ...transaction,
-            pending: true,
-            walletType: activeWallet.walletType,
-          } as Draft<
-            T & {
-              pending: boolean;
-              walletType: WalletType;
-            }
-          >;
-        })
-      );
-      const txPool = get().transactionsPool;
-      setLocalStorageTxPool(txPool);
-      get().waitForTxReceipt(tx, tx.hash);
-      return txPool[tx.hash];
+      const tx = await body();
+      // TODO: dedub methods to separate ones
+      if (isGelatoTx(tx)) {
+        // TODO: verify with multiple accounts
+        const from = activeWallet.accounts[0]
+        const gelatoTX: GelatoBaseTx = {
+          from,
+          chainId,
+          type: params.type,
+          taskID: tx.taskID
+        }
+        // gelato tx
+        set((state) =>
+          produce(state, (draft) => {
+            draft.transactionsPool[gelatoTX.taskID] = {
+              ...gelatoTX,
+              pending: true,
+              walletType: activeWallet.walletType,
+            } as Draft<
+              T & {
+                pending: boolean;
+                walletType: WalletType;
+              }
+            >;
+          }))
+
+        const txPool = get().transactionsPool;
+        setLocalStorageTxPool(txPool);
+        // get().waitForTxReceipt(tx, tx.hash);
+        return txPool[tx.taskID];
+
+      } else {
+        // ethereum tx
+        const transaction = {
+          chainId,
+          hash: tx.hash,
+          type: params.type,
+          payload: params.payload,
+          from: tx.from,
+          to: tx.to,
+          nonce: tx.nonce,
+        };
+        set((state) =>
+          produce(state, (draft) => {
+            draft.transactionsPool[transaction.hash] = {
+              ...transaction,
+              pending: true,
+              walletType: activeWallet.walletType,
+            } as Draft<
+              T & {
+                pending: boolean;
+                walletType: WalletType;
+              }
+            >;
+          })
+        );
+        const txPool = get().transactionsPool;
+        setLocalStorageTxPool(txPool);
+        get().waitForTxReceipt(tx, tx.hash);
+        return txPool[tx.hash];
+      }
     },
 
-    waitForTx: async (hash) => {
-      const txData = get().transactionsPool[hash];
+    waitForTx: async (txKey) => {
+      const txData = get().transactionsPool[txKey];
       if (txData) {
-        const provider = get().providers[
-          txData.chainId
-        ] as StaticJsonRpcBatchProvider;
-        const tx = await provider.getTransaction(txData.hash);
-        await get().waitForTxReceipt(tx, txData.hash);
+        if (isGelatoBaseTx(txData)) {
+          // handle gelato wait
+        } else {
+          const provider = get().providers[
+            txData.chainId
+          ] as StaticJsonRpcBatchProvider;
+          const tx = await provider.getTransaction(txData.hash);
+          await get().waitForTxReceipt(tx, txData.hash); 
+        }
       } else {
         // TODO: no transaction in waiting pool
       }
     },
 
     waitForTxReceipt: async (tx, txHash) => {
+      // type casting here as well
       const chainId = tx.chainId || get().transactionsPool[txHash].chainId;
       const provider = get().providers[chainId] as StaticJsonRpcBatchProvider;
       const txn = await tx.wait();
@@ -145,9 +208,10 @@ export function createTransactionsSlice<T extends BaseTx>({
 
       const updatedTX = get().transactionsPool[txHash];
       const txBlock = await provider.getBlock(txn.blockNumber);
+      const timestamp = txBlock.timestamp 
       get().txStatusChangedCallback({
         ...updatedTX,
-        timestamp: txBlock.timestamp,
+        timestamp,
       });
     },
 
@@ -174,7 +238,11 @@ export function createTransactionsSlice<T extends BaseTx>({
         // ignore transactions from GnosisSafe is gnosis is not connected due to different tx hashes
         const txObservable = tx.walletType != 'GnosisSafe';
         if (tx.pending && txObservable) {
-          get().waitForTx(tx.hash);
+          if (isGelatoBaseTx(tx)) {
+            // get().wait
+          } else {
+            get().waitForTx(tx.hash);
+          }
         }
       });
     },
