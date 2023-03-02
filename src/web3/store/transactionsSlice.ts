@@ -8,11 +8,26 @@ import {
 } from '../../utils/localStorage';
 import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvider';
 import { WalletType } from '../connectors';
+import { selectIsGelatoTXPending } from './transactionsSelectors';
 import { IWalletSlice } from './walletSlice';
 
 export type BaseTx = EthBaseTx | GelatoBaseTx
 
-type EthBaseTx = {
+type GelatoTXState = 'WaitingForConfirmation' | 'CheckPending' | 'ExecSuccess' | 'Cancelled' | 'ExecPending'
+
+type GelatoTaskStatusResponse = {
+  task: {
+    chainId: number;
+    taskId: string;
+    taskState: GelatoTXState;
+    creationDate?: string;
+    executionDate?: string;
+    transactionHash?: string;
+    blockNumber?: number;           
+  }
+}
+
+export type EthBaseTx = {
   type: string;
   payload?: object;
   hash: string;
@@ -21,20 +36,23 @@ type EthBaseTx = {
   nonce: number;
   chainId: number;
   timestamp?: number;
+  localTimestamp: number;
 }
 
-type GelatoBaseTx = {
+export type GelatoBaseTx = {
   from: string;
-  taskID: string;
+  taskId: string;
   type: string;
   chainId: number;
   timestamp?: number;
   payload?: object;
   hash?: string
+  gelatoStatus?: GelatoTXState
+  localTimestamp: number
 }
 
 type GelatoTx = {
-  taskID: string
+  taskId: string,
 }
 
 export type ProvidersRecord = Record<number, StaticJsonRpcBatchProvider>;
@@ -47,25 +65,33 @@ export type TransactionsSliceBaseType = {
 
 export type TransactionPool<T extends BaseTx> = Record<string, T>;
 
+type PoolTx<T extends BaseTx> = T & {
+    status?: number;
+    pending: boolean;
+    walletType: WalletType;
+  }
+
 export interface ITransactionsState<T extends BaseTx> {
-  transactionsPool: TransactionPool<
-    T & {
-      status?: number;
-      pending: boolean;
-      walletType: WalletType;
-    }
-  >;
+  transactionsPool: TransactionPool<PoolTx<T>>;
+  transactionsIntervalsMap: Record<string, number | undefined>
 }
 
 
-function isGelatoTx(tx: ethers.ContractTransaction | GelatoTx): tx is GelatoTx {
-  return (tx as GelatoTx).taskID !== undefined
+export function isGelatoTx(tx: ethers.ContractTransaction | GelatoTx): tx is GelatoTx {
+  return (tx as GelatoTx).taskId !== undefined
 }
 
-function isGelatoBaseTx(tx: BaseTx): tx is GelatoBaseTx {
-  return (tx as GelatoBaseTx).taskID !== undefined
+export function isGelatoBaseTx(tx: BaseTx): tx is GelatoBaseTx {
+  return (tx as GelatoBaseTx).taskId !== undefined
+}
+
+function isGelatoBaseTxWithoutTimestamp(tx: Omit<BaseTx, 'localTimestamp'>): tx is Omit<GelatoBaseTx, 'localTimestamp'> {
+  return (tx as GelatoBaseTx).taskId !== undefined
 }
 interface ITransactionsActions<T extends BaseTx> {
+  startPollingGelatoTXStatus: (taskId: string) => void;
+  stopPollingGelatoTXStatus: (taskId: string) => void;
+  fetchGelatoTXStatus: (taskId: string) => void;
   txStatusChangedCallback: (
     data: T & {
       status?: number;
@@ -91,6 +117,8 @@ interface ITransactionsActions<T extends BaseTx> {
     txHash: string
   ) => Promise<void>;
   updateTXStatus: (hash: string, status?: number) => void;
+  updateGelatoTX: (taskId: string, gelatoStatus: GelatoTaskStatusResponse) => void;
+  addTXToPool: (tx: Omit<GelatoBaseTx, 'localTimestamp'> | Omit<EthBaseTx, 'localTimestamp'>, activeWallet: WalletType) => TransactionPool<PoolTx<T>>;
 }
 
 export type ITransactionsSlice<T extends BaseTx> = ITransactionsActions<T> &
@@ -109,6 +137,7 @@ export function createTransactionsSlice<T extends BaseTx>({
 > {
   return (set, get) => ({
     transactionsPool: {},
+    transactionsIntervalsMap: {},
     providers: defaultProviders,
     txStatusChangedCallback,
     executeTx: async ({ body, params }) => {
@@ -123,31 +152,16 @@ export function createTransactionsSlice<T extends BaseTx>({
       if (isGelatoTx(tx)) {
         // TODO: verify with multiple accounts
         const from = activeWallet.accounts[0]
-        const gelatoTX: GelatoBaseTx = {
+        const gelatoTX: Omit<GelatoBaseTx, 'localTimestamp'> = {
           from,
           chainId,
           type: params.type,
-          taskID: tx.taskID
+          taskId: tx.taskId,
+          payload: params.payload,
         }
-        // gelato tx
-        set((state) =>
-          produce(state, (draft) => {
-            draft.transactionsPool[gelatoTX.taskID] = {
-              ...gelatoTX,
-              pending: true,
-              walletType: activeWallet.walletType,
-            } as Draft<
-              T & {
-                pending: boolean;
-                walletType: WalletType;
-              }
-            >;
-          }))
-
-        const txPool = get().transactionsPool;
-        setLocalStorageTxPool(txPool);
-        // get().waitForTxReceipt(tx, tx.hash);
-        return txPool[tx.taskID];
+        const txPool = get().addTXToPool(gelatoTX, activeWallet.walletType)
+        get().startPollingGelatoTXStatus(tx.taskId);
+        return txPool[tx.taskId];
 
       } else {
         // ethereum tx
@@ -157,28 +171,56 @@ export function createTransactionsSlice<T extends BaseTx>({
           type: params.type,
           payload: params.payload,
           from: tx.from,
-          to: tx.to,
+          to: tx.to as string,
           nonce: tx.nonce,
         };
-        set((state) =>
-          produce(state, (draft) => {
-            draft.transactionsPool[transaction.hash] = {
-              ...transaction,
-              pending: true,
-              walletType: activeWallet.walletType,
-            } as Draft<
-              T & {
-                pending: boolean;
-                walletType: WalletType;
-              }
-            >;
-          })
-        );
-        const txPool = get().transactionsPool;
-        setLocalStorageTxPool(txPool);
+        const txPool = get().addTXToPool(transaction, activeWallet.walletType)
         get().waitForTxReceipt(tx, tx.hash);
         return txPool[tx.hash];
       }
+    },
+
+    addTXToPool: (transaction, walletType) => {
+      const localTimestamp = new Date().getTime()
+      if (isGelatoBaseTxWithoutTimestamp(transaction)) {
+        set((state) =>
+        produce(state, (draft) => {
+          draft.transactionsPool[transaction.taskId] = {
+            ...transaction,
+            pending: true,
+            walletType,
+            localTimestamp,
+          } as Draft<
+            T & {
+              pending: boolean;
+              walletType: WalletType;
+              localTimestamp: number
+            }
+          >;
+        }))
+
+      const txPool = get().transactionsPool;
+      setLocalStorageTxPool(txPool);
+      } else {
+        set((state) =>
+        produce(state, (draft) => {
+          draft.transactionsPool[transaction.hash] = {
+            ...transaction,
+            pending: true,
+            walletType,
+            localTimestamp,
+          } as Draft<
+            T & {
+              pending: boolean;
+              walletType: WalletType;
+            }
+          >;
+        })
+      );
+      }
+    const txPool = get().transactionsPool;
+    setLocalStorageTxPool(txPool);
+    return txPool
     },
 
     waitForTx: async (txKey) => {
@@ -239,7 +281,7 @@ export function createTransactionsSlice<T extends BaseTx>({
         const txObservable = tx.walletType != 'GnosisSafe';
         if (tx.pending && txObservable) {
           if (isGelatoBaseTx(tx)) {
-            // get().wait
+            get().startPollingGelatoTXStatus(tx.taskId)
           } else {
             get().waitForTx(tx.hash);
           }
@@ -254,5 +296,70 @@ export function createTransactionsSlice<T extends BaseTx>({
         })
       );
     },
+
+    stopPollingGelatoTXStatus: (taskId: string) => {
+      const currentInterval = get().transactionsIntervalsMap[taskId];
+      clearInterval(currentInterval);
+      set((state) => produce(state, (draft) => {
+        draft.transactionsIntervalsMap[taskId] = undefined
+      }))
+    },
+
+    startPollingGelatoTXStatus: (taskId: string) => {
+      const tx = get().transactionsPool[taskId]
+      if (isGelatoBaseTx(tx)) {
+        const isPending = selectIsGelatoTXPending(tx.gelatoStatus)
+        if (!isPending) {
+          return
+        }
+      }
+      get().stopPollingGelatoTXStatus(taskId)
+
+      const newGelatoInterval = setInterval(() => {
+        get().fetchGelatoTXStatus(taskId)  
+        // TODO: change timeout for gelato
+      }, 2000)
+
+      set((state) => produce(state, (draft) => {
+        draft.transactionsIntervalsMap[taskId] = Number(newGelatoInterval)
+      }))
+    },
+
+    updateGelatoTX: (taskId: string, statusResponse: GelatoTaskStatusResponse) => {
+      set((state) => produce(state, (draft) => {
+        const tx = draft.transactionsPool[taskId] as GelatoBaseTx & {
+          pending: boolean
+        }
+        tx.gelatoStatus = statusResponse.task.taskState
+        tx.pending = selectIsGelatoTXPending(statusResponse.task.taskState)
+        tx.hash = statusResponse.task.transactionHash
+        if (statusResponse.task.executionDate) {
+          let timestamp = new Date(statusResponse.task.executionDate).getTime()
+          tx.timestamp = timestamp
+        }
+      }))
+      setLocalStorageTxPool(get().transactionsPool);
+    },
+
+    fetchGelatoTXStatus: async (taskId: string) => {
+      const response = await fetch(`https://relay.gelato.digital/tasks/status/${taskId}/`)
+      if (!response.ok) {
+        //TODO: handle error somehow status 0 error, 1 success
+        throw new Error('Gelato API error')
+      } else {
+        const gelatoStatus = await response.json() as GelatoTaskStatusResponse
+        const isPending = selectIsGelatoTXPending(gelatoStatus.task.taskState)
+        console.log(isPending, 'gelatoStatus', gelatoStatus)
+        get().updateGelatoTX(taskId, gelatoStatus)
+        if (!isPending) {
+          get().stopPollingGelatoTXStatus(taskId)
+          let status = gelatoStatus.task.taskState == 'ExecSuccess' ? 1 : 0
+          get().txStatusChangedCallback({
+            ...get().transactionsPool[taskId],
+            status,
+          })
+        }
+      }
+    }
   });
 }
