@@ -1,7 +1,12 @@
 import { AddEthereumChainParameter } from '@web3-react/types';
 import isEqual from 'lodash/isEqual';
 
-import { BaseTx, GelatoBaseTx, isGelatoBaseTx, ITransactionsState } from './transactionsSlice';
+import {
+  BaseTx,
+  GelatoBaseTx,
+  isGelatoBaseTx,
+  ITransactionsState,
+} from './transactionsSlice';
 
 export const selectAllTransactions = <T extends BaseTx>(
   state: ITransactionsState<T>
@@ -28,12 +33,12 @@ export const selectTXByHash = <T extends BaseTx>(
   state: ITransactionsState<T>,
   hash: string
 ) => {
-  const txByKey = selectTXByKey<T>(state, hash)
+  const txByKey = selectTXByKey<T>(state, hash);
   if (txByKey) {
-    return txByKey
+    return txByKey;
   }
   return selectAllTransactions(state).find((tx) => tx.hash == hash);
-}
+};
 
 export const selectAllTransactionsByWallet = <T extends BaseTx>(
   state: ITransactionsState<T>,
@@ -66,7 +71,11 @@ export const selectLastTxByTypeAndPayload = <T extends BaseTx>(
     if (isGelatoBaseTx(lastFilteredTransaction)) {
       return selectTXByKey(state, lastFilteredTransaction.taskId);
     } else {
-      return selectTXByKey(state, lastFilteredTransaction.hash);
+      if (lastFilteredTransaction.hash) {
+        return selectTXByKey(state, lastFilteredTransaction.hash);
+      } else {
+        return undefined;
+      }
     }
   } else {
     return undefined;
@@ -101,9 +110,13 @@ export const selectTxExplorerLink = <T extends BaseTx>(
   }
 };
 
-
-export const selectIsGelatoTXPending =(
+export const selectIsGelatoTXPending = (
   gelatoStatus?: GelatoBaseTx['gelatoStatus']
 ) => {
-  return gelatoStatus == undefined || gelatoStatus == 'CheckPending' || gelatoStatus == 'WaitingForConfirmation' || gelatoStatus == 'ExecPending'
-}
+  return (
+    gelatoStatus == undefined ||
+    gelatoStatus == 'CheckPending' ||
+    gelatoStatus == 'WaitingForConfirmation' ||
+    gelatoStatus == 'ExecPending'
+  );
+};
