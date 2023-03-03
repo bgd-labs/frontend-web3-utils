@@ -17,12 +17,23 @@ export const selectPendingTransactions = <T extends BaseTx>(
   return selectAllTransactions(state).filter((tx) => tx.pending);
 };
 
+export const selectTXByKey = <T extends BaseTx>(
+  state: ITransactionsState<T>,
+  key: string
+) => {
+  return state.transactionsPool[key];
+};
+
 export const selectTXByHash = <T extends BaseTx>(
   state: ITransactionsState<T>,
   hash: string
 ) => {
-  return state.transactionsPool[hash];
-};
+  const txByKey = selectTXByKey<T>(state, hash)
+  if (txByKey) {
+    return txByKey
+  }
+  return selectAllTransactions(state).find((tx) => tx.hash == hash);
+}
 
 export const selectAllTransactionsByWallet = <T extends BaseTx>(
   state: ITransactionsState<T>,
@@ -53,9 +64,9 @@ export const selectLastTxByTypeAndPayload = <T extends BaseTx>(
 
   if (lastFilteredTransaction) {
     if (isGelatoBaseTx(lastFilteredTransaction)) {
-      return selectTXByHash(state, lastFilteredTransaction.taskId);
+      return selectTXByKey(state, lastFilteredTransaction.taskId);
     } else {
-      return selectTXByHash(state, lastFilteredTransaction.hash);
+      return selectTXByKey(state, lastFilteredTransaction.hash);
     }
   } else {
     return undefined;
@@ -68,6 +79,9 @@ export const selectTxExplorerLink = <T extends BaseTx>(
   txHash: string
 ) => {
   const tx = selectTXByHash(state, txHash);
+  if (!tx) {
+    return '';
+  }
 
   const gnosisSafeLinksHelper: Record<number, string> = {
     1: 'https://app.safe.global/eth:',

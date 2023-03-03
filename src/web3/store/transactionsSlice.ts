@@ -345,7 +345,7 @@ export function createTransactionsSlice<T extends BaseTx>({
       const response = await fetch(`https://relay.gelato.digital/tasks/status/${taskId}/`)
       if (!response.ok) {
         //TODO: handle error somehow status 0 error, 1 success
-        throw new Error('Gelato API error')
+        // throw new Error('Gelato API error')
       } else {
         const gelatoStatus = await response.json() as GelatoTaskStatusResponse
         const isPending = selectIsGelatoTXPending(gelatoStatus.task.taskState)
