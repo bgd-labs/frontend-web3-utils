@@ -329,10 +329,12 @@ export function createTransactionsSlice<T extends BaseTx>({
       set((state) => produce(state, (draft) => {
         const tx = draft.transactionsPool[taskId] as GelatoBaseTx & {
           pending: boolean
+          status?: number
         }
         tx.gelatoStatus = statusResponse.task.taskState
         tx.pending = selectIsGelatoTXPending(statusResponse.task.taskState)
         tx.hash = statusResponse.task.transactionHash
+        tx.status = statusResponse.task.taskState == 'ExecSuccess' ? 1 : 0
         if (statusResponse.task.executionDate) {
           let timestamp = new Date(statusResponse.task.executionDate).getTime()
           tx.timestamp = timestamp
@@ -349,15 +351,11 @@ export function createTransactionsSlice<T extends BaseTx>({
       } else {
         const gelatoStatus = await response.json() as GelatoTaskStatusResponse
         const isPending = selectIsGelatoTXPending(gelatoStatus.task.taskState)
-        console.log(isPending, 'gelatoStatus', gelatoStatus)
         get().updateGelatoTX(taskId, gelatoStatus)
         if (!isPending) {
           get().stopPollingGelatoTXStatus(taskId)
-          let status = gelatoStatus.task.taskState == 'ExecSuccess' ? 1 : 0
-          get().txStatusChangedCallback({
-            ...get().transactionsPool[taskId],
-            status,
-          })
+          const tx = get().transactionsPool[taskId]
+          get().txStatusChangedCallback(tx)
         }
       }
     }
