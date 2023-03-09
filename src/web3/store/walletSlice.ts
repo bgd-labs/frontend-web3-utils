@@ -35,6 +35,7 @@ export type IWalletSlice = {
   disconnectActiveWallet: () => Promise<void>;
   walletActivating: boolean;
   walletConnectionError: string;
+  resetWalletConnectionError: () => void;
   initDefaultWallet: () => Promise<void>;
   setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => Promise<void>;
   changeActiveWalletChainId: (chainId?: number) => void;
@@ -238,6 +239,10 @@ export function createWalletSlice({
 
     setImpersonatedAddress: (address) => {
       set({ _impersonatedAddress: address });
+    },
+
+    resetWalletConnectionError: () => {
+      set({ walletConnectionError: '' });
     },
   });
 }
