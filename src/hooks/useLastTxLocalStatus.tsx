@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 
 import { selectLastTxByTypeAndPayload } from '../web3/store/transactionsSelectors';
-import { BaseTx, ITransactionsState } from '../web3/store/transactionsSlice';
+import {
+  BaseTx,
+  isGelatoBaseTx,
+  ITransactionsState,
+} from '../web3/store/transactionsSlice';
 
 interface LastTxStatusesParams<T extends BaseTx> {
   state: ITransactionsState<T>;
@@ -33,8 +37,9 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
   const txChainId = tx && tx.chainId;
   const txWalletType = tx && tx.walletType;
   const isError =
-    (tx && !tx.pending && tx && (tx.status === 2 || tx.status === 0)) ||
-    !!error;
+    tx && isGelatoBaseTx(tx)
+      ? !tx.pending && (tx.status === 2 || tx.status === 0 || !!error)
+      : (tx && !tx.pending && (tx.status === 2 || tx.status === 0)) || !!error;
 
   useEffect(() => {
     if (txPending || isError) {
