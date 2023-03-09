@@ -32,12 +32,22 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
   const txSuccess = tx && tx.status === 1;
   const txChainId = tx && tx.chainId;
   const txWalletType = tx && tx.walletType;
+  const isError =
+    tx &&
+    !tx.pending &&
+    ((tx && (tx.status === 2 || tx.status === 0)) || !!error);
 
   useEffect(() => {
-    if (txPending || !!error) {
+    if (txPending || isError) {
       setIsTxStart(true);
     }
-  }, [txPending, error]);
+  }, [txPending, isError]);
+
+  useEffect(() => {
+    if (tx?.errorMessage) {
+      setError(tx.errorMessage);
+    }
+  }, [tx?.errorMessage]);
 
   async function executeTxWithLocalStatuses({
     errorMessage,
@@ -66,6 +76,7 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
     txSuccess,
     txChainId,
     txWalletType,
+    isError,
     executeTxWithLocalStatuses,
   };
 };
