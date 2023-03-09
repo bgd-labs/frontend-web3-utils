@@ -33,9 +33,8 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
   const txChainId = tx && tx.chainId;
   const txWalletType = tx && tx.walletType;
   const isError =
-    tx &&
-    !tx.pending &&
-    ((tx && (tx.status === 2 || tx.status === 0)) || !!error);
+    (tx && !tx.pending && tx && (tx.status === 2 || tx.status === 0)) ||
+    !!error;
 
   useEffect(() => {
     if (txPending || isError) {
