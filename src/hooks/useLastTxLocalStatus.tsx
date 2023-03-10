@@ -38,8 +38,8 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
   const txWalletType = tx && tx.walletType;
   const isError =
     tx && isGelatoBaseTx(tx)
-      ? !tx.pending && (tx.status === 2 || tx.status === 0 || !!error)
-      : (tx && !tx.pending && (tx.status === 2 || tx.status === 0)) || !!error;
+      ? !tx.pending && (tx.status !== 1 || !!error)
+      : (tx && !tx.pending && tx.status !== 1) || !!error;
 
   useEffect(() => {
     if (txPending || isError) {
