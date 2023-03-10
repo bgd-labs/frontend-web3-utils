@@ -134,6 +134,8 @@ interface ITransactionsActions<T extends BaseTx> {
       | Omit<EthBaseTx, 'localTimestamp'>,
     activeWallet: WalletType
   ) => TransactionPool<PoolTx<T>>;
+  isGelatoAvailable: boolean;
+  checkIsGelatoAvailable: (chainId: number) => Promise<void>;
 }
 
 export type ITransactionsSlice<T extends BaseTx> = ITransactionsActions<T> &
@@ -393,6 +395,20 @@ export function createTransactionsSlice<T extends BaseTx>({
           const tx = get().transactionsPool[taskId];
           get().txStatusChangedCallback(tx);
         }
+      }
+    },
+
+    isGelatoAvailable: true,
+    checkIsGelatoAvailable: async (chainId) => {
+      const response = await fetch(`https://relay.gelato.digital/relays/v2`);
+      if (!response.ok) {
+        set({ isGelatoAvailable: false });
+      } else {
+        const listOfRelays = (await response.json()) as { relays: string[] };
+        const isRelayAvailable = !!listOfRelays.relays.find(
+          (id) => +id === chainId
+        );
+        set({ isGelatoAvailable: isRelayAvailable });
       }
     },
   });
