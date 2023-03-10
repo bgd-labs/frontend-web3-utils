@@ -1,13 +1,18 @@
 import { AddEthereumChainParameter } from '@web3-react/types';
 import isEqual from 'lodash/isEqual';
 
-import { BaseTx, ITransactionsState } from './transactionsSlice';
+import {
+  BaseTx,
+  GelatoBaseTx,
+  isGelatoBaseTx,
+  ITransactionsState,
+} from './transactionsSlice';
 
 export const selectAllTransactions = <T extends BaseTx>(
   state: ITransactionsState<T>
 ) => {
   return Object.values(state.transactionsPool).sort(
-    (a, b) => a.nonce - b.nonce
+    (a, b) => Number(a.localTimestamp) - Number(b.localTimestamp)
   );
 };
 
@@ -17,11 +22,22 @@ export const selectPendingTransactions = <T extends BaseTx>(
   return selectAllTransactions(state).filter((tx) => tx.pending);
 };
 
+export const selectTXByKey = <T extends BaseTx>(
+  state: ITransactionsState<T>,
+  key: string
+) => {
+  return state.transactionsPool[key];
+};
+
 export const selectTXByHash = <T extends BaseTx>(
   state: ITransactionsState<T>,
   hash: string
 ) => {
-  return state.transactionsPool[hash];
+  const txByKey = selectTXByKey<T>(state, hash);
+  if (txByKey) {
+    return txByKey;
+  }
+  return selectAllTransactions(state).find((tx) => tx.hash == hash);
 };
 
 export const selectAllTransactionsByWallet = <T extends BaseTx>(
@@ -52,7 +68,15 @@ export const selectLastTxByTypeAndPayload = <T extends BaseTx>(
     filteredTransactions[filteredTransactions.length - 1];
 
   if (lastFilteredTransaction) {
-    return selectTXByHash(state, lastFilteredTransaction.hash);
+    if (isGelatoBaseTx(lastFilteredTransaction)) {
+      return selectTXByKey(state, lastFilteredTransaction.taskId);
+    } else {
+      if (lastFilteredTransaction.hash) {
+        return selectTXByKey(state, lastFilteredTransaction.hash);
+      } else {
+        return undefined;
+      }
+    }
   } else {
     return undefined;
   }
@@ -64,6 +88,9 @@ export const selectTxExplorerLink = <T extends BaseTx>(
   txHash: string
 ) => {
   const tx = selectTXByHash(state, txHash);
+  if (!tx) {
+    return '';
+  }
 
   const gnosisSafeLinksHelper: Record<number, string> = {
     1: 'https://app.safe.global/eth:',
@@ -81,4 +108,15 @@ export const selectTxExplorerLink = <T extends BaseTx>(
       tx.from
     }/transactions/tx?id=multisig_${tx.from}_${txHash}`;
   }
+};
+
+export const selectIsGelatoTXPending = (
+  gelatoStatus?: GelatoBaseTx['gelatoStatus']
+) => {
+  return (
+    gelatoStatus == undefined ||
+    gelatoStatus == 'CheckPending' ||
+    gelatoStatus == 'WaitingForConfirmation' ||
+    gelatoStatus == 'ExecPending'
+  );
 };
