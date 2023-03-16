@@ -33,13 +33,13 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
 
   const txHash = tx && tx.hash;
   const txPending = tx && tx.pending;
-  const txSuccess = tx && tx.status === 1;
-  const txChainId = tx && tx.chainId;
-  const txWalletType = tx && tx.walletType;
   const isError =
     tx && isGelatoBaseTx(tx)
       ? !tx.pending && (tx.status !== 1 || !!error)
       : (tx && !tx.pending && tx.status !== 1) || !!error;
+  const txSuccess = tx && tx.status === 1 && !isError;
+  const txChainId = tx && tx.chainId;
+  const txWalletType = tx && tx.walletType;
 
   useEffect(() => {
     if (txPending || isError) {
