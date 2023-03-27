@@ -1,7 +1,5 @@
 # Frontend Web3 Shared repo
 
-**IMPORTANT:** REPO IS IN ALFA STATE
-
 The purpose of this repo is to have shared solutions for typical web3 related problems.
 
 Transactions, signing, provider etc
@@ -136,7 +134,3 @@ All the logic is going **through** store and **NOT** through web3-react hooks
 After all the init steps are done, you can finally use
 
 `const connectWallet = useStore((state) => state.connectWallet);`
-
----
-
-[ ] Add explanation and example on "services"

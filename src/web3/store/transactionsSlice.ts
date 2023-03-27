@@ -31,31 +31,30 @@ export type GelatoTaskStatusResponse = {
     executionDate?: string;
     transactionHash?: string;
     blockNumber?: number;
+    lastCheckMessage?: string;
   };
 };
 
-export type EthBaseTx = {
-  type: string;
-  payload?: object;
-  hash: string;
-  from: string;
-  to: string;
-  nonce: number;
+type BasicTx = {
   chainId: number;
-  timestamp?: number;
+  type: string;
+  from: string;
+  payload?: object;
   localTimestamp: number;
+  timestamp?: number;
+  errorMessage?: string;
 };
 
-export type GelatoBaseTx = {
-  from: string;
+export type EthBaseTx = BasicTx & {
+  hash: string;
+  to: string;
+  nonce: number;
+};
+
+export type GelatoBaseTx = BasicTx & {
   taskId: string;
-  type: string;
-  chainId: number;
-  timestamp?: number;
-  payload?: object;
   hash?: string;
   gelatoStatus?: GelatoTXState;
-  localTimestamp: number;
 };
 
 export type GelatoTx = {
@@ -139,6 +138,8 @@ export interface ITransactionsActions<T extends BaseTx> {
       | Omit<EthBaseTx, 'localTimestamp'>,
     activeWallet: WalletType
   ) => TransactionPool<PoolTx<T>>;
+  isGelatoAvailable: boolean;
+  checkIsGelatoAvailable: (chainId: number) => Promise<void>;
 }
 
 export type ITransactionsSlice<T extends BaseTx> = ITransactionsActions<T> &
@@ -379,12 +380,15 @@ export function createTransactionsSlice<T extends BaseTx>({
     //       tx.gelatoStatus = statusResponse.task.taskState;
     //       tx.pending = selectIsGelatoTXPending(statusResponse.task.taskState);
     //       tx.hash = statusResponse.task.transactionHash;
-    //       tx.status = statusResponse.task.taskState == 'ExecSuccess' ? 1 : 0;
+    //       tx.status = statusResponse.task.taskState == 'ExecSuccess' ? 1 : 2;
     //       if (statusResponse.task.executionDate) {
     //         const timestamp = new Date(
     //           statusResponse.task.executionDate
     //         ).getTime();
     //         tx.timestamp = timestamp;
+    //       }
+    //       if (statusResponse.task.lastCheckMessage) {
+    //         tx.errorMessage = statusResponse.task.lastCheckMessage;
     //       }
     //     })
     //   );
@@ -396,7 +400,7 @@ export function createTransactionsSlice<T extends BaseTx>({
     //     `https://relay.gelato.digital/tasks/status/${taskId}/`
     //   );
     //   if (!response.ok) {
-    //     //TODO: handle error somehow status 0 error, 1 success
+    //     // TODO: handle error somehow
     //     // throw new Error('Gelato API error')
     //   } else {
     //     const gelatoStatus =
@@ -410,5 +414,19 @@ export function createTransactionsSlice<T extends BaseTx>({
     //     }
     //   }
     // },
+
+    isGelatoAvailable: true,
+    checkIsGelatoAvailable: async (chainId) => {
+      const response = await fetch(`https://relay.gelato.digital/relays/v2`);
+      if (!response.ok) {
+        set({ isGelatoAvailable: false });
+      } else {
+        const listOfRelays = (await response.json()) as { relays: string[] };
+        const isRelayAvailable = !!listOfRelays.relays.find(
+          (id) => +id === chainId
+        );
+        set({ isGelatoAvailable: isRelayAvailable });
+      }
+    },
   });
 }

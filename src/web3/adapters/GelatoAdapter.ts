@@ -93,7 +93,7 @@ export class GelatoAdapter<T extends BaseTx>
       `https://relay.gelato.digital/tasks/status/${taskId}/`
     );
     if (!response.ok) {
-      //TODO: handle error somehow status 0 error, 1 success
+      // TODO: handle error somehow
       // throw new Error('Gelato API error')
     } else {
       const gelatoStatus = (await response.json()) as GelatoTaskStatusResponse;
@@ -120,12 +120,15 @@ export class GelatoAdapter<T extends BaseTx>
         tx.gelatoStatus = statusResponse.task.taskState;
         tx.pending = selectIsGelatoTXPending(statusResponse.task.taskState);
         tx.hash = statusResponse.task.transactionHash;
-        tx.status = statusResponse.task.taskState == 'ExecSuccess' ? 1 : 0;
+        tx.status = statusResponse.task.taskState == 'ExecSuccess' ? 1 : 2;
         if (statusResponse.task.executionDate) {
           const timestamp = new Date(
             statusResponse.task.executionDate
           ).getTime();
           tx.timestamp = timestamp;
+        }
+        if (statusResponse.task.lastCheckMessage) {
+          tx.errorMessage = statusResponse.task.lastCheckMessage;
         }
       })
     );
