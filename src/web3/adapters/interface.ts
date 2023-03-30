@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import {
   BaseTx,
   GelatoTx,
+  GnosisTxStatusResponse,
   ITransactionsSlice,
 } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
@@ -23,21 +24,30 @@ export interface AdapterInterface<T extends BaseTx> {
       pending: boolean;
     }
   >;
+  startTxTracking: (txId: string) => Promise<void>;
 }
 
 export interface GelatoAdapterInterface<T extends BaseTx>
   extends AdapterInterface<T> {
-  startPollingGelatoTXStatus: (taskId: string) => void;
   stopPollingGelatoTXStatus: (taskId: string) => void;
   fetchGelatoTXStatus: (taskId: string) => void;
 }
 
 export interface EthereumAdapterInterface<T extends BaseTx>
   extends AdapterInterface<T> {
-  waitForTx: (hash: string) => Promise<void>;
   waitForTxReceipt: (
     tx: ethers.providers.TransactionResponse,
     txHash: string
   ) => Promise<void>;
   updateTXStatus: (hash: string, status?: number) => void;
+}
+
+export interface GnosisAdapterInterface<T extends BaseTx>
+  extends AdapterInterface<T> {
+  fetchGnosisTxStatus: (txKey: string) => void;
+  stopPollingGnosisTXStatus: (txKey: string) => void;
+  updateGnosisTxStatus: (
+    txKey: string,
+    statusResponse: GnosisTxStatusResponse
+  ) => void;
 }

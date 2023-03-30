@@ -6,7 +6,6 @@ import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvid
 // TODO check and move all related types if needed
 import {
   BaseTx,
-  EthBaseTx,
   GelatoTx,
   ITransactionsSlice,
 } from '../store/transactionsSlice';
@@ -33,7 +32,7 @@ export class EthereumAdapter<T extends BaseTx>
     activeWallet: Wallet;
     payload: object | undefined;
     chainId: number;
-    type: EthBaseTx['type'];
+    type: T['type'];
   }): Promise<T & { status?: number; pending: boolean }> => {
     const { activeWallet, chainId, type } = params;
     const tx = params.tx as ethers.ContractTransaction;
@@ -52,7 +51,7 @@ export class EthereumAdapter<T extends BaseTx>
     return txPool[tx.hash];
   };
 
-  waitForTx = async (txKey: string) => {
+  startTxTracking = async (txKey: string) => {
     const txData = this.get().transactionsPool[txKey];
     if (txData) {
       const provider = this.get().providers[

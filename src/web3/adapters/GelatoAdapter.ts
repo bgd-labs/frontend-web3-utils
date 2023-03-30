@@ -48,31 +48,25 @@ export class GelatoAdapter<T extends BaseTx>
     };
 
     const txPool = this.get().addTXToPool(gelatoTX, activeWallet.walletType);
-    this.startPollingGelatoTXStatus(tx.taskId);
+    this.startTxTracking(tx.taskId);
 
     return txPool[tx.taskId];
   };
 
-  startPollingGelatoTXStatus = (taskId: string) => {
+  startTxTracking = async (taskId: string) => {
     const tx = this.get().transactionsPool[taskId] as GelatoBaseTx;
-    // if (isGelatoBaseTx(tx)) {
+
     const isPending = selectIsGelatoTXPending(tx.gelatoStatus);
     if (!isPending) {
       return;
     }
-    // }
+
     this.stopPollingGelatoTXStatus(taskId);
 
     const newGelatoInterval = setInterval(() => {
       this.fetchGelatoTXStatus(taskId);
       // TODO: change timeout for gelato
     }, 2000);
-
-    // this.set((state) =>
-    //   produce(state, (draft) => {
-    //     draft.transactionsIntervalsMap[taskId] = Number(newGelatoInterval);
-    //   })
-    // );
 
     this.transactionsIntervalsMap[taskId] = Number(newGelatoInterval);
   };
@@ -81,11 +75,6 @@ export class GelatoAdapter<T extends BaseTx>
     const currentInterval = this.transactionsIntervalsMap[taskId];
     clearInterval(currentInterval);
     this.transactionsIntervalsMap[taskId] = undefined;
-    // this.set((state) =>
-    //   produce(state, (draft) => {
-    //     draft.transactionsIntervalsMap[taskId] = undefined;
-    //   })
-    // );
   };
 
   fetchGelatoTXStatus = async (taskId: string) => {
