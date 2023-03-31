@@ -251,9 +251,7 @@ export function createTransactionsSlice<T extends BaseTx>({
         }));
       }
       Object.values(get().transactionsPool).forEach((tx) => {
-        // ignore transactions from GnosisSafe is gnosis is not connected due to different tx hashes
-        const txObservable = tx.walletType != 'GnosisSafe';
-        if (tx.pending && txObservable) {
+        if (tx.pending) {
           if (isGelatoBaseTx(tx)) {
             get().gelatoAdapter.startTxTracking(tx.taskId);
           } else {

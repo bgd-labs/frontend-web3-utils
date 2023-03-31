@@ -54,7 +54,7 @@ export class GnosisAdapter<T extends BaseTx>
 
   startTxTracking = async (txKey: string) => {
     const tx = this.get().transactionsPool[txKey];
-    const isPending = tx.status;
+    const isPending = tx.pending;
     if (!isPending) {
       return;
     }
