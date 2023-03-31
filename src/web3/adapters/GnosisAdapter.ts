@@ -102,7 +102,7 @@ export class GnosisAdapter<T extends BaseTx>
         draft.transactionsPool[txKey].status = statusResponse.isSuccessful
           ? 1
           : 0;
-        draft.transactionsPool[txKey].pending = false;
+        draft.transactionsPool[txKey].pending = !statusResponse.isExecuted;
       })
     );
     setLocalStorageTxPool(this.get().transactionsPool);
