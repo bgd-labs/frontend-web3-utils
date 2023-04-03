@@ -10,6 +10,7 @@ import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvid
 import { EthereumAdapter } from '../adapters/EthereumAdapter';
 import { GelatoAdapter } from '../adapters/GelatoAdapter';
 import { GnosisAdapter } from '../adapters/GnosisAdapter';
+import { AdapterInterface } from '../adapters/interface';
 import { WalletType } from '../connectors';
 import { IWalletSlice } from './walletSlice';
 
@@ -110,8 +111,8 @@ function isGelatoBaseTxWithoutTimestamp(
   return (tx as GelatoBaseTx).taskId !== undefined;
 }
 export interface ITransactionsActions<T extends BaseTx> {
-  gelatoAdapter: GelatoAdapter<T>;
-  ethereumAdapter: EthereumAdapter<T> | GnosisAdapter<T>;
+  gelatoAdapter: AdapterInterface<T>;
+  ethereumAdapter: AdapterInterface<T>;
   txStatusChangedCallback: (
     data: T & {
       status?: number;

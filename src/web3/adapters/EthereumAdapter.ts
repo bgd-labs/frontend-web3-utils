@@ -9,11 +9,9 @@ import {
   ITransactionsSlice,
 } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
-import { EthereumAdapterInterface } from './interface';
+import { AdapterInterface } from './interface';
 
-export class EthereumAdapter<T extends BaseTx>
-  implements EthereumAdapterInterface<T>
-{
+export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
   get: () => ITransactionsSlice<T>;
   set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void;
   transactionsIntervalsMap: Record<string, number | undefined> = {};
@@ -65,7 +63,7 @@ export class EthereumAdapter<T extends BaseTx>
     }
   };
 
-  waitForTxReceipt = async (
+  private waitForTxReceipt = async (
     tx: ethers.providers.TransactionResponse,
     txHash: string
   ) => {
@@ -86,7 +84,7 @@ export class EthereumAdapter<T extends BaseTx>
     });
   };
 
-  updateTXStatus = (hash: string, status?: number) => {
+  private updateTXStatus = (hash: string, status?: number) => {
     this.set((state) =>
       produce(state, (draft) => {
         draft.transactionsPool[hash].status = status;

@@ -12,11 +12,9 @@ import {
   ITransactionsSlice,
 } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
-import { GelatoAdapterInterface } from './interface';
+import { AdapterInterface } from './interface';
 
-export class GelatoAdapter<T extends BaseTx>
-  implements GelatoAdapterInterface<T>
-{
+export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
   get: () => ITransactionsSlice<T>;
   set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void;
   transactionsIntervalsMap: Record<string, number | undefined> = {};
@@ -71,13 +69,13 @@ export class GelatoAdapter<T extends BaseTx>
     this.transactionsIntervalsMap[taskId] = Number(newGelatoInterval);
   };
 
-  stopPollingGelatoTXStatus = (taskId: string) => {
+  private stopPollingGelatoTXStatus = (taskId: string) => {
     const currentInterval = this.transactionsIntervalsMap[taskId];
     clearInterval(currentInterval);
     this.transactionsIntervalsMap[taskId] = undefined;
   };
 
-  fetchGelatoTXStatus = async (taskId: string) => {
+  private fetchGelatoTXStatus = async (taskId: string) => {
     const response = await fetch(
       `https://relay.gelato.digital/tasks/status/${taskId}/`
     );
@@ -95,7 +93,7 @@ export class GelatoAdapter<T extends BaseTx>
     }
   };
 
-  updateGelatoTX = (
+  private updateGelatoTX = (
     taskId: string,
     statusResponse: GelatoTaskStatusResponse
   ) => {

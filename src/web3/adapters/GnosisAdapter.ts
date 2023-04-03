@@ -11,11 +11,9 @@ import {
   ITransactionsSlice,
 } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
-import { GnosisAdapterInterface } from './interface';
+import { AdapterInterface } from './interface';
 
-export class GnosisAdapter<T extends BaseTx>
-  implements GnosisAdapterInterface<T>
-{
+export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
   get: () => ITransactionsSlice<T>;
   set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void;
   transactionsIntervalsMap: Record<string, number | undefined> = {};
@@ -62,13 +60,13 @@ export class GnosisAdapter<T extends BaseTx>
 
     const newGnosisInterval = setInterval(() => {
       this.fetchGnosisTxStatus(txKey);
-      // TODO: maybe change timeout or even stop tracking after some time (1day/week)
+      // TODO: maybe change timeout or even stop tracking after some time (day/week)
     }, 5000);
 
     this.transactionsIntervalsMap[txKey] = Number(newGnosisInterval);
   };
 
-  fetchGnosisTxStatus = async (txKey: string) => {
+  private fetchGnosisTxStatus = async (txKey: string) => {
     const tx = this.get().transactionsPool[txKey];
     const response = await fetch(
       `${
@@ -88,13 +86,13 @@ export class GnosisAdapter<T extends BaseTx>
     }
   };
 
-  stopPollingGnosisTXStatus = (txKey: string) => {
+  private stopPollingGnosisTXStatus = (txKey: string) => {
     const currentInterval = this.transactionsIntervalsMap[txKey];
     clearInterval(currentInterval);
     this.transactionsIntervalsMap[txKey] = undefined;
   };
 
-  updateGnosisTxStatus = (
+  private updateGnosisTxStatus = (
     txKey: string,
     statusResponse: GnosisTxStatusResponse
   ) => {
