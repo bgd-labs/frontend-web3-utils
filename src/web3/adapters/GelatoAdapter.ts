@@ -82,8 +82,7 @@ export class GelatoAdapter<T extends BaseTx>
       `https://relay.gelato.digital/tasks/status/${taskId}/`
     );
     if (!response.ok) {
-      // TODO: handle error somehow
-      // throw new Error('Gelato API error')
+      // TODO: handle error if needed, for now just skipping
     } else {
       const gelatoStatus = (await response.json()) as GelatoTaskStatusResponse;
       const isPending = selectIsGelatoTXPending(gelatoStatus.task.taskState);

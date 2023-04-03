@@ -1,10 +1,11 @@
 import { ethers } from 'ethers';
 import { produce } from 'immer';
 
+import { SafeTransactionServiceUrls } from '../../utils/constants';
 import { setLocalStorageTxPool } from '../../utils/localStorage';
-// TODO check and move all related types if needed
 import {
   BaseTx,
+  EthBaseTx,
   GelatoTx,
   GnosisTxStatusResponse,
   ITransactionsSlice,
@@ -46,7 +47,6 @@ export class GnosisAdapter<T extends BaseTx>
       to: tx.to as string,
       nonce: tx.nonce,
     };
-    console.log({ transaction });
     const txPool = this.get().addTXToPool(transaction, activeWallet.walletType);
     this.startTxTracking(tx.hash);
     return txPool[tx.hash];
@@ -62,26 +62,27 @@ export class GnosisAdapter<T extends BaseTx>
 
     const newGnosisInterval = setInterval(() => {
       this.fetchGnosisTxStatus(txKey);
-      // TODO: change timeout for gnosis
-    }, 2000);
+      // TODO: maybe change timeout or even stop tracking after some time (1day/week)
+    }, 5000);
 
     this.transactionsIntervalsMap[txKey] = Number(newGnosisInterval);
   };
 
   fetchGnosisTxStatus = async (txKey: string) => {
+    const tx = this.get().transactionsPool[txKey];
     const response = await fetch(
-      `https://safe-transaction-goerli.safe.global/api/v1/multisig-transactions/${txKey}/`
+      `${
+        SafeTransactionServiceUrls[tx.chainId]
+      }/multisig-transactions/${txKey}/`
     );
     if (!response.ok) {
-      // TODO: handle error somehow
+      // TODO: handle error if need, for now just skipping and do nothing with failed response
     } else {
       const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
       const isPending = !gnosisStatus.isExecuted;
-      console.log({ gnosisStatus });
       this.updateGnosisTxStatus(txKey, gnosisStatus);
       if (!isPending) {
         this.stopPollingGnosisTXStatus(txKey);
-        const tx = this.get().transactionsPool[txKey];
         this.get().txStatusChangedCallback(tx);
       }
     }
@@ -99,10 +100,13 @@ export class GnosisAdapter<T extends BaseTx>
   ) => {
     this.set((state) =>
       produce(state, (draft) => {
-        draft.transactionsPool[txKey].status = statusResponse.isSuccessful
-          ? 1
-          : 0;
-        draft.transactionsPool[txKey].pending = !statusResponse.isExecuted;
+        const tx = draft.transactionsPool[txKey] as EthBaseTx & {
+          pending: boolean;
+          status?: number;
+        };
+        tx.status = +!!statusResponse.isSuccessful; // turns boolean | null to 0 or 1
+        tx.pending = !statusResponse.isExecuted;
+        tx.nonce = statusResponse.nonce;
       })
     );
     setLocalStorageTxPool(this.get().transactionsPool);

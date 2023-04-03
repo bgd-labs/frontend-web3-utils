@@ -3,7 +3,6 @@ import { produce } from 'immer';
 
 import { setLocalStorageTxPool } from '../../utils/localStorage';
 import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvider';
-// TODO check and move all related types if needed
 import {
   BaseTx,
   GelatoTx,
@@ -70,7 +69,6 @@ export class EthereumAdapter<T extends BaseTx>
     tx: ethers.providers.TransactionResponse,
     txHash: string
   ) => {
-    // type casting here as well
     const chainId = tx.chainId || this.get().transactionsPool[txHash].chainId;
     const provider = this.get().providers[
       chainId

@@ -43,6 +43,7 @@ export type GnosisTxStatusResponse = {
   executionDate: string | null;
   submissionDate: string | null;
   modified: string;
+  nonce: number;
 };
 
 type BasicTx = {
@@ -109,9 +110,6 @@ function isGelatoBaseTxWithoutTimestamp(
   return (tx as GelatoBaseTx).taskId !== undefined;
 }
 export interface ITransactionsActions<T extends BaseTx> {
-  // startPollingGelatoTXStatus: (taskId: string) => void;
-  // stopPollingGelatoTXStatus: (taskId: string) => void;
-  // fetchGelatoTXStatus: (taskId: string) => void;
   gelatoAdapter: GelatoAdapter<T>;
   ethereumAdapter: EthereumAdapter<T> | GnosisAdapter<T>;
   txStatusChangedCallback: (
@@ -133,16 +131,6 @@ export interface ITransactionsActions<T extends BaseTx> {
       pending: boolean;
     }
   >;
-  // waitForTx: (hash: string) => Promise<void>;
-  // waitForTxReceipt: (
-  //   tx: ethers.providers.TransactionResponse,
-  //   txHash: string
-  // ) => Promise<void>;
-  // updateTXStatus: (hash: string, status?: number) => void;
-  // updateGelatoTX: (
-  //   taskId: string,
-  //   gelatoStatus: GelatoTaskStatusResponse
-  // ) => void;
   addTXToPool: (
     tx:
       | Omit<GelatoBaseTx, 'localTimestamp'>
@@ -173,8 +161,8 @@ export function createTransactionsSlice<T extends BaseTx>({
     transactionsIntervalsMap: {},
     providers: defaultProviders,
     txStatusChangedCallback,
-    gelatoAdapter: new GelatoAdapter(get, set), // TODO: think when to init, maybe only when working with gelato
-    ethereumAdapter: new EthereumAdapter(get, set), // This might be a Gnosis Safe adapter need to add listener to re-init it if wallet = gnosis
+    gelatoAdapter: new GelatoAdapter(get, set), // TODO: think when to init, maybe only when working with gelato or it's available
+    ethereumAdapter: new EthereumAdapter(get, set), // This might be a Gnosis Safe adapter, re-inits when wallet.type === GnosisSafe
     executeTx: async ({ body, params }) => {
       await get().checkAndSwitchNetwork(params.desiredChainID);
       const activeWallet = get().activeWallet;
@@ -184,15 +172,13 @@ export function createTransactionsSlice<T extends BaseTx>({
       const chainId = Number(params.desiredChainID);
       const tx = await body();
       const args = {
-        // TODO: update arguments in adapters
         tx,
         payload: params.payload,
         activeWallet,
         chainId,
         type: params.type,
       };
-      // TODO: dedub methods to separate ones
-      return isGelatoTx(tx) // in case of gnosis safe it could work in a same way
+      return isGelatoTx(tx) // in case of gnosis safe it works in a same way
         ? get().gelatoAdapter.executeTx(args)
         : get().ethereumAdapter.executeTx(args);
     },
@@ -285,9 +271,13 @@ export function createTransactionsSlice<T extends BaseTx>({
       }
     },
     updateEthAdapter: (gnosis: boolean) => {
-      get().ethereumAdapter = gnosis
-        ? new GnosisAdapter(get, set)
-        : new EthereumAdapter(get, set);
+      set((state) =>
+        produce(state, (draft) => {
+          draft.ethereumAdapter = gnosis
+            ? new GnosisAdapter(get, set)
+            : new EthereumAdapter(get, set);
+        })
+      );
     },
   });
 }
