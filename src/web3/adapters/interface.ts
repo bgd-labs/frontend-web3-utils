@@ -7,7 +7,6 @@ import {
 } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
 
-// TODO: try again to use defined type instead of Generic so get/set could work with it
 export interface AdapterInterface<T extends BaseTx> {
   get: () => ITransactionsSlice<T>;
   set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void;
