@@ -71,17 +71,21 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     const provider = this.get().providers[
       chainId
     ] as StaticJsonRpcBatchProvider;
-    const txn = await tx.wait();
 
-    this.updateTXStatus(txHash, txn.status);
+    try {
+      const txn = await tx.wait();
+      this.updateTXStatus(txHash, txn.status);
 
-    const updatedTX = this.get().transactionsPool[txHash];
-    const txBlock = await provider.getBlock(txn.blockNumber);
-    const timestamp = txBlock.timestamp;
-    this.get().txStatusChangedCallback({
-      ...updatedTX,
-      timestamp,
-    });
+      const updatedTX = this.get().transactionsPool[txHash];
+      const txBlock = await provider.getBlock(txn.blockNumber);
+      const timestamp = txBlock.timestamp;
+      this.get().txStatusChangedCallback({
+        ...updatedTX,
+        timestamp,
+      });
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   private updateTXStatus = (hash: string, status?: number) => {

@@ -77,6 +77,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
       // TODO: handle error if need, for now just skipping and do nothing with failed response
     } else {
       const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
+      // TODO: handle rejected transaction (safeTxHash is changed for them)
       const isPending = !gnosisStatus.isExecuted;
       this.updateGnosisTxStatus(txKey, gnosisStatus);
       if (!isPending) {
