@@ -260,15 +260,20 @@ export function createTransactionsSlice<T extends BaseTx>({
 
     isGelatoAvailable: true,
     checkIsGelatoAvailable: async (chainId) => {
-      const response = await fetch(`https://relay.gelato.digital/relays/v2`);
-      if (!response.ok) {
+      try {
+        const response = await fetch(`https://relay.gelato.digital/relays/v2`);
+        if (!response.ok) {
+          set({ isGelatoAvailable: false });
+        } else {
+          const listOfRelays = (await response.json()) as { relays: string[] };
+          const isRelayAvailable = !!listOfRelays.relays.find(
+            (id) => +id === chainId
+          );
+          set({ isGelatoAvailable: isRelayAvailable });
+        }
+      } catch (e) {
         set({ isGelatoAvailable: false });
-      } else {
-        const listOfRelays = (await response.json()) as { relays: string[] };
-        const isRelayAvailable = !!listOfRelays.relays.find(
-          (id) => +id === chainId
-        );
-        set({ isGelatoAvailable: isRelayAvailable });
+        console.error(e);
       }
     },
     updateEthAdapter: (gnosis: boolean) => {

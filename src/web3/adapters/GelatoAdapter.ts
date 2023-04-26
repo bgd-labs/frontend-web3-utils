@@ -52,6 +52,9 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
   };
 
   startTxTracking = async (taskId: string) => {
+    // TODO: need fix typing for transactions pool
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const tx = this.get().transactionsPool[taskId] as GelatoBaseTx;
 
     const isPending = selectIsGelatoTXPending(tx.gelatoStatus);

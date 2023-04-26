@@ -88,12 +88,12 @@
     "zustand": "^4.0.0-rc.1"
   },
   "dependencies": {
-    "@web3-react/coinbase-wallet": "8.0.34-beta.0",
+    "@web3-react/coinbase-wallet": "8.0.35-beta.0",
     "@web3-react/core": "8.0.35-beta.0",
     "@web3-react/gnosis-safe": "8.0.7-beta.0",
-    "@web3-react/metamask": "8.0.29-beta.0",
+    "@web3-react/metamask": "8.0.30-beta.0",
     "@web3-react/types": "8.0.20-beta.0",
-    "@web3-react/walletconnect": "8.0.36-beta.0",
+    "@web3-react/walletconnect": "8.0.37-beta.0",
     "lodash": "^4.17.21"
   }
 }
