@@ -94,6 +94,7 @@
     "@web3-react/metamask": "8.0.30-beta.0",
     "@web3-react/types": "8.0.20-beta.0",
     "@web3-react/walletconnect": "8.0.37-beta.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4"
   }
 }

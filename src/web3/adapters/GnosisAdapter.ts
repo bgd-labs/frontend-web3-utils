@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { produce } from 'immer';
+import moment from 'moment';
 
 import { SafeTransactionServiceUrls } from '../../utils/constants';
 import { setLocalStorageTxPool } from '../../utils/localStorage';
@@ -61,7 +62,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     const newGnosisInterval = setInterval(() => {
       this.fetchGnosisTxStatus(txKey);
       // TODO: maybe change timeout or even stop tracking after some time (day/week)
-    }, 5000);
+    }, 10000);
 
     this.transactionsIntervalsMap[txKey] = Number(newGnosisInterval);
   };
@@ -77,7 +78,17 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
       // TODO: handle error if need, for now just skipping and do nothing with failed response
     } else {
       const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
-      // TODO: handle rejected transaction (safeTxHash is changed for them)
+      const gnosisStatusModified = moment(gnosisStatus.modified);
+      // check if more than a day passed to stop polling
+      const currentTime = moment();
+      const daysPassed = currentTime.diff(gnosisStatusModified, 'days');
+      if (daysPassed >= 1) {
+        this.updateGnosisTxStatus(txKey, gnosisStatus, true);
+        this.stopPollingGnosisTXStatus(txKey);
+        this.get().txStatusChangedCallback(tx);
+        return;
+      }
+
       const isPending = !gnosisStatus.isExecuted;
       this.updateGnosisTxStatus(txKey, gnosisStatus);
       if (!isPending) {
@@ -95,7 +106,8 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
   private updateGnosisTxStatus = (
     txKey: string,
-    statusResponse: GnosisTxStatusResponse
+    statusResponse: GnosisTxStatusResponse,
+    forceStopped?: boolean
   ) => {
     this.set((state) =>
       produce(state, (draft) => {
@@ -103,8 +115,8 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
           pending: boolean;
           status?: number;
         };
-        tx.status = +!!statusResponse.isSuccessful; // turns boolean | null to 0 or 1
-        tx.pending = !statusResponse.isExecuted;
+        tx.status = forceStopped ? 0 : +!!statusResponse.isSuccessful; // turns boolean | null to 0 or 1
+        tx.pending = forceStopped ? false : !statusResponse.isExecuted;
         tx.nonce = statusResponse.nonce;
       })
     );

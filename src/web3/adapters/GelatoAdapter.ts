@@ -86,7 +86,6 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
       // TODO: handle error if needed, for now just skipping
     } else {
       const gelatoStatus = (await response.json()) as GelatoTaskStatusResponse;
-      // TODO: check if it works with failed transactions
       const isPending = selectIsGelatoTXPending(gelatoStatus.task.taskState);
       this.updateGelatoTX(taskId, gelatoStatus);
       if (!isPending) {
