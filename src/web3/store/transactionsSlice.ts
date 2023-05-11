@@ -8,44 +8,20 @@ import {
 } from '../../utils/localStorage';
 import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvider';
 import { EthereumAdapter } from '../adapters/EthereumAdapter';
-import { GelatoAdapter } from '../adapters/GelatoAdapter';
+import {
+  GelatoAdapter,
+  GelatoTx,
+  GelatoTXState,
+  isGelatoBaseTx,
+  isGelatoBaseTxWithoutTimestamp,
+  isGelatoTx,
+} from '../adapters/GelatoAdapter';
 import { GnosisAdapter } from '../adapters/GnosisAdapter';
 import { AdapterInterface } from '../adapters/interface';
 import { WalletType } from '../connectors';
 import { IWalletSlice } from './walletSlice';
 
 export type BaseTx = EthBaseTx | GelatoBaseTx;
-
-type GelatoTXState =
-  | 'WaitingForConfirmation'
-  | 'CheckPending'
-  | 'ExecSuccess'
-  | 'Cancelled'
-  | 'ExecPending';
-
-export type GelatoTaskStatusResponse = {
-  task: {
-    chainId: number;
-    taskId: string;
-    taskState: GelatoTXState;
-    creationDate?: string;
-    executionDate?: string;
-    transactionHash?: string;
-    blockNumber?: number;
-    lastCheckMessage?: string;
-  };
-};
-
-export type GnosisTxStatusResponse = {
-  transactionHash: string;
-  safeTxHash: string;
-  isExecuted: boolean;
-  isSuccessful: boolean | null;
-  executionDate: string | null;
-  submissionDate: string | null;
-  modified: string;
-  nonce: number;
-};
 
 type BasicTx = {
   chainId: number;
@@ -67,10 +43,6 @@ export type GelatoBaseTx = BasicTx & {
   taskId: string;
   hash?: string;
   gelatoStatus?: GelatoTXState;
-};
-
-export type GelatoTx = {
-  taskId: string;
 };
 
 export type ProvidersRecord = Record<number, StaticJsonRpcBatchProvider>;
@@ -95,21 +67,6 @@ export interface ITransactionsState<T extends BaseTx> {
   transactionsIntervalsMap: Record<string, number | undefined>;
 }
 
-export function isGelatoTx(
-  tx: ethers.ContractTransaction | GelatoTx
-): tx is GelatoTx {
-  return (tx as GelatoTx).taskId !== undefined;
-}
-
-export function isGelatoBaseTx(tx: BaseTx): tx is GelatoBaseTx {
-  return (tx as GelatoBaseTx).taskId !== undefined;
-}
-
-function isGelatoBaseTxWithoutTimestamp(
-  tx: Omit<BaseTx, 'localTimestamp'>
-): tx is Omit<GelatoBaseTx, 'localTimestamp'> {
-  return (tx as GelatoBaseTx).taskId !== undefined;
-}
 export interface ITransactionsActions<T extends BaseTx> {
   gelatoAdapter: AdapterInterface<T>;
   ethereumAdapter: AdapterInterface<T>;

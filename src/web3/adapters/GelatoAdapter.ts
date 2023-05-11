@@ -3,16 +3,53 @@ import { produce } from 'immer';
 
 import { setLocalStorageTxPool } from '../../utils/localStorage';
 import { selectIsGelatoTXPending } from '../store/transactionsSelectors';
-// TODO check and move all related types if needed
 import {
   BaseTx,
   GelatoBaseTx,
-  GelatoTaskStatusResponse,
-  GelatoTx,
   ITransactionsSlice,
 } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
 import { AdapterInterface } from './interface';
+
+export type GelatoTXState =
+  | 'WaitingForConfirmation'
+  | 'CheckPending'
+  | 'ExecSuccess'
+  | 'Cancelled'
+  | 'ExecPending';
+
+export type GelatoTaskStatusResponse = {
+  task: {
+    chainId: number;
+    taskId: string;
+    taskState: GelatoTXState;
+    creationDate?: string;
+    executionDate?: string;
+    transactionHash?: string;
+    blockNumber?: number;
+    lastCheckMessage?: string;
+  };
+};
+
+export type GelatoTx = {
+  taskId: string;
+};
+
+export function isGelatoTx(
+  tx: ethers.ContractTransaction | GelatoTx
+): tx is GelatoTx {
+  return (tx as GelatoTx).taskId !== undefined;
+}
+
+export function isGelatoBaseTx(tx: BaseTx): tx is GelatoBaseTx {
+  return (tx as GelatoBaseTx).taskId !== undefined;
+}
+
+export function isGelatoBaseTxWithoutTimestamp(
+  tx: Omit<BaseTx, 'localTimestamp'>
+): tx is Omit<GelatoBaseTx, 'localTimestamp'> {
+  return (tx as GelatoBaseTx).taskId !== undefined;
+}
 
 export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
   get: () => ITransactionsSlice<T>;

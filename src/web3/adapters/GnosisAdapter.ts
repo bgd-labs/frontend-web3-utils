@@ -7,12 +7,22 @@ import { setLocalStorageTxPool } from '../../utils/localStorage';
 import {
   BaseTx,
   EthBaseTx,
-  GelatoTx,
-  GnosisTxStatusResponse,
   ITransactionsSlice,
 } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
+import { GelatoTx } from './GelatoAdapter';
 import { AdapterInterface } from './interface';
+
+export type GnosisTxStatusResponse = {
+  transactionHash: string;
+  safeTxHash: string;
+  isExecuted: boolean;
+  isSuccessful: boolean | null;
+  executionDate: string | null;
+  submissionDate: string | null;
+  modified: string;
+  nonce: number;
+};
 
 export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
   get: () => ITransactionsSlice<T>;

@@ -1,11 +1,8 @@
 import { ethers } from 'ethers';
 
-import {
-  BaseTx,
-  GelatoTx,
-  ITransactionsSlice,
-} from '../store/transactionsSlice';
+import { BaseTx, ITransactionsSlice } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
+import { GelatoTx } from './GelatoAdapter';
 
 export interface AdapterInterface<T extends BaseTx> {
   get: () => ITransactionsSlice<T>;

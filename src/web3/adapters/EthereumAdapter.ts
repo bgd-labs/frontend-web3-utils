@@ -3,12 +3,9 @@ import { produce } from 'immer';
 
 import { setLocalStorageTxPool } from '../../utils/localStorage';
 import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvider';
-import {
-  BaseTx,
-  GelatoTx,
-  ITransactionsSlice,
-} from '../store/transactionsSlice';
+import { BaseTx, ITransactionsSlice } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
+import { GelatoTx } from './GelatoAdapter';
 import { AdapterInterface } from './interface';
 
 export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
