@@ -1,6 +1,6 @@
+import dayjs from 'dayjs';
 import { ethers } from 'ethers';
 import { produce } from 'immer';
-import moment from 'moment';
 
 import { SafeTransactionServiceUrls } from '../../utils/constants';
 import { setLocalStorageTxPool } from '../../utils/localStorage';
@@ -88,10 +88,10 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
       // TODO: handle error if need, for now just skipping and do nothing with failed response
     } else {
       const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
-      const gnosisStatusModified = moment(gnosisStatus.modified);
+      const gnosisStatusModified = dayjs(gnosisStatus.modified);
+      const currentTime = dayjs();
       // check if more than a day passed to stop polling
-      const currentTime = moment();
-      const daysPassed = currentTime.diff(gnosisStatusModified, 'days');
+      const daysPassed = currentTime.diff(gnosisStatusModified, 'day');
       if (daysPassed >= 1) {
         this.updateGnosisTxStatus(txKey, gnosisStatus, true);
         this.stopPollingGnosisTXStatus(txKey);
