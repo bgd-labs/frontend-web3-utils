@@ -121,7 +121,6 @@ export const initChainInformationConfig = (chains?: {
       };
     } else {
       // this case can only ever occure when a wallet is connected with a unknown chainId which will not allow interaction
-      // TODO: need fix
       return {
         chainId,
         chainName: `unknown network: ${chainId}`,

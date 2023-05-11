@@ -103,7 +103,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
     const newGelatoInterval = setInterval(() => {
       this.fetchGelatoTXStatus(taskId);
-      // TODO: change timeout for gelato
+      // TODO: maybe change timeout for gelato
     }, 2000);
 
     this.transactionsIntervalsMap[taskId] = Number(newGelatoInterval);

@@ -1,5 +1,5 @@
 /**
- * The `ProviderIdentityFlag` is a property on an etherium provider
+ * The `WalletIdentityFlag` is a property on an etherium provider
  */
 export enum WalletIdentityFlag {
   AlphaWallet = 'isAlphaWallet',
