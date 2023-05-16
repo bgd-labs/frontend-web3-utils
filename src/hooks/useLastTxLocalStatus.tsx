@@ -1,11 +1,8 @@
 import { useEffect, useState } from 'react';
 
+import { isGelatoBaseTx } from '../web3/adapters/GelatoAdapter';
 import { selectLastTxByTypeAndPayload } from '../web3/store/transactionsSelectors';
-import {
-  BaseTx,
-  isGelatoBaseTx,
-  ITransactionsState,
-} from '../web3/store/transactionsSlice';
+import { BaseTx, ITransactionsState } from '../web3/store/transactionsSlice';
 
 interface LastTxStatusesParams<T extends BaseTx> {
   state: ITransactionsState<T>;

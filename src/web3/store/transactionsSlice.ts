@@ -7,31 +7,21 @@ import {
   setLocalStorageTxPool,
 } from '../../utils/localStorage';
 import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvider';
+import { EthereumAdapter } from '../adapters/EthereumAdapter';
+import {
+  GelatoAdapter,
+  GelatoTx,
+  GelatoTXState,
+  isGelatoBaseTx,
+  isGelatoBaseTxWithoutTimestamp,
+  isGelatoTx,
+} from '../adapters/GelatoAdapter';
+import { GnosisAdapter } from '../adapters/GnosisAdapter';
+import { AdapterInterface } from '../adapters/interface';
 import { WalletType } from '../connectors';
-import { selectIsGelatoTXPending } from './transactionsSelectors';
 import { IWalletSlice } from './walletSlice';
 
 export type BaseTx = EthBaseTx | GelatoBaseTx;
-
-type GelatoTXState =
-  | 'WaitingForConfirmation'
-  | 'CheckPending'
-  | 'ExecSuccess'
-  | 'Cancelled'
-  | 'ExecPending';
-
-type GelatoTaskStatusResponse = {
-  task: {
-    chainId: number;
-    taskId: string;
-    taskState: GelatoTXState;
-    creationDate?: string;
-    executionDate?: string;
-    transactionHash?: string;
-    blockNumber?: number;
-    lastCheckMessage?: string;
-  };
-};
 
 type BasicTx = {
   chainId: number;
@@ -55,16 +45,13 @@ export type GelatoBaseTx = BasicTx & {
   gelatoStatus?: GelatoTXState;
 };
 
-type GelatoTx = {
-  taskId: string;
-};
-
 export type ProvidersRecord = Record<number, StaticJsonRpcBatchProvider>;
 
 export type TransactionsSliceBaseType = {
   providers: ProvidersRecord;
   setProvider: (chainId: number, provider: StaticJsonRpcBatchProvider) => void;
   initTxPool: () => void;
+  updateEthAdapter: (gnosis: boolean) => void;
 };
 
 export type TransactionPool<T extends BaseTx> = Record<string, T>;
@@ -80,25 +67,9 @@ export interface ITransactionsState<T extends BaseTx> {
   transactionsIntervalsMap: Record<string, number | undefined>;
 }
 
-export function isGelatoTx(
-  tx: ethers.ContractTransaction | GelatoTx
-): tx is GelatoTx {
-  return (tx as GelatoTx).taskId !== undefined;
-}
-
-export function isGelatoBaseTx(tx: BaseTx): tx is GelatoBaseTx {
-  return (tx as GelatoBaseTx).taskId !== undefined;
-}
-
-function isGelatoBaseTxWithoutTimestamp(
-  tx: Omit<BaseTx, 'localTimestamp'>
-): tx is Omit<GelatoBaseTx, 'localTimestamp'> {
-  return (tx as GelatoBaseTx).taskId !== undefined;
-}
-interface ITransactionsActions<T extends BaseTx> {
-  startPollingGelatoTXStatus: (taskId: string) => void;
-  stopPollingGelatoTXStatus: (taskId: string) => void;
-  fetchGelatoTXStatus: (taskId: string) => void;
+export interface ITransactionsActions<T extends BaseTx> {
+  gelatoAdapter: AdapterInterface<T>;
+  ethereumAdapter: AdapterInterface<T>;
   txStatusChangedCallback: (
     data: T & {
       status?: number;
@@ -118,16 +89,6 @@ interface ITransactionsActions<T extends BaseTx> {
       pending: boolean;
     }
   >;
-  waitForTx: (hash: string) => Promise<void>;
-  waitForTxReceipt: (
-    tx: ethers.providers.TransactionResponse,
-    txHash: string
-  ) => Promise<void>;
-  updateTXStatus: (hash: string, status?: number) => void;
-  updateGelatoTX: (
-    taskId: string,
-    gelatoStatus: GelatoTaskStatusResponse
-  ) => void;
   addTXToPool: (
     tx:
       | Omit<GelatoBaseTx, 'localTimestamp'>
@@ -136,6 +97,7 @@ interface ITransactionsActions<T extends BaseTx> {
   ) => TransactionPool<PoolTx<T>>;
   isGelatoAvailable: boolean;
   checkIsGelatoAvailable: (chainId: number) => Promise<void>;
+  updateEthAdapter: (gnosis: boolean) => void;
 }
 
 export type ITransactionsSlice<T extends BaseTx> = ITransactionsActions<T> &
@@ -157,6 +119,8 @@ export function createTransactionsSlice<T extends BaseTx>({
     transactionsIntervalsMap: {},
     providers: defaultProviders,
     txStatusChangedCallback,
+    gelatoAdapter: new GelatoAdapter(get, set), // TODO: think when to init, maybe only when working with gelato or it's available
+    ethereumAdapter: new EthereumAdapter(get, set), // This might be a Gnosis Safe adapter, re-inits when wallet.type === GnosisSafe
     executeTx: async ({ body, params }) => {
       await get().checkAndSwitchNetwork(params.desiredChainID);
       const activeWallet = get().activeWallet;
@@ -165,35 +129,16 @@ export function createTransactionsSlice<T extends BaseTx>({
       }
       const chainId = Number(params.desiredChainID);
       const tx = await body();
-      // TODO: dedub methods to separate ones
-      if (isGelatoTx(tx)) {
-        // TODO: verify with multiple accounts
-        const from = activeWallet.accounts[0];
-        const gelatoTX: Omit<GelatoBaseTx, 'localTimestamp'> = {
-          from,
-          chainId,
-          type: params.type,
-          taskId: tx.taskId,
-          payload: params.payload,
-        };
-        const txPool = get().addTXToPool(gelatoTX, activeWallet.walletType);
-        get().startPollingGelatoTXStatus(tx.taskId);
-        return txPool[tx.taskId];
-      } else {
-        // ethereum tx
-        const transaction = {
-          chainId,
-          hash: tx.hash,
-          type: params.type,
-          payload: params.payload,
-          from: tx.from,
-          to: tx.to as string,
-          nonce: tx.nonce,
-        };
-        const txPool = get().addTXToPool(transaction, activeWallet.walletType);
-        get().waitForTxReceipt(tx, tx.hash);
-        return txPool[tx.hash];
-      }
+      const args = {
+        tx,
+        payload: params.payload,
+        activeWallet,
+        chainId,
+        type: params.type,
+      };
+      return isGelatoTx(tx) // in case of gnosis safe it works in a same way
+        ? get().gelatoAdapter.executeTx(args)
+        : get().ethereumAdapter.executeTx(args);
     },
 
     addTXToPool: (transaction, walletType) => {
@@ -240,52 +185,6 @@ export function createTransactionsSlice<T extends BaseTx>({
       return txPool;
     },
 
-    waitForTx: async (txKey) => {
-      const txData = get().transactionsPool[txKey];
-      if (txData) {
-        if (isGelatoBaseTx(txData)) {
-          // handle gelato wait
-        } else {
-          const provider = get().providers[
-            txData.chainId
-          ] as StaticJsonRpcBatchProvider;
-          if (txData.hash) {
-            const tx = await provider.getTransaction(txData.hash);
-            await get().waitForTxReceipt(tx, txData.hash);
-          }
-        }
-      } else {
-        // TODO: no transaction in waiting pool
-      }
-    },
-
-    waitForTxReceipt: async (tx, txHash) => {
-      // type casting here as well
-      const chainId = tx.chainId || get().transactionsPool[txHash].chainId;
-      const provider = get().providers[chainId] as StaticJsonRpcBatchProvider;
-      const txn = await tx.wait();
-
-      get().updateTXStatus(txHash, txn.status);
-
-      const updatedTX = get().transactionsPool[txHash];
-      const txBlock = await provider.getBlock(txn.blockNumber);
-      const timestamp = txBlock.timestamp;
-      get().txStatusChangedCallback({
-        ...updatedTX,
-        timestamp,
-      });
-    },
-
-    updateTXStatus: (hash, status) => {
-      set((state) =>
-        produce(state, (draft) => {
-          draft.transactionsPool[hash].status = status;
-          draft.transactionsPool[hash].pending = false;
-        })
-      );
-
-      setLocalStorageTxPool(get().transactionsPool);
-    },
     initTxPool: () => {
       const localStorageTXPool = getLocalStorageTxPool();
       if (localStorageTXPool) {
@@ -296,14 +195,12 @@ export function createTransactionsSlice<T extends BaseTx>({
         }));
       }
       Object.values(get().transactionsPool).forEach((tx) => {
-        // ignore transactions from GnosisSafe is gnosis is not connected due to different tx hashes
-        const txObservable = tx.walletType != 'GnosisSafe';
-        if (tx.pending && txObservable) {
+        if (tx.pending) {
           if (isGelatoBaseTx(tx)) {
-            get().startPollingGelatoTXStatus(tx.taskId);
+            get().gelatoAdapter.startTxTracking(tx.taskId);
           } else {
             if (tx.hash) {
-              get().waitForTx(tx.hash);
+              get().ethereumAdapter.startTxTracking(tx.hash);
             }
           }
         }
@@ -318,98 +215,32 @@ export function createTransactionsSlice<T extends BaseTx>({
       );
     },
 
-    stopPollingGelatoTXStatus: (taskId: string) => {
-      const currentInterval = get().transactionsIntervalsMap[taskId];
-      clearInterval(currentInterval);
-      set((state) =>
-        produce(state, (draft) => {
-          draft.transactionsIntervalsMap[taskId] = undefined;
-        })
-      );
-    },
-
-    startPollingGelatoTXStatus: (taskId: string) => {
-      const tx = get().transactionsPool[taskId];
-      if (isGelatoBaseTx(tx)) {
-        const isPending = selectIsGelatoTXPending(tx.gelatoStatus);
-        if (!isPending) {
-          return;
-        }
-      }
-      get().stopPollingGelatoTXStatus(taskId);
-
-      const newGelatoInterval = setInterval(() => {
-        get().fetchGelatoTXStatus(taskId);
-        // TODO: change timeout for gelato
-      }, 2000);
-
-      set((state) =>
-        produce(state, (draft) => {
-          draft.transactionsIntervalsMap[taskId] = Number(newGelatoInterval);
-        })
-      );
-    },
-
-    updateGelatoTX: (
-      taskId: string,
-      statusResponse: GelatoTaskStatusResponse
-    ) => {
-      set((state) =>
-        produce(state, (draft) => {
-          const tx = draft.transactionsPool[taskId] as GelatoBaseTx & {
-            pending: boolean;
-            status?: number;
-          };
-          tx.gelatoStatus = statusResponse.task.taskState;
-          tx.pending = selectIsGelatoTXPending(statusResponse.task.taskState);
-          tx.hash = statusResponse.task.transactionHash;
-          tx.status = statusResponse.task.taskState == 'ExecSuccess' ? 1 : 2;
-          if (statusResponse.task.executionDate) {
-            const timestamp = new Date(
-              statusResponse.task.executionDate
-            ).getTime();
-            tx.timestamp = timestamp;
-          }
-          if (statusResponse.task.lastCheckMessage) {
-            tx.errorMessage = statusResponse.task.lastCheckMessage;
-          }
-        })
-      );
-      setLocalStorageTxPool(get().transactionsPool);
-    },
-
-    fetchGelatoTXStatus: async (taskId: string) => {
-      const response = await fetch(
-        `https://relay.gelato.digital/tasks/status/${taskId}/`
-      );
-      if (!response.ok) {
-        // TODO: handle error somehow
-        // throw new Error('Gelato API error')
-      } else {
-        const gelatoStatus =
-          (await response.json()) as GelatoTaskStatusResponse;
-        const isPending = selectIsGelatoTXPending(gelatoStatus.task.taskState);
-        get().updateGelatoTX(taskId, gelatoStatus);
-        if (!isPending) {
-          get().stopPollingGelatoTXStatus(taskId);
-          const tx = get().transactionsPool[taskId];
-          get().txStatusChangedCallback(tx);
-        }
-      }
-    },
-
     isGelatoAvailable: true,
     checkIsGelatoAvailable: async (chainId) => {
-      const response = await fetch(`https://relay.gelato.digital/relays/v2`);
-      if (!response.ok) {
+      try {
+        const response = await fetch(`https://relay.gelato.digital/relays/v2`);
+        if (!response.ok) {
+          set({ isGelatoAvailable: false });
+        } else {
+          const listOfRelays = (await response.json()) as { relays: string[] };
+          const isRelayAvailable = !!listOfRelays.relays.find(
+            (id) => +id === chainId
+          );
+          set({ isGelatoAvailable: isRelayAvailable });
+        }
+      } catch (e) {
         set({ isGelatoAvailable: false });
-      } else {
-        const listOfRelays = (await response.json()) as { relays: string[] };
-        const isRelayAvailable = !!listOfRelays.relays.find(
-          (id) => +id === chainId
-        );
-        set({ isGelatoAvailable: isRelayAvailable });
+        console.error(e);
       }
+    },
+    updateEthAdapter: (gnosis: boolean) => {
+      set((state) =>
+        produce(state, (draft) => {
+          draft.ethereumAdapter = gnosis
+            ? new GnosisAdapter(get, set)
+            : new EthereumAdapter(get, set);
+        })
+      );
     },
   });
 }

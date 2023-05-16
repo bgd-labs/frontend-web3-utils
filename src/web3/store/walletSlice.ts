@@ -130,6 +130,7 @@ export function createWalletSlice({
           }
           setLocalStorageWallet(walletType);
           setLocalStorageWalletChainId(chainID.toString());
+          get().updateEthAdapter(walletType === 'GnosisSafe');
         }
       } catch (e) {
         if (e instanceof Error) {

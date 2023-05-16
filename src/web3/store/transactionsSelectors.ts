@@ -1,12 +1,8 @@
 import { AddEthereumChainParameter } from '@web3-react/types';
 import isEqual from 'lodash/isEqual';
 
-import {
-  BaseTx,
-  GelatoBaseTx,
-  isGelatoBaseTx,
-  ITransactionsState,
-} from './transactionsSlice';
+import { isGelatoBaseTx } from '../adapters/GelatoAdapter';
+import { BaseTx, GelatoBaseTx, ITransactionsState } from './transactionsSlice';
 
 export const selectAllTransactions = <T extends BaseTx>(
   state: ITransactionsState<T>
