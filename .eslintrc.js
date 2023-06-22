@@ -5,15 +5,8 @@ module.exports = {
     'prettier',
     'plugin:import/recommended',
     'plugin:import/typescript',
-    'plugin:@typescript-eslint/recommended',
   ],
-  plugins: [
-    'prettier',
-    'import',
-    'simple-import-sort',
-    '@typescript-eslint',
-    'react-hooks',
-  ],
+  plugins: ['prettier', 'import', 'simple-import-sort', 'react-hooks'],
   rules: {
     '@typescript-eslint/no-empty-interface': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
