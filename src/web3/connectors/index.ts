@@ -36,6 +36,7 @@ export const initAllConnectors = (props: AllConnectorsInitProps) => {
         actions,
         options: {
           url: props.chains[props.desiredChainId].urls[0],
+          appName: props.appName,
         },
       })
   );

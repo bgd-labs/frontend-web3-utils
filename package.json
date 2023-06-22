@@ -86,6 +86,8 @@
     "zustand": "^4.3.8"
   },
   "dependencies": {
+    "@coinbase/wallet-sdk": "^3.7.1",
+    "@walletconnect/ethereum-provider": "^2.8.1",
     "@web3-react/coinbase-wallet": "8.2.0",
     "@web3-react/core": "8.2.0",
     "@web3-react/gnosis-safe": "8.2.0",
