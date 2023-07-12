@@ -20,12 +20,6 @@ export const AVAX: AddEthereumChainParameter['nativeCurrency'] = {
   decimals: 18,
 };
 
-export const SepoliaETH: AddEthereumChainParameter['nativeCurrency'] = {
-  name: 'SepoliaETH',
-  symbol: 'SepoliaETH',
-  decimals: 18,
-};
-
 interface BasicChainInformation {
   urls: string[];
   name: string;
@@ -81,7 +75,7 @@ export const initialChains: {
   },
   11155111: {
     urls: ['https://ethereum-sepolia.blockpi.network/v1/rpc/public'],
-    nativeCurrency: SepoliaETH,
+    nativeCurrency: ETH,
     name: 'Sepolia Testnet',
     blockExplorerUrls: ['https://sepolia.etherscan.io/'],
   },
