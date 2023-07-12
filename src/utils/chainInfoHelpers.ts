@@ -53,6 +53,32 @@ export const initialChains: {
     name: 'Avalanche',
     blockExplorerUrls: ['https://snowtrace.io'],
   },
+
+  // testnet chains
+  5: {
+    urls: ['https://ethereum-goerli.publicnode.com'],
+    nativeCurrency: ETH,
+    name: 'Goerli testnet',
+    blockExplorerUrls: ['https://goerli.etherscan.io'],
+  },
+  43113: {
+    urls: ['https://api.avax-test.network/ext/bc/C/rpc'],
+    nativeCurrency: AVAX,
+    name: 'Avalanche fuji',
+    blockExplorerUrls: ['https://testnet.snowtrace.io'],
+  },
+  420: {
+    urls: ['https://goerli.optimism.io'],
+    nativeCurrency: ETH,
+    name: 'Optimism goerli',
+    blockExplorerUrls: ['https://goerli-optimism.etherscan.io/'],
+  },
+  11155111: {
+    urls: ['https://ethereum-sepolia.blockpi.network/v1/rpc/public'],
+    nativeCurrency: ETH,
+    name: 'Sepolia Testnet',
+    blockExplorerUrls: ['https://sepolia.etherscan.io/'],
+  },
 };
 
 function isExtendedChainInformation(
