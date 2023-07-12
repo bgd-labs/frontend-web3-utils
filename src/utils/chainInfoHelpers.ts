@@ -20,6 +20,12 @@ export const AVAX: AddEthereumChainParameter['nativeCurrency'] = {
   decimals: 18,
 };
 
+export const SepoliaETH: AddEthereumChainParameter['nativeCurrency'] = {
+  name: 'SepoliaETH',
+  symbol: 'SepoliaETH',
+  decimals: 18,
+};
+
 interface BasicChainInformation {
   urls: string[];
   name: string;
@@ -52,6 +58,32 @@ export const initialChains: {
     nativeCurrency: AVAX,
     name: 'Avalanche',
     blockExplorerUrls: ['https://snowtrace.io'],
+  },
+
+  // testnet chains
+  5: {
+    urls: ['https://ethereum-goerli.publicnode.com'],
+    nativeCurrency: ETH,
+    name: 'Goerli',
+    blockExplorerUrls: ['https://goerli.etherscan.io'],
+  },
+  43113: {
+    urls: ['https://api.avax-test.network/ext/bc/C/rpc'],
+    nativeCurrency: AVAX,
+    name: 'Avalanche fuji',
+    blockExplorerUrls: ['https://testnet.snowtrace.io'],
+  },
+  420: {
+    urls: ['https://goerli.optimism.io'],
+    nativeCurrency: ETH,
+    name: 'Optimism goerli',
+    blockExplorerUrls: ['https://goerli-optimism.etherscan.io/'],
+  },
+  11155111: {
+    urls: ['https://ethereum-sepolia.blockpi.network/v1/rpc/public'],
+    nativeCurrency: SepoliaETH,
+    name: 'Sepolia Testnet',
+    blockExplorerUrls: ['https://sepolia.etherscan.io/'],
   },
 };
 
