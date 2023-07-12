@@ -58,7 +58,7 @@ export const initialChains: {
   5: {
     urls: ['https://ethereum-goerli.publicnode.com'],
     nativeCurrency: ETH,
-    name: 'Goerli',
+    name: 'Goerli testnet',
     blockExplorerUrls: ['https://goerli.etherscan.io'],
   },
   43113: {
