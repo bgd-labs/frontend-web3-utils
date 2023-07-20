@@ -74,7 +74,7 @@ export const initialChains: {
     blockExplorerUrls: ['https://goerli-optimism.etherscan.io/'],
   },
   11155111: {
-    urls: ['https://ethereum-sepolia.blockpi.network/v1/rpc/public'],
+    urls: ['https://sepolia.gateway.tenderly.co'],
     nativeCurrency: ETH,
     name: 'Sepolia Testnet',
     blockExplorerUrls: ['https://sepolia.etherscan.io/'],
@@ -90,7 +90,7 @@ function isExtendedChainInformation(
 export const initChainInformationConfig = (chains?: {
   [chainId: number]: BasicChainInformation | ExtendedChainInformation;
 }) => {
-  const CHAINS = Object.assign(chains || {}, initialChains);
+  const CHAINS = Object.assign(initialChains, chains || {});
 
   // init urls from chains config
   const urls = Object.keys(CHAINS).reduce<{
