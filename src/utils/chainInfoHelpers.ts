@@ -74,7 +74,7 @@ export const initialChains: {
     blockExplorerUrls: ['https://goerli-optimism.etherscan.io/'],
   },
   11155111: {
-    urls: ['https://sepolia.gateway.tenderly.co'],
+    urls: ['https://rpc.sepolia.dev'],
     nativeCurrency: ETH,
     name: 'Sepolia Testnet',
     blockExplorerUrls: ['https://sepolia.etherscan.io/'],
