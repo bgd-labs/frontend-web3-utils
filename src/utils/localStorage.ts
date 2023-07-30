@@ -26,14 +26,6 @@ export const deleteLocalStorageWallet = () => {
   localStorage.removeItem(LocalStorageKeys.LastConnectedWallet);
 };
 
-export const setLocalStorageWalletChainId = (chainId: string) => {
-  localStorage.setItem(LocalStorageKeys.LastConnectedChainId, chainId);
-};
-
-export const deleteLocalStorageWalletChainId = () => {
-  localStorage.removeItem(LocalStorageKeys.LastConnectedChainId);
-};
-
 export const clearWalletConnectLocalStorage = () => {
   localStorage.removeItem('walletconnect');
   localStorage.removeItem('-walletlink:https://www.walletlink.org:version');

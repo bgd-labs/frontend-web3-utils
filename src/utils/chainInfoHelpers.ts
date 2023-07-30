@@ -90,7 +90,7 @@ function isExtendedChainInformation(
 export const initChainInformationConfig = (chains?: {
   [chainId: number]: BasicChainInformation | ExtendedChainInformation;
 }) => {
-  const CHAINS = Object.assign(chains || {}, initialChains);
+  const CHAINS = Object.assign(initialChains, chains || {});
 
   // init urls from chains config
   const urls = Object.keys(CHAINS).reduce<{

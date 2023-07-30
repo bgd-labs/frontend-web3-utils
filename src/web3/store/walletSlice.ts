@@ -6,10 +6,8 @@ import { StoreSlice } from '../../types/store';
 import {
   clearWalletConnectLocalStorage,
   deleteLocalStorageWallet,
-  deleteLocalStorageWalletChainId,
   LocalStorageKeys,
   setLocalStorageWallet,
-  setLocalStorageWalletChainId,
 } from '../../utils/localStorage';
 import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvider';
 import { getConnectorName, WalletType } from '../connectors';
@@ -50,11 +48,9 @@ export type IWalletSlice = {
 export function createWalletSlice({
   walletConnected,
   getChainParameters,
-  desiredChainID = 1,
 }: {
   walletConnected: (wallet: Wallet) => void; // TODO: why all of them here hardcoded
   getChainParameters: (chainId: number) => AddEthereumChainParameter | number;
-  desiredChainID?: number;
 }): StoreSlice<IWalletSlice, TransactionsSliceBaseType> {
   return (set, get) => ({
     isContractWalletRecord: {},
@@ -81,8 +77,7 @@ export function createWalletSlice({
       }
     },
     connectWallet: async (walletType: WalletType, txChainID?: number) => {
-      let chainID =
-        typeof txChainID != 'undefined' ? txChainID : desiredChainID;
+      let chainID = txChainID;
 
       const activeWallet = get().activeWallet;
 
@@ -119,7 +114,11 @@ export function createWalletSlice({
               break;
             case 'Coinbase':
             case 'Metamask':
-              await connector.activate(getChainParameters(chainID));
+              await connector.activate(
+                typeof chainID !== 'undefined'
+                  ? getChainParameters(chainID)
+                  : undefined,
+              );
               break;
             case 'WalletConnect':
               await connector.activate(chainID);
@@ -129,7 +128,6 @@ export function createWalletSlice({
               break;
           }
           setLocalStorageWallet(walletType);
-          setLocalStorageWalletChainId(chainID.toString());
           get().updateEthAdapter(walletType === 'GnosisSafe');
         }
       } catch (e) {
@@ -167,7 +165,6 @@ export function createWalletSlice({
         set({ activeWallet: undefined });
       }
       deleteLocalStorageWallet();
-      deleteLocalStorageWalletChainId();
       clearWalletConnectLocalStorage();
     },
     checkIsContractWallet: async (wallet: Omit<Wallet, 'signer'>) => {
@@ -224,9 +221,8 @@ export function createWalletSlice({
             if (draft.activeWallet) {
               draft.activeWallet.chainId = chainId;
             }
-          })
+          }),
         );
-        setLocalStorageWalletChainId(chainId.toString());
       }
     },
 
