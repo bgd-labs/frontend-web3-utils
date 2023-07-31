@@ -68,12 +68,9 @@ export function createWalletSlice({
       const lastConnectedWallet = localStorage.getItem(
         LocalStorageKeys.LastConnectedWallet
       ) as WalletType | undefined;
-      const lastConnectedChainId = localStorage.getItem(
-        LocalStorageKeys.LastConnectedChainId
-      ) as string | undefined;
 
-      if (lastConnectedWallet && lastConnectedChainId) {
-        await get().connectWallet(lastConnectedWallet, +lastConnectedChainId);
+      if (lastConnectedWallet) {
+        await get().connectWallet(lastConnectedWallet);
       }
     },
     connectWallet: async (walletType: WalletType, txChainID?: number) => {

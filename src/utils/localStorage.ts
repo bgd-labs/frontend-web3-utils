@@ -3,7 +3,6 @@ import { BaseTx, TransactionPool } from '../web3/store/transactionsSlice';
 
 export enum LocalStorageKeys {
   LastConnectedWallet = 'LastConnectedWallet',
-  LastConnectedChainId = 'LastConnectedChainId',
   TransactionPool = 'TransactionPool',
 }
 
