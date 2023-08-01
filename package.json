@@ -93,7 +93,7 @@
     "@web3-react/gnosis-safe": "8.2.0",
     "@web3-react/metamask": "8.2.1",
     "@web3-react/types": "8.2.0",
-    "@web3-react/walletconnect": "8.2.0",
+    "@web3-react/walletconnect-v2": "^8.3.7",
     "dayjs": "^1.11.8",
     "lodash": "^4.17.21"
   }
