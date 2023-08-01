@@ -53,7 +53,9 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
       ] as StaticJsonRpcBatchProvider;
       if (txData.hash) {
         const tx = await provider.getTransaction(txData.hash);
-        await this.waitForTxReceipt(tx, txData.hash);
+        if (tx) {
+          await this.waitForTxReceipt(tx, txData.hash);
+        }
       }
     } else {
       // TODO: no transaction in waiting pool
