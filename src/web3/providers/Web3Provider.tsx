@@ -16,6 +16,7 @@ interface Web3ProviderProps {
       setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => void;
       changeActiveWalletChainId: (chainID: number) => void;
       setConnectors: (connectors: Connector[]) => void;
+      disconnectActiveWallet: () => void;
     }>
   >;
   connectorsInitProps: AllConnectorsInitProps;
@@ -31,6 +32,9 @@ function Child({
 
   const setActiveWallet = useStore((state) => state.setActiveWallet);
   const setConnectors = useStore((state) => state.setConnectors);
+  const disconnectActiveWallet = useStore(
+    (state) => state.disconnectActiveWallet,
+  );
 
   useEffect(() => {
     if (connectors) {
@@ -50,6 +54,8 @@ function Child({
         isActive,
         isContractAddress: false,
       });
+    } else {
+      disconnectActiveWallet();
     }
   }, [isActive, chainId, provider, accounts]);
   return null;
