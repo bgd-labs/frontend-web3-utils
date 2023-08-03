@@ -33,8 +33,11 @@ function Child({
   const setActiveWallet = useStore((state) => state.setActiveWallet);
   const setConnectors = useStore((state) => state.setConnectors);
   const disconnectActiveWallet = useStore(
-    (state) => state.disconnectActiveWallet,
+    (state) => state.disconnectActiveWallet
   );
+
+  const [currentWalletType, setCurrentWalletType] = useState<string>('');
+
 
   useEffect(() => {
     if (connectors) {
@@ -45,6 +48,7 @@ function Child({
   useEffect(() => {
     const walletType = connector && getConnectorName(connector);
     if (walletType && accounts && isActive && provider) {
+      setCurrentWalletType(walletType);
       // TODO: don't forget to change to different
       setActiveWallet({
         walletType,
@@ -54,7 +58,7 @@ function Child({
         isActive,
         isContractAddress: false,
       });
-    } else {
+    } else if (currentWalletType !== walletType){
       disconnectActiveWallet();
     }
   }, [isActive, chainId, provider, accounts]);
