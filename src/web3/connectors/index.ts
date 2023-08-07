@@ -1,3 +1,5 @@
+'use client';
+
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet';
 import { initializeConnector } from '@web3-react/core';
 import { GnosisSafe } from '@web3-react/gnosis-safe';
