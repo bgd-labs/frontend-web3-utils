@@ -90,7 +90,7 @@ export default function Web3Provider() {
       connectorsInitProps={{
         appName: "AAVEGovernanceV3",
         chains: CHAINS,
-        desiredChainId: 1,
+        defaultChainId: 1, // optional, wallet connect won't work without it
       }}
       useStore={useStore}
     />

@@ -44,23 +44,32 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     this.waitForTxReceipt(tx, tx.hash);
     return txPool[tx.hash];
   };
-
   startTxTracking = async (txKey: string) => {
+    const retryCount = 5;
     const txData = this.get().transactionsPool[txKey];
     if (txData) {
       const provider = this.get().providers[
         txData.chainId
       ] as StaticJsonRpcBatchProvider;
+
       if (txData.hash) {
-        const tx = await provider.getTransaction(txData.hash);
-        if (tx) {
-          await this.waitForTxReceipt(tx, txData.hash);
+        // Find the transaction in the waiting pool
+        for (let i = 0; i < retryCount; i++) {
+          const tx = await provider.getTransaction(txData.hash);
+          // If the transaction is found, wait for the receipt
+          if (tx) {
+            await this.waitForTxReceipt(tx, txData.hash);
+            return; // Exit the function if successful
+          }
         }
+        // Wait before the next retry
+        await new Promise((resolve) => setTimeout(resolve, 3000));
       }
     } else {
       // TODO: no transaction in waiting pool
     }
   };
+
 
   private waitForTxReceipt = async (
     tx: ethers.providers.TransactionResponse,
