@@ -27,7 +27,7 @@ type ConnectorType =
 
 export const initAllConnectors = (props: AllConnectorsInitProps) => {
   const projectId = props.wcProjectId;
-  const wcChains = Object.keys(props.chains).map(Number);
+  const chainIds = Object.keys(props.chains).map(Number);
   const metaMask = initializeConnector<MetaMask>(
     (actions) => new MetaMask({ actions }),
   );
@@ -41,7 +41,7 @@ export const initAllConnectors = (props: AllConnectorsInitProps) => {
           actions,
           options: {
             projectId,
-            chains: wcChains,
+            chains: chainIds,
             showQrModal: true,
           },
           onError: (error) => {
@@ -56,7 +56,7 @@ export const initAllConnectors = (props: AllConnectorsInitProps) => {
       new CoinbaseWallet({
         actions,
         options: {
-          url: props.chains[props.defaultChainId || wcChains[0]].urls[0],
+          url: props.chains[props.defaultChainId || chainIds[0]].urls[0],
           appName: props.appName,
         },
       }),
@@ -70,7 +70,7 @@ export const initAllConnectors = (props: AllConnectorsInitProps) => {
     (actions) =>
       new ImpersonatedConnector(actions, {
         urls: props.urls,
-        chainId: props.defaultChainId || wcChains[0],
+        chainId: props.defaultChainId || chainIds[0],
       }),
   );
 
