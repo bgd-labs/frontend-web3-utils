@@ -16,7 +16,8 @@ export type GelatoTXState =
   | 'CheckPending'
   | 'ExecSuccess'
   | 'Cancelled'
-  | 'ExecPending';
+  | 'ExecPending'
+  | 'ExecReverted';
 
 export type GelatoTaskStatusResponse = {
   task: {
@@ -117,12 +118,13 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
   private fetchGelatoTXStatus = async (taskId: string) => {
     const response = await fetch(
-      `https://relay.gelato.digital/tasks/status/${taskId}/`
+      `https://api.gelato.digital/tasks/status/${taskId}/`
     );
     if (!response.ok) {
       // TODO: handle error if needed, for now just skipping
     } else {
       const gelatoStatus = (await response.json()) as GelatoTaskStatusResponse;
+
       const isPending = selectIsGelatoTXPending(gelatoStatus.task.taskState);
       this.updateGelatoTX(taskId, gelatoStatus);
       if (!isPending) {
