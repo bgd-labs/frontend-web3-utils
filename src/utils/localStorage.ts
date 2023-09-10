@@ -7,7 +7,7 @@ export enum LocalStorageKeys {
 }
 
 export const setLocalStorageTxPool = <T extends BaseTx>(
-  pool: TransactionPool<T>
+  pool: TransactionPool<T>,
 ) => {
   const stringifiedPool = JSON.stringify(pool);
   localStorage.setItem(LocalStorageKeys.TransactionPool, stringifiedPool);
@@ -30,14 +30,14 @@ export const clearWalletConnectLocalStorage = () => {
   localStorage.removeItem('-walletlink:https://www.walletlink.org:version');
   localStorage.removeItem('-walletlink:https://www.walletlink.org:session:id');
   localStorage.removeItem(
-    '-walletlink:https://www.walletlink.org:session:secret'
+    '-walletlink:https://www.walletlink.org:session:secret',
   );
   localStorage.removeItem(
-    '-walletlink:https://www.walletlink.org:session:linked'
+    '-walletlink:https://www.walletlink.org:session:linked',
   );
   localStorage.removeItem('-walletlink:https://www.walletlink.org:AppVersion');
   localStorage.removeItem('-walletlink:https://www.walletlink.org:Addresses');
   localStorage.removeItem(
-    '-walletlink:https://www.walletlink.org:walletUsername'
+    '-walletlink:https://www.walletlink.org:walletUsername',
   );
 };
