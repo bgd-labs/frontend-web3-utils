@@ -1,12 +1,6 @@
 module.exports = {
-  extends: [
-    'react-app',
-    'plugin:react-hooks/recommended',
-    'prettier',
-    'plugin:import/recommended',
-    'plugin:import/typescript',
-  ],
-  plugins: ['prettier', 'import', 'simple-import-sort', 'react-hooks'],
+  extends: ['react-app', 'plugin:react-hooks/recommended', 'prettier'],
+  plugins: ['prettier', 'simple-import-sort', 'react-hooks'],
   rules: {
     '@typescript-eslint/no-empty-interface': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
