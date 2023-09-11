@@ -66,7 +66,7 @@ export function createWalletSlice({
     },
     initDefaultWallet: async () => {
       const lastConnectedWallet = localStorage.getItem(
-        LocalStorageKeys.LastConnectedWallet
+        LocalStorageKeys.LastConnectedWallet,
       ) as WalletType | undefined;
 
       if (lastConnectedWallet) {
@@ -96,7 +96,7 @@ export function createWalletSlice({
       set({ walletActivating: true });
       set({ walletConnectionError: '' });
       const connector = get().connectors.find(
-        (connector) => getConnectorName(connector) === walletType
+        (connector) => getConnectorName(connector) === walletType,
       );
       try {
         if (connector) {
@@ -152,7 +152,7 @@ export function createWalletSlice({
       const activeWallet = get().activeWallet;
       if (activeWallet) {
         const activeConnector = get().connectors.find(
-          (connector) => getConnectorName(connector) == activeWallet.walletType
+          (connector) => getConnectorName(connector) == activeWallet.walletType,
         );
 
         if (activeConnector?.deactivate) {
@@ -171,13 +171,13 @@ export function createWalletSlice({
         return walletRecord;
       }
       const codeOfWalletAddress = await wallet.provider.getCode(
-        wallet.accounts[0]
+        wallet.accounts[0],
       );
       const isContractWallet = codeOfWalletAddress !== '0x';
       set((state) =>
         produce(state, (draft) => {
           draft.isContractWalletRecord[account] = isContractWallet;
-        })
+        }),
       );
       return isContractWallet;
     },
@@ -188,14 +188,14 @@ export function createWalletSlice({
      */
     setActiveWallet: async (wallet: Omit<Wallet, 'signer'>) => {
       const providerSigner =
-        wallet.walletType == 'Impersonated'
+        wallet.walletType === 'Impersonated'
           ? wallet.provider.getSigner(get()._impersonatedAddress)
           : wallet.provider.getSigner(0);
 
       if (wallet.chainId !== undefined) {
         get().setProvider(
           wallet.chainId,
-          wallet.provider as StaticJsonRpcBatchProvider
+          wallet.provider as StaticJsonRpcBatchProvider,
         );
       }
       const isContractAddress = await get().checkIsContractWallet(wallet);

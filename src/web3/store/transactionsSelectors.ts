@@ -5,29 +5,29 @@ import { isGelatoBaseTx } from '../adapters/GelatoAdapter';
 import { BaseTx, GelatoBaseTx, ITransactionsState } from './transactionsSlice';
 
 export const selectAllTransactions = <T extends BaseTx>(
-  state: ITransactionsState<T>
+  state: ITransactionsState<T>,
 ) => {
   return Object.values(state.transactionsPool).sort(
-    (a, b) => Number(a.localTimestamp) - Number(b.localTimestamp)
+    (a, b) => Number(a.localTimestamp) - Number(b.localTimestamp),
   );
 };
 
 export const selectPendingTransactions = <T extends BaseTx>(
-  state: ITransactionsState<T>
+  state: ITransactionsState<T>,
 ) => {
   return selectAllTransactions(state).filter((tx) => tx.pending);
 };
 
 export const selectTXByKey = <T extends BaseTx>(
   state: ITransactionsState<T>,
-  key: string
+  key: string,
 ) => {
   return state.transactionsPool[key];
 };
 
 export const selectTXByHash = <T extends BaseTx>(
   state: ITransactionsState<T>,
-  hash: string
+  hash: string,
 ) => {
   const txByKey = selectTXByKey<T>(state, hash);
   if (txByKey) {
@@ -38,14 +38,14 @@ export const selectTXByHash = <T extends BaseTx>(
 
 export const selectAllTransactionsByWallet = <T extends BaseTx>(
   state: ITransactionsState<T>,
-  from: string
+  from: string,
 ) => {
   return selectAllTransactions(state).filter((tx) => tx.from == from);
 };
 
 export const selectPendingTransactionByWallet = <T extends BaseTx>(
   state: ITransactionsState<T>,
-  from: string
+  from: string,
 ) => {
   return selectPendingTransactions(state).filter((tx) => tx.from == from);
 };
@@ -54,11 +54,11 @@ export const selectLastTxByTypeAndPayload = <T extends BaseTx>(
   state: ITransactionsState<T>,
   from: string,
   type: T['type'],
-  payload: T['payload']
+  payload: T['payload'],
 ) => {
   const allTransactions = selectAllTransactionsByWallet(state, from);
   const filteredTransactions = allTransactions.filter(
-    (tx) => tx.type === type && isEqual(tx.payload, payload)
+    (tx) => tx.type === type && isEqual(tx.payload, payload),
   );
   const lastFilteredTransaction =
     filteredTransactions[filteredTransactions.length - 1];
@@ -81,7 +81,7 @@ export const selectLastTxByTypeAndPayload = <T extends BaseTx>(
 export const selectTxExplorerLink = <T extends BaseTx>(
   state: ITransactionsState<T>,
   getChainParameters: (chainId: number) => AddEthereumChainParameter,
-  txHash: string
+  txHash: string,
 ) => {
   const tx = selectTXByHash(state, txHash);
   if (!tx) {
@@ -107,7 +107,7 @@ export const selectTxExplorerLink = <T extends BaseTx>(
 };
 
 export const selectIsGelatoTXPending = (
-  gelatoStatus?: GelatoBaseTx['gelatoStatus']
+  gelatoStatus?: GelatoBaseTx['gelatoStatus'],
 ) => {
   return (
     gelatoStatus == undefined ||

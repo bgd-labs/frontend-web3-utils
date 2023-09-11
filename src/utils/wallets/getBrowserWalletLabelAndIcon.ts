@@ -10,9 +10,7 @@ export function getBrowserWalletLabelAndIcon() {
   if (typeof window !== 'undefined') {
     if (!!window.ethereum) {
       const userBrowserWallets = wallets.filter(
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        (wallet) => !!window.ethereum[wallet.identityFlag]
+        (wallet) => !!window.ethereum[wallet.identityFlag],
       );
       if (userBrowserWallets.length > 1 || userBrowserWallets.length === 0) {
         return defaultBrowserWallet;

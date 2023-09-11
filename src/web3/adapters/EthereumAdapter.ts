@@ -15,7 +15,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
   constructor(
     get: () => ITransactionsSlice<T>,
-    set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void
+    set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void,
   ) {
     this.get = get;
     this.set = set;
@@ -70,10 +70,9 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     }
   };
 
-
   private waitForTxReceipt = async (
     tx: ethers.providers.TransactionResponse,
-    txHash: string
+    txHash: string,
   ) => {
     const chainId = tx.chainId || this.get().transactionsPool[txHash].chainId;
     const provider = this.get().providers[
@@ -101,7 +100,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
       produce(state, (draft) => {
         draft.transactionsPool[hash].status = status;
         draft.transactionsPool[hash].pending = false;
-      })
+      }),
     );
     setLocalStorageTxPool(this.get().transactionsPool);
   };
