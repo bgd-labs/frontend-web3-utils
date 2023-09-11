@@ -153,7 +153,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
             ? 1
             : tx.pending
             ? undefined
-            : 2;
+            : 0;
         if (statusResponse.task.executionDate) {
           tx.timestamp = new Date(statusResponse.task.executionDate).getTime();
         }
