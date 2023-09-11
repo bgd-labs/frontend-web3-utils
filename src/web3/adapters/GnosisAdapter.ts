@@ -31,7 +31,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
   constructor(
     get: () => ITransactionsSlice<T>,
-    set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void
+    set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void,
   ) {
     this.get = get;
     this.set = set;
@@ -82,7 +82,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     const response = await fetch(
       `${
         SafeTransactionServiceUrls[tx.chainId]
-      }/multisig-transactions/${txKey}/`
+      }/multisig-transactions/${txKey}/`,
     );
     if (!response.ok) {
       // TODO: handle error if need, for now just skipping and do nothing with failed response
@@ -117,7 +117,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
   private updateGnosisTxStatus = (
     txKey: string,
     statusResponse: GnosisTxStatusResponse,
-    forceStopped?: boolean
+    forceStopped?: boolean,
   ) => {
     this.set((state) =>
       produce(state, (draft) => {
@@ -128,7 +128,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
         tx.status = forceStopped ? 0 : +!!statusResponse.isSuccessful; // turns boolean | null to 0 or 1
         tx.pending = forceStopped ? false : !statusResponse.isExecuted;
         tx.nonce = statusResponse.nonce;
-      })
+      }),
     );
     setLocalStorageTxPool(this.get().transactionsPool);
   };

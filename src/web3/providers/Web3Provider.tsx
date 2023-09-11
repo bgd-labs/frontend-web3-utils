@@ -35,11 +35,10 @@ function Child({
   const setActiveWallet = useStore((state) => state.setActiveWallet);
   const setConnectors = useStore((state) => state.setConnectors);
   const disconnectActiveWallet = useStore(
-    (state) => state.disconnectActiveWallet
+    (state) => state.disconnectActiveWallet,
   );
 
   const [currentWalletType, setCurrentWalletType] = useState<string>('');
-
 
   useEffect(() => {
     if (connectors) {
@@ -60,7 +59,7 @@ function Child({
         isActive,
         isContractAddress: false,
       });
-    } else if (currentWalletType !== walletType){
+    } else if (currentWalletType !== walletType) {
       disconnectActiveWallet();
     }
   }, [isActive, chainId, provider, accounts]);
@@ -73,7 +72,7 @@ export function Web3Provider({
 }: Web3ProviderProps) {
   const [connectors] = useState(initAllConnectors(connectorsInitProps));
   const [mappedConnectors] = useState(
-    connectors.map((connector) => connector[0])
+    connectors.map((connector) => connector[0]),
   );
   return (
     <Web3ReactProvider connectors={connectors}>

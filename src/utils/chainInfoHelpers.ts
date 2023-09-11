@@ -82,7 +82,7 @@ export const initialChains: {
 };
 
 function isExtendedChainInformation(
-  chainInformation: BasicChainInformation | ExtendedChainInformation
+  chainInformation: BasicChainInformation | ExtendedChainInformation,
 ): chainInformation is ExtendedChainInformation {
   return !!(chainInformation as ExtendedChainInformation)?.nativeCurrency;
 }
@@ -114,14 +114,14 @@ export const initChainInformationConfig = (chains?: {
     };
   }>((accumulator, chainId) => {
     const numberChainId = Number(chainId);
-    const providerInstance = {
+    accumulator[numberChainId] = {
       get instance() {
         if (initalizedProviders[numberChainId]) {
           return initalizedProviders[numberChainId];
         } else {
           // TODO: add fallback provider to utilize all the urls
           const provider = new StaticJsonRpcBatchProvider(
-            urls[numberChainId][0]
+            urls[numberChainId][0],
           );
           initalizedProviders[numberChainId] = provider;
           return provider;
@@ -130,8 +130,6 @@ export const initChainInformationConfig = (chains?: {
     } as {
       instance: StaticJsonRpcBatchProvider;
     };
-
-    accumulator[numberChainId] = providerInstance;
     return accumulator;
   }, {});
 

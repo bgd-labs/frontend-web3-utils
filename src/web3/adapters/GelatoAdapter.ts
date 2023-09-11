@@ -37,7 +37,7 @@ export type GelatoTx = {
 };
 
 export function isGelatoTx(
-  tx: ethers.ContractTransaction | GelatoTx
+  tx: ethers.ContractTransaction | GelatoTx,
 ): tx is GelatoTx {
   return (tx as GelatoTx).taskId !== undefined;
 }
@@ -47,7 +47,7 @@ export function isGelatoBaseTx(tx: BaseTx): tx is GelatoBaseTx {
 }
 
 export function isGelatoBaseTxWithoutTimestamp(
-  tx: Omit<BaseTx, 'localTimestamp'>
+  tx: Omit<BaseTx, 'localTimestamp'>,
 ): tx is Omit<GelatoBaseTx, 'localTimestamp'> {
   return (tx as GelatoBaseTx).taskId !== undefined;
 }
@@ -59,7 +59,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
   constructor(
     get: () => ITransactionsSlice<T>,
-    set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void
+    set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void,
   ) {
     this.get = get;
     this.set = set;
@@ -118,7 +118,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
   private fetchGelatoTXStatus = async (taskId: string) => {
     const response = await fetch(
-      `https://api.gelato.digital/tasks/status/${taskId}/`
+      `https://api.gelato.digital/tasks/status/${taskId}/`,
     );
     if (!response.ok) {
       // TODO: handle error if needed, for now just skipping
@@ -137,7 +137,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
   private updateGelatoTX = (
     taskId: string,
-    statusResponse: GelatoTaskStatusResponse
+    statusResponse: GelatoTaskStatusResponse,
   ) => {
     this.set((state) =>
       produce(state, (draft) => {
@@ -148,17 +148,19 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
         tx.gelatoStatus = statusResponse.task.taskState;
         tx.pending = selectIsGelatoTXPending(statusResponse.task.taskState);
         tx.hash = statusResponse.task.transactionHash;
-        tx.status = statusResponse.task.taskState == 'ExecSuccess' ? 1 : 2;
+        tx.status =
+          statusResponse.task.taskState == 'ExecSuccess'
+            ? 1
+            : tx.pending
+            ? undefined
+            : 0;
         if (statusResponse.task.executionDate) {
-          const timestamp = new Date(
-            statusResponse.task.executionDate
-          ).getTime();
-          tx.timestamp = timestamp;
+          tx.timestamp = new Date(statusResponse.task.executionDate).getTime();
         }
         if (statusResponse.task.lastCheckMessage) {
           tx.errorMessage = statusResponse.task.lastCheckMessage;
         }
-      })
+      }),
     );
     setLocalStorageTxPool(this.get().transactionsPool);
   };

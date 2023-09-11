@@ -13,7 +13,7 @@ module.exports = {
     'import/newline-after-import': 'error',
     'import/no-duplicates': 'error',
     'import/no-named-as-default': 'error',
-    'import/no-unresolved': 'warn',
+    'import/no-unresolved': 'off',
     'react/self-closing-comp': 'warn',
   },
 };
