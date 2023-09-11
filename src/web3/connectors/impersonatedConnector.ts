@@ -20,7 +20,7 @@ export class ImpersonatedConnector extends Connector {
     options: {
       urls: { [chainId: number]: string[] };
       chainId: number;
-    }
+    },
   ) {
     super(actions);
     this.urls = options.urls;
@@ -35,7 +35,7 @@ export class ImpersonatedConnector extends Connector {
   }): void | Promise<void> {
     this.actions.startActivation();
     this.customProvider = new ImpersonatedProvider(
-      this.urls[chainId || this.chainId][0]
+      this.urls[chainId || this.chainId][0],
     );
     this.actions.update({
       chainId: chainId || this.chainId,
