@@ -74,7 +74,7 @@ export interface ITransactionsActions<T extends BaseTx> {
     data: T & {
       status?: number;
       timestamp?: number;
-    }
+    },
   ) => void;
   executeTx: (params: {
     body: () => Promise<ethers.ContractTransaction | GelatoTx>;
@@ -93,7 +93,7 @@ export interface ITransactionsActions<T extends BaseTx> {
     tx:
       | Omit<GelatoBaseTx, 'localTimestamp'>
       | Omit<EthBaseTx, 'localTimestamp'>,
-    activeWallet: WalletType
+    activeWallet: WalletType,
   ) => TransactionPool<PoolTx<T>>;
   isGelatoAvailable: boolean;
   checkIsGelatoAvailable: (chainId: number) => Promise<void>;
@@ -158,7 +158,7 @@ export function createTransactionsSlice<T extends BaseTx>({
                 localTimestamp: number;
               }
             >;
-          })
+          }),
         );
 
         const txPool = get().transactionsPool;
@@ -177,7 +177,7 @@ export function createTransactionsSlice<T extends BaseTx>({
                 walletType: WalletType;
               }
             >;
-          })
+          }),
         );
       }
       const txPool = get().transactionsPool;
@@ -211,7 +211,7 @@ export function createTransactionsSlice<T extends BaseTx>({
       set((state) =>
         produce(state, (draft) => {
           draft.providers[chainID] = provider;
-        })
+        }),
       );
     },
 
@@ -224,7 +224,7 @@ export function createTransactionsSlice<T extends BaseTx>({
         } else {
           const listOfRelays = (await response.json()) as { relays: string[] };
           const isRelayAvailable = !!listOfRelays.relays.find(
-            (id) => +id === chainId
+            (id) => +id === chainId,
           );
           set({ isGelatoAvailable: isRelayAvailable });
         }
@@ -239,7 +239,7 @@ export function createTransactionsSlice<T extends BaseTx>({
           draft.ethereumAdapter = gnosis
             ? new GnosisAdapter(get, set)
             : new EthereumAdapter(get, set);
-        })
+        }),
       );
     },
   });

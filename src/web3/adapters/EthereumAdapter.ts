@@ -15,7 +15,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
   constructor(
     get: () => ITransactionsSlice<T>,
-    set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void
+    set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void,
   ) {
     this.get = get;
     this.set = set;
@@ -44,16 +44,26 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     this.waitForTxReceipt(tx, tx.hash);
     return txPool[tx.hash];
   };
-
   startTxTracking = async (txKey: string) => {
+    const retryCount = 5;
     const txData = this.get().transactionsPool[txKey];
     if (txData) {
       const provider = this.get().providers[
         txData.chainId
       ] as StaticJsonRpcBatchProvider;
+
       if (txData.hash) {
-        const tx = await provider.getTransaction(txData.hash);
-        await this.waitForTxReceipt(tx, txData.hash);
+        // Find the transaction in the waiting pool
+        for (let i = 0; i < retryCount; i++) {
+          const tx = await provider.getTransaction(txData.hash);
+          // If the transaction is found, wait for the receipt
+          if (tx) {
+            await this.waitForTxReceipt(tx, txData.hash);
+            return; // Exit the function if successful
+          }
+        }
+        // Wait before the next retry
+        await new Promise((resolve) => setTimeout(resolve, 3000));
       }
     } else {
       // TODO: no transaction in waiting pool
@@ -62,7 +72,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
   private waitForTxReceipt = async (
     tx: ethers.providers.TransactionResponse,
-    txHash: string
+    txHash: string,
   ) => {
     const chainId = tx.chainId || this.get().transactionsPool[txHash].chainId;
     const provider = this.get().providers[
@@ -90,7 +100,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
       produce(state, (draft) => {
         draft.transactionsPool[hash].status = status;
         draft.transactionsPool[hash].pending = false;
-      })
+      }),
     );
     setLocalStorageTxPool(this.get().transactionsPool);
   };

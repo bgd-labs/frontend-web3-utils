@@ -6,10 +6,8 @@ import { StoreSlice } from '../../types/store';
 import {
   clearWalletConnectLocalStorage,
   deleteLocalStorageWallet,
-  deleteLocalStorageWalletChainId,
   LocalStorageKeys,
   setLocalStorageWallet,
-  setLocalStorageWalletChainId,
 } from '../../utils/localStorage';
 import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvider';
 import { getConnectorName, WalletType } from '../connectors';
@@ -50,11 +48,9 @@ export type IWalletSlice = {
 export function createWalletSlice({
   walletConnected,
   getChainParameters,
-  desiredChainID = 1,
 }: {
   walletConnected: (wallet: Wallet) => void; // TODO: why all of them here hardcoded
   getChainParameters: (chainId: number) => AddEthereumChainParameter | number;
-  desiredChainID?: number;
 }): StoreSlice<IWalletSlice, TransactionsSliceBaseType> {
   return (set, get) => ({
     isContractWalletRecord: {},
@@ -70,19 +66,15 @@ export function createWalletSlice({
     },
     initDefaultWallet: async () => {
       const lastConnectedWallet = localStorage.getItem(
-        LocalStorageKeys.LastConnectedWallet
+        LocalStorageKeys.LastConnectedWallet,
       ) as WalletType | undefined;
-      const lastConnectedChainId = localStorage.getItem(
-        LocalStorageKeys.LastConnectedChainId
-      ) as string | undefined;
 
-      if (lastConnectedWallet && lastConnectedChainId) {
-        await get().connectWallet(lastConnectedWallet, +lastConnectedChainId);
+      if (lastConnectedWallet) {
+        await get().connectWallet(lastConnectedWallet);
       }
     },
     connectWallet: async (walletType: WalletType, txChainID?: number) => {
-      let chainID =
-        typeof txChainID != 'undefined' ? txChainID : desiredChainID;
+      let chainID = txChainID;
 
       const activeWallet = get().activeWallet;
 
@@ -104,7 +96,7 @@ export function createWalletSlice({
       set({ walletActivating: true });
       set({ walletConnectionError: '' });
       const connector = get().connectors.find(
-        (connector) => getConnectorName(connector) === walletType
+        (connector) => getConnectorName(connector) === walletType,
       );
       try {
         if (connector) {
@@ -119,7 +111,11 @@ export function createWalletSlice({
               break;
             case 'Coinbase':
             case 'Metamask':
-              await connector.activate(getChainParameters(chainID));
+              await connector.activate(
+                typeof chainID !== 'undefined'
+                  ? getChainParameters(chainID)
+                  : undefined,
+              );
               break;
             case 'WalletConnect':
               await connector.activate(chainID);
@@ -129,7 +125,6 @@ export function createWalletSlice({
               break;
           }
           setLocalStorageWallet(walletType);
-          setLocalStorageWalletChainId(chainID.toString());
           get().updateEthAdapter(walletType === 'GnosisSafe');
         }
       } catch (e) {
@@ -157,7 +152,7 @@ export function createWalletSlice({
       const activeWallet = get().activeWallet;
       if (activeWallet) {
         const activeConnector = get().connectors.find(
-          (connector) => getConnectorName(connector) == activeWallet.walletType
+          (connector) => getConnectorName(connector) == activeWallet.walletType,
         );
 
         if (activeConnector?.deactivate) {
@@ -167,7 +162,6 @@ export function createWalletSlice({
         set({ activeWallet: undefined });
       }
       deleteLocalStorageWallet();
-      deleteLocalStorageWalletChainId();
       clearWalletConnectLocalStorage();
     },
     checkIsContractWallet: async (wallet: Omit<Wallet, 'signer'>) => {
@@ -177,13 +171,13 @@ export function createWalletSlice({
         return walletRecord;
       }
       const codeOfWalletAddress = await wallet.provider.getCode(
-        wallet.accounts[0]
+        wallet.accounts[0],
       );
       const isContractWallet = codeOfWalletAddress !== '0x';
       set((state) =>
         produce(state, (draft) => {
           draft.isContractWalletRecord[account] = isContractWallet;
-        })
+        }),
       );
       return isContractWallet;
     },
@@ -194,14 +188,14 @@ export function createWalletSlice({
      */
     setActiveWallet: async (wallet: Omit<Wallet, 'signer'>) => {
       const providerSigner =
-        wallet.walletType == 'Impersonated'
+        wallet.walletType === 'Impersonated'
           ? wallet.provider.getSigner(get()._impersonatedAddress)
           : wallet.provider.getSigner(0);
 
       if (wallet.chainId !== undefined) {
         get().setProvider(
           wallet.chainId,
-          wallet.provider as StaticJsonRpcBatchProvider
+          wallet.provider as StaticJsonRpcBatchProvider,
         );
       }
       const isContractAddress = await get().checkIsContractWallet(wallet);
@@ -224,9 +218,8 @@ export function createWalletSlice({
             if (draft.activeWallet) {
               draft.activeWallet.chainId = chainId;
             }
-          })
+          }),
         );
-        setLocalStorageWalletChainId(chainId.toString());
       }
     },
 
