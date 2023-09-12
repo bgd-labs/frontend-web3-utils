@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useState } from 'react';
 
 import { isGelatoBaseTx } from '../web3/adapters/GelatoAdapter';
