@@ -42,6 +42,13 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
   const txWalletType = tx && tx.walletType;
 
   useEffect(() => {
+    return () => {
+      setFullTxErrorMessage('');
+      setError('');
+    };
+  }, []);
+
+  useEffect(() => {
     if (txPending || isError) {
       setIsTxStart(true);
     }
@@ -84,5 +91,6 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
     isError,
     executeTxWithLocalStatuses,
     fullTxErrorMessage,
+    setFullTxErrorMessage,
   };
 };
