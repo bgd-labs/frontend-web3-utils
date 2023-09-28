@@ -19,351 +19,6 @@ var metamask$1 = require('@web3-react/metamask');
 var walletconnectV2 = require('@web3-react/walletconnect-v2');
 var dayjs = _interopDefault(require('dayjs'));
 
-function _regeneratorRuntime() {
-  /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
-
-  _regeneratorRuntime = function () {
-    return exports;
-  };
-
-  var exports = {},
-      Op = Object.prototype,
-      hasOwn = Op.hasOwnProperty,
-      $Symbol = "function" == typeof Symbol ? Symbol : {},
-      iteratorSymbol = $Symbol.iterator || "@@iterator",
-      asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator",
-      toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
-
-  function define(obj, key, value) {
-    return Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: !0,
-      configurable: !0,
-      writable: !0
-    }), obj[key];
-  }
-
-  try {
-    define({}, "");
-  } catch (err) {
-    define = function (obj, key, value) {
-      return obj[key] = value;
-    };
-  }
-
-  function wrap(innerFn, outerFn, self, tryLocsList) {
-    var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator,
-        generator = Object.create(protoGenerator.prototype),
-        context = new Context(tryLocsList || []);
-    return generator._invoke = function (innerFn, self, context) {
-      var state = "suspendedStart";
-      return function (method, arg) {
-        if ("executing" === state) throw new Error("Generator is already running");
-
-        if ("completed" === state) {
-          if ("throw" === method) throw arg;
-          return doneResult();
-        }
-
-        for (context.method = method, context.arg = arg;;) {
-          var delegate = context.delegate;
-
-          if (delegate) {
-            var delegateResult = maybeInvokeDelegate(delegate, context);
-
-            if (delegateResult) {
-              if (delegateResult === ContinueSentinel) continue;
-              return delegateResult;
-            }
-          }
-
-          if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) {
-            if ("suspendedStart" === state) throw state = "completed", context.arg;
-            context.dispatchException(context.arg);
-          } else "return" === context.method && context.abrupt("return", context.arg);
-          state = "executing";
-          var record = tryCatch(innerFn, self, context);
-
-          if ("normal" === record.type) {
-            if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue;
-            return {
-              value: record.arg,
-              done: context.done
-            };
-          }
-
-          "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg);
-        }
-      };
-    }(innerFn, self, context), generator;
-  }
-
-  function tryCatch(fn, obj, arg) {
-    try {
-      return {
-        type: "normal",
-        arg: fn.call(obj, arg)
-      };
-    } catch (err) {
-      return {
-        type: "throw",
-        arg: err
-      };
-    }
-  }
-
-  exports.wrap = wrap;
-  var ContinueSentinel = {};
-
-  function Generator() {}
-
-  function GeneratorFunction() {}
-
-  function GeneratorFunctionPrototype() {}
-
-  var IteratorPrototype = {};
-  define(IteratorPrototype, iteratorSymbol, function () {
-    return this;
-  });
-  var getProto = Object.getPrototypeOf,
-      NativeIteratorPrototype = getProto && getProto(getProto(values([])));
-  NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype);
-  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype);
-
-  function defineIteratorMethods(prototype) {
-    ["next", "throw", "return"].forEach(function (method) {
-      define(prototype, method, function (arg) {
-        return this._invoke(method, arg);
-      });
-    });
-  }
-
-  function AsyncIterator(generator, PromiseImpl) {
-    function invoke(method, arg, resolve, reject) {
-      var record = tryCatch(generator[method], generator, arg);
-
-      if ("throw" !== record.type) {
-        var result = record.arg,
-            value = result.value;
-        return value && "object" == typeof value && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) {
-          invoke("next", value, resolve, reject);
-        }, function (err) {
-          invoke("throw", err, resolve, reject);
-        }) : PromiseImpl.resolve(value).then(function (unwrapped) {
-          result.value = unwrapped, resolve(result);
-        }, function (error) {
-          return invoke("throw", error, resolve, reject);
-        });
-      }
-
-      reject(record.arg);
-    }
-
-    var previousPromise;
-
-    this._invoke = function (method, arg) {
-      function callInvokeWithMethodAndArg() {
-        return new PromiseImpl(function (resolve, reject) {
-          invoke(method, arg, resolve, reject);
-        });
-      }
-
-      return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg();
-    };
-  }
-
-  function maybeInvokeDelegate(delegate, context) {
-    var method = delegate.iterator[context.method];
-
-    if (undefined === method) {
-      if (context.delegate = null, "throw" === context.method) {
-        if (delegate.iterator.return && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method)) return ContinueSentinel;
-        context.method = "throw", context.arg = new TypeError("The iterator does not provide a 'throw' method");
-      }
-
-      return ContinueSentinel;
-    }
-
-    var record = tryCatch(method, delegate.iterator, context.arg);
-    if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel;
-    var info = record.arg;
-    return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel);
-  }
-
-  function pushTryEntry(locs) {
-    var entry = {
-      tryLoc: locs[0]
-    };
-    1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry);
-  }
-
-  function resetTryEntry(entry) {
-    var record = entry.completion || {};
-    record.type = "normal", delete record.arg, entry.completion = record;
-  }
-
-  function Context(tryLocsList) {
-    this.tryEntries = [{
-      tryLoc: "root"
-    }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0);
-  }
-
-  function values(iterable) {
-    if (iterable) {
-      var iteratorMethod = iterable[iteratorSymbol];
-      if (iteratorMethod) return iteratorMethod.call(iterable);
-      if ("function" == typeof iterable.next) return iterable;
-
-      if (!isNaN(iterable.length)) {
-        var i = -1,
-            next = function next() {
-          for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next;
-
-          return next.value = undefined, next.done = !0, next;
-        };
-
-        return next.next = next;
-      }
-    }
-
-    return {
-      next: doneResult
-    };
-  }
-
-  function doneResult() {
-    return {
-      value: undefined,
-      done: !0
-    };
-  }
-
-  return GeneratorFunction.prototype = GeneratorFunctionPrototype, define(Gp, "constructor", GeneratorFunctionPrototype), define(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) {
-    var ctor = "function" == typeof genFun && genFun.constructor;
-    return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name));
-  }, exports.mark = function (genFun) {
-    return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun;
-  }, exports.awrap = function (arg) {
-    return {
-      __await: arg
-    };
-  }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () {
-    return this;
-  }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) {
-    void 0 === PromiseImpl && (PromiseImpl = Promise);
-    var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl);
-    return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) {
-      return result.done ? result.value : iter.next();
-    });
-  }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () {
-    return this;
-  }), define(Gp, "toString", function () {
-    return "[object Generator]";
-  }), exports.keys = function (object) {
-    var keys = [];
-
-    for (var key in object) keys.push(key);
-
-    return keys.reverse(), function next() {
-      for (; keys.length;) {
-        var key = keys.pop();
-        if (key in object) return next.value = key, next.done = !1, next;
-      }
-
-      return next.done = !0, next;
-    };
-  }, exports.values = values, Context.prototype = {
-    constructor: Context,
-    reset: function (skipTempReset) {
-      if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined);
-    },
-    stop: function () {
-      this.done = !0;
-      var rootRecord = this.tryEntries[0].completion;
-      if ("throw" === rootRecord.type) throw rootRecord.arg;
-      return this.rval;
-    },
-    dispatchException: function (exception) {
-      if (this.done) throw exception;
-      var context = this;
-
-      function handle(loc, caught) {
-        return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught;
-      }
-
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i],
-            record = entry.completion;
-        if ("root" === entry.tryLoc) return handle("end");
-
-        if (entry.tryLoc <= this.prev) {
-          var hasCatch = hasOwn.call(entry, "catchLoc"),
-              hasFinally = hasOwn.call(entry, "finallyLoc");
-
-          if (hasCatch && hasFinally) {
-            if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0);
-            if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc);
-          } else if (hasCatch) {
-            if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0);
-          } else {
-            if (!hasFinally) throw new Error("try statement without catch or finally");
-            if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc);
-          }
-        }
-      }
-    },
-    abrupt: function (type, arg) {
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i];
-
-        if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) {
-          var finallyEntry = entry;
-          break;
-        }
-      }
-
-      finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null);
-      var record = finallyEntry ? finallyEntry.completion : {};
-      return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record);
-    },
-    complete: function (record, afterLoc) {
-      if ("throw" === record.type) throw record.arg;
-      return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel;
-    },
-    finish: function (finallyLoc) {
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i];
-        if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel;
-      }
-    },
-    catch: function (tryLoc) {
-      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-        var entry = this.tryEntries[i];
-
-        if (entry.tryLoc === tryLoc) {
-          var record = entry.completion;
-
-          if ("throw" === record.type) {
-            var thrown = record.arg;
-            resetTryEntry(entry);
-          }
-
-          return thrown;
-        }
-      }
-
-      throw new Error("illegal catch attempt");
-    },
-    delegateYield: function (iterable, resultName, nextLoc) {
-      return this.delegate = {
-        iterator: values(iterable),
-        resultName: resultName,
-        nextLoc: nextLoc
-      }, "next" === this.method && (this.arg = undefined), ContinueSentinel;
-    }
-  }, exports;
-}
-
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
   try {
     var info = gen[key](arg);
@@ -417,40 +72,25 @@ function _extends() {
   return _extends.apply(this, arguments);
 }
 
-function _inheritsLoose(subClass, superClass) {
-  subClass.prototype = Object.create(superClass.prototype);
-  subClass.prototype.constructor = subClass;
-
-  _setPrototypeOf(subClass, superClass);
-}
-
-function _setPrototypeOf(o, p) {
-  _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) {
-    o.__proto__ = p;
-    return o;
-  };
-  return _setPrototypeOf(o, p);
-}
-
 (function (LocalStorageKeys) {
   LocalStorageKeys["LastConnectedWallet"] = "LastConnectedWallet";
   LocalStorageKeys["TransactionPool"] = "TransactionPool";
 })(exports.LocalStorageKeys || (exports.LocalStorageKeys = {}));
 
-var setLocalStorageTxPool = function setLocalStorageTxPool(pool) {
+var setLocalStorageTxPool = pool => {
   var stringifiedPool = JSON.stringify(pool);
   localStorage.setItem(exports.LocalStorageKeys.TransactionPool, stringifiedPool);
 };
-var getLocalStorageTxPool = function getLocalStorageTxPool() {
+var getLocalStorageTxPool = () => {
   return localStorage.getItem(exports.LocalStorageKeys.TransactionPool);
 };
-var setLocalStorageWallet = function setLocalStorageWallet(walletType) {
+var setLocalStorageWallet = walletType => {
   localStorage.setItem(exports.LocalStorageKeys.LastConnectedWallet, walletType);
 };
-var deleteLocalStorageWallet = function deleteLocalStorageWallet() {
+var deleteLocalStorageWallet = () => {
   localStorage.removeItem(exports.LocalStorageKeys.LastConnectedWallet);
 };
-var clearWalletConnectLocalStorage = function clearWalletConnectLocalStorage() {
+var clearWalletConnectLocalStorage = () => {
   localStorage.removeItem('walletconnect');
   localStorage.removeItem('-walletlink:https://www.walletlink.org:version');
   localStorage.removeItem('-walletlink:https://www.walletlink.org:session:id');
@@ -461,45 +101,33 @@ var clearWalletConnectLocalStorage = function clearWalletConnectLocalStorage() {
   localStorage.removeItem('-walletlink:https://www.walletlink.org:walletUsername');
 };
 
-var selectAllTransactions = function selectAllTransactions(state) {
-  return Object.values(state.transactionsPool).sort(function (a, b) {
-    return Number(a.localTimestamp) - Number(b.localTimestamp);
-  });
+var selectAllTransactions = state => {
+  return Object.values(state.transactionsPool).sort((a, b) => Number(a.localTimestamp) - Number(b.localTimestamp));
 };
-var selectPendingTransactions = function selectPendingTransactions(state) {
-  return selectAllTransactions(state).filter(function (tx) {
-    return tx.pending;
-  });
+var selectPendingTransactions = state => {
+  return selectAllTransactions(state).filter(tx => tx.pending);
 };
-var selectTXByKey = function selectTXByKey(state, key) {
+var selectTXByKey = (state, key) => {
   return state.transactionsPool[key];
 };
-var selectTXByHash = function selectTXByHash(state, hash) {
+var selectTXByHash = (state, hash) => {
   var txByKey = selectTXByKey(state, hash);
 
   if (txByKey) {
     return txByKey;
   }
 
-  return selectAllTransactions(state).find(function (tx) {
-    return tx.hash == hash;
-  });
+  return selectAllTransactions(state).find(tx => tx.hash == hash);
 };
-var selectAllTransactionsByWallet = function selectAllTransactionsByWallet(state, from) {
-  return selectAllTransactions(state).filter(function (tx) {
-    return tx.from == from;
-  });
+var selectAllTransactionsByWallet = (state, from) => {
+  return selectAllTransactions(state).filter(tx => tx.from == from);
 };
-var selectPendingTransactionByWallet = function selectPendingTransactionByWallet(state, from) {
-  return selectPendingTransactions(state).filter(function (tx) {
-    return tx.from == from;
-  });
+var selectPendingTransactionByWallet = (state, from) => {
+  return selectPendingTransactions(state).filter(tx => tx.from == from);
 };
-var selectLastTxByTypeAndPayload = function selectLastTxByTypeAndPayload(state, from, type, payload) {
+var selectLastTxByTypeAndPayload = (state, from, type, payload) => {
   var allTransactions = selectAllTransactionsByWallet(state, from);
-  var filteredTransactions = allTransactions.filter(function (tx) {
-    return tx.type === type && isEqual(tx.payload, payload);
-  });
+  var filteredTransactions = allTransactions.filter(tx => tx.type === type && isEqual(tx.payload, payload));
   var lastFilteredTransaction = filteredTransactions[filteredTransactions.length - 1];
 
   if (lastFilteredTransaction) {
@@ -516,7 +144,7 @@ var selectLastTxByTypeAndPayload = function selectLastTxByTypeAndPayload(state, 
     return undefined;
   }
 };
-var selectTxExplorerLink = function selectTxExplorerLink(state, getChainParameters, txHash) {
+var selectTxExplorerLink = (state, getChainParameters, txHash) => {
   var tx = selectTXByHash(state, txHash);
 
   if (!tx) {
@@ -537,7 +165,7 @@ var selectTxExplorerLink = function selectTxExplorerLink(state, getChainParamete
     return "" + gnosisSafeLinksHelper[tx.chainId] + tx.from + "/transactions/tx?id=multisig_" + tx.from + "_" + txHash;
   }
 };
-var selectIsGelatoTXPending = function selectIsGelatoTXPending(gelatoStatus) {
+var selectIsGelatoTXPending = gelatoStatus => {
   return gelatoStatus == undefined || gelatoStatus == 'CheckPending' || gelatoStatus == 'WaitingForConfirmation' || gelatoStatus == 'ExecPending';
 };
 
@@ -550,150 +178,101 @@ function isGelatoBaseTx(tx) {
 function isGelatoBaseTxWithoutTimestamp(tx) {
   return tx.taskId !== undefined;
 }
-var GelatoAdapter = function GelatoAdapter(get, set) {
-  var _this = this;
+class GelatoAdapter {
+  constructor(get, set) {
+    var _this = this;
 
-  this.transactionsIntervalsMap = {};
+    this.transactionsIntervalsMap = {};
 
-  this.executeTx = /*#__PURE__*/function () {
-    var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(params) {
-      var activeWallet, chainId, type, tx, from, gelatoTX, txPool;
-      return _regeneratorRuntime().wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              activeWallet = params.activeWallet, chainId = params.chainId, type = params.type;
-              tx = params.tx;
-              from = activeWallet.accounts[0];
-              gelatoTX = {
-                from: from,
-                chainId: chainId,
-                type: type,
-                taskId: tx.taskId,
-                payload: params.payload
-              };
-              txPool = _this.get().addTXToPool(gelatoTX, activeWallet.walletType);
+    this.executeTx = /*#__PURE__*/function () {
+      var _ref = _asyncToGenerator(function* (params) {
+        var {
+          activeWallet,
+          chainId,
+          type
+        } = params;
+        var tx = params.tx;
+        var from = activeWallet.accounts[0];
+        var gelatoTX = {
+          from,
+          chainId,
+          type: type,
+          taskId: tx.taskId,
+          payload: params.payload
+        };
 
-              _this.startTxTracking(tx.taskId);
+        var txPool = _this.get().addTXToPool(gelatoTX, activeWallet.walletType);
 
-              return _context.abrupt("return", txPool[tx.taskId]);
+        _this.startTxTracking(tx.taskId);
 
-            case 7:
-            case "end":
-              return _context.stop();
+        return txPool[tx.taskId];
+      });
+
+      return function (_x) {
+        return _ref.apply(this, arguments);
+      };
+    }();
+
+    this.startTxTracking = /*#__PURE__*/function () {
+      var _ref2 = _asyncToGenerator(function* (taskId) {
+        // TODO: need fix typing for transactions pool
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        var tx = _this.get().transactionsPool[taskId];
+
+        var isPending = selectIsGelatoTXPending(tx.gelatoStatus);
+
+        if (!isPending) {
+          return;
+        }
+
+        _this.stopPollingGelatoTXStatus(taskId);
+
+        var newGelatoInterval = setInterval(() => {
+          _this.fetchGelatoTXStatus(taskId); // TODO: maybe change timeout for gelato
+
+        }, 2000);
+        _this.transactionsIntervalsMap[taskId] = Number(newGelatoInterval);
+      });
+
+      return function (_x2) {
+        return _ref2.apply(this, arguments);
+      };
+    }();
+
+    this.stopPollingGelatoTXStatus = taskId => {
+      var currentInterval = this.transactionsIntervalsMap[taskId];
+      clearInterval(currentInterval);
+      this.transactionsIntervalsMap[taskId] = undefined;
+    };
+
+    this.fetchGelatoTXStatus = /*#__PURE__*/function () {
+      var _ref3 = _asyncToGenerator(function* (taskId) {
+        var response = yield fetch("https://api.gelato.digital/tasks/status/" + taskId + "/");
+
+        if (!response.ok) ; else {
+          var gelatoStatus = yield response.json();
+          var isPending = selectIsGelatoTXPending(gelatoStatus.task.taskState);
+
+          _this.updateGelatoTX(taskId, gelatoStatus);
+
+          if (!isPending) {
+            _this.stopPollingGelatoTXStatus(taskId);
+
+            var tx = _this.get().transactionsPool[taskId];
+
+            _this.get().txStatusChangedCallback(tx);
           }
         }
-      }, _callee);
-    }));
+      });
 
-    return function (_x) {
-      return _ref.apply(this, arguments);
-    };
-  }();
+      return function (_x3) {
+        return _ref3.apply(this, arguments);
+      };
+    }();
 
-  this.startTxTracking = /*#__PURE__*/function () {
-    var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(taskId) {
-      var tx, isPending, newGelatoInterval;
-      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-        while (1) {
-          switch (_context2.prev = _context2.next) {
-            case 0:
-              // TODO: need fix typing for transactions pool
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              tx = _this.get().transactionsPool[taskId];
-              isPending = selectIsGelatoTXPending(tx.gelatoStatus);
-
-              if (isPending) {
-                _context2.next = 4;
-                break;
-              }
-
-              return _context2.abrupt("return");
-
-            case 4:
-              _this.stopPollingGelatoTXStatus(taskId);
-
-              newGelatoInterval = setInterval(function () {
-                _this.fetchGelatoTXStatus(taskId); // TODO: maybe change timeout for gelato
-
-              }, 2000);
-              _this.transactionsIntervalsMap[taskId] = Number(newGelatoInterval);
-
-            case 7:
-            case "end":
-              return _context2.stop();
-          }
-        }
-      }, _callee2);
-    }));
-
-    return function (_x2) {
-      return _ref2.apply(this, arguments);
-    };
-  }();
-
-  this.stopPollingGelatoTXStatus = function (taskId) {
-    var currentInterval = _this.transactionsIntervalsMap[taskId];
-    clearInterval(currentInterval);
-    _this.transactionsIntervalsMap[taskId] = undefined;
-  };
-
-  this.fetchGelatoTXStatus = /*#__PURE__*/function () {
-    var _ref3 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(taskId) {
-      var response, gelatoStatus, isPending, tx;
-      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-        while (1) {
-          switch (_context3.prev = _context3.next) {
-            case 0:
-              _context3.next = 2;
-              return fetch("https://api.gelato.digital/tasks/status/" + taskId + "/");
-
-            case 2:
-              response = _context3.sent;
-
-              if (response.ok) {
-                _context3.next = 6;
-                break;
-              }
-
-              _context3.next = 12;
-              break;
-
-            case 6:
-              _context3.next = 8;
-              return response.json();
-
-            case 8:
-              gelatoStatus = _context3.sent;
-              isPending = selectIsGelatoTXPending(gelatoStatus.task.taskState);
-
-              _this.updateGelatoTX(taskId, gelatoStatus);
-
-              if (!isPending) {
-                _this.stopPollingGelatoTXStatus(taskId);
-
-                tx = _this.get().transactionsPool[taskId];
-
-                _this.get().txStatusChangedCallback(tx);
-              }
-
-            case 12:
-            case "end":
-              return _context3.stop();
-          }
-        }
-      }, _callee3);
-    }));
-
-    return function (_x3) {
-      return _ref3.apply(this, arguments);
-    };
-  }();
-
-  this.updateGelatoTX = function (taskId, statusResponse) {
-    _this.set(function (state) {
-      return immer.produce(state, function (draft) {
+    this.updateGelatoTX = (taskId, statusResponse) => {
+      this.set(state => immer.produce(state, draft => {
         var tx = draft.transactionsPool[taskId];
         tx.gelatoStatus = statusResponse.task.taskState;
         tx.pending = selectIsGelatoTXPending(statusResponse.task.taskState);
@@ -707,57 +286,46 @@ var GelatoAdapter = function GelatoAdapter(get, set) {
         if (statusResponse.task.lastCheckMessage) {
           tx.errorMessage = statusResponse.task.lastCheckMessage;
         }
-      });
-    });
+      }));
+      setLocalStorageTxPool(this.get().transactionsPool);
+    };
 
-    setLocalStorageTxPool(_this.get().transactionsPool);
-  };
+    this.get = get;
+    this.set = set;
+  }
 
-  this.get = get;
-  this.set = set;
-};
+}
 
-var useLastTxLocalStatus = function useLastTxLocalStatus(_ref) {
-  var state = _ref.state,
-      activeAddress = _ref.activeAddress,
-      type = _ref.type,
-      payload = _ref.payload;
+var useLastTxLocalStatus = _ref => {
+  var {
+    state,
+    activeAddress,
+    type,
+    payload
+  } = _ref;
   var tx = selectLastTxByTypeAndPayload(state, activeAddress, type, payload);
-
-  var _useState = React.useState(''),
-      fullTxErrorMessage = _useState[0],
-      setFullTxErrorMessage = _useState[1];
-
-  var _useState2 = React.useState(''),
-      error = _useState2[0],
-      setError = _useState2[1];
-
-  var _useState3 = React.useState(false),
-      loading = _useState3[0],
-      setLoading = _useState3[1];
-
-  var _useState4 = React.useState(false),
-      isTxStart = _useState4[0],
-      setIsTxStart = _useState4[1];
-
+  var [fullTxErrorMessage, setFullTxErrorMessage] = React.useState('');
+  var [error, setError] = React.useState('');
+  var [loading, setLoading] = React.useState(false);
+  var [isTxStart, setIsTxStart] = React.useState(false);
   var txHash = tx && tx.hash;
   var txPending = tx && tx.pending;
   var isError = tx && isGelatoBaseTx(tx) ? !tx.pending && (tx.status !== 1 || !!error) : tx && !tx.pending && tx.status !== 1 || !!error;
   var txSuccess = tx && tx.status === 1 && !isError;
   var txChainId = tx && tx.chainId;
   var txWalletType = tx && tx.walletType;
-  React.useEffect(function () {
-    return function () {
+  React.useEffect(() => {
+    return () => {
       setFullTxErrorMessage('');
       setError('');
     };
   }, []);
-  React.useEffect(function () {
+  React.useEffect(() => {
     if (txPending || isError) {
       setIsTxStart(true);
     }
   }, [txPending, isError]);
-  React.useEffect(function () {
+  React.useEffect(() => {
     if (tx != null && tx.errorMessage) {
       setError(tx.errorMessage);
     }
@@ -768,124 +336,76 @@ var useLastTxLocalStatus = function useLastTxLocalStatus(_ref) {
   }
 
   function _executeTxWithLocalStatuses() {
-    _executeTxWithLocalStatuses = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(_ref2) {
-      var errorMessage, callbackFunction, _error;
+    _executeTxWithLocalStatuses = _asyncToGenerator(function* (_ref2) {
+      var {
+        errorMessage,
+        callbackFunction
+      } = _ref2;
+      setError('');
+      setLoading(true);
 
-      return _regeneratorRuntime().wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              errorMessage = _ref2.errorMessage, callbackFunction = _ref2.callbackFunction;
-              setError('');
-              setLoading(true);
-              _context.prev = 3;
-              _context.next = 6;
-              return callbackFunction();
+      try {
+        yield callbackFunction();
+      } catch (e) {
+        var _error = e;
+        console.error('TX error: ', _error);
+        setFullTxErrorMessage(!!(_error != null && _error.message) ? _error.message : _error);
+        setError(errorMessage);
+      }
 
-            case 6:
-              _context.next = 14;
-              break;
-
-            case 8:
-              _context.prev = 8;
-              _context.t0 = _context["catch"](3);
-              _error = _context.t0;
-              console.error('TX error: ', _error);
-              setFullTxErrorMessage(!!(_error != null && _error.message) ? _error.message : _error);
-              setError(errorMessage);
-
-            case 14:
-              setLoading(false);
-
-            case 15:
-            case "end":
-              return _context.stop();
-          }
-        }
-      }, _callee, null, [[3, 8]]);
-    }));
+      setLoading(false);
+    });
     return _executeTxWithLocalStatuses.apply(this, arguments);
   }
 
   return {
-    error: error,
-    setError: setError,
-    loading: loading,
-    setLoading: setLoading,
-    isTxStart: isTxStart,
-    setIsTxStart: setIsTxStart,
-    txHash: txHash,
-    txPending: txPending,
-    txSuccess: txSuccess,
-    txChainId: txChainId,
-    txWalletType: txWalletType,
-    isError: isError,
-    executeTxWithLocalStatuses: executeTxWithLocalStatuses,
-    fullTxErrorMessage: fullTxErrorMessage,
-    setFullTxErrorMessage: setFullTxErrorMessage
+    error,
+    setError,
+    loading,
+    setLoading,
+    isTxStart,
+    setIsTxStart,
+    txHash,
+    txPending,
+    txSuccess,
+    txChainId,
+    txWalletType,
+    isError,
+    executeTxWithLocalStatuses,
+    fullTxErrorMessage,
+    setFullTxErrorMessage
   };
 };
 
-var StaticJsonRpcBatchProvider = /*#__PURE__*/function (_providers$JsonRpcBat) {
-  _inheritsLoose(StaticJsonRpcBatchProvider, _providers$JsonRpcBat);
+class StaticJsonRpcBatchProvider extends ethers.providers.JsonRpcBatchProvider {
+  detectNetwork() {
+    var _superprop_getDetectNetwork = () => super.detectNetwork,
+        _this = this;
 
-  function StaticJsonRpcBatchProvider() {
-    return _providers$JsonRpcBat.apply(this, arguments) || this;
+    return _asyncToGenerator(function* () {
+      var network = _this.network;
+
+      if (network == null) {
+        network = yield _superprop_getDetectNetwork().call(_this);
+
+        if (!network) {
+          ethers.logger.throwError('no network detected', logger.Logger.errors.UNKNOWN_ERROR, {});
+        } // If still not set, set it
+
+
+        if (_this._network == null) {
+          // A static network does not support "any"
+          properties.defineReadOnly(_this, '_network', network);
+
+          _this.emit('network', network, null);
+        }
+      }
+
+      return network;
+    })();
   }
 
-  var _proto = StaticJsonRpcBatchProvider.prototype;
-
-  _proto.detectNetwork = /*#__PURE__*/function () {
-    var _detectNetwork = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-      var network;
-      return _regeneratorRuntime().wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              network = this.network;
-
-              if (!(network == null)) {
-                _context.next = 7;
-                break;
-              }
-
-              _context.next = 4;
-              return _providers$JsonRpcBat.prototype.detectNetwork.call(this);
-
-            case 4:
-              network = _context.sent;
-
-              if (!network) {
-                ethers.logger.throwError('no network detected', logger.Logger.errors.UNKNOWN_ERROR, {});
-              } // If still not set, set it
-
-
-              if (this._network == null) {
-                // A static network does not support "any"
-                properties.defineReadOnly(this, '_network', network);
-                this.emit('network', network, null);
-              }
-
-            case 7:
-              return _context.abrupt("return", network);
-
-            case 8:
-            case "end":
-              return _context.stop();
-          }
-        }
-      }, _callee, this);
-    }));
-
-    function detectNetwork() {
-      return _detectNetwork.apply(this, arguments);
-    }
-
-    return detectNetwork;
-  }();
-
-  return StaticJsonRpcBatchProvider;
-}(ethers.providers.JsonRpcBatchProvider);
+}
 
 var ETH = {
   name: 'Ether',
@@ -952,10 +472,10 @@ function isExtendedChainInformation(chainInformation) {
   return !!(chainInformation != null && chainInformation.nativeCurrency);
 }
 
-var initChainInformationConfig = function initChainInformationConfig(chains) {
+var initChainInformationConfig = chains => {
   var CHAINS = Object.assign(initialChains, chains || {}); // init urls from chains config
 
-  var urls = Object.keys(CHAINS).reduce(function (accumulator, chainId) {
+  var urls = Object.keys(CHAINS).reduce((accumulator, chainId) => {
     var validURLs = CHAINS[Number(chainId)].urls;
 
     if (validURLs.length) {
@@ -966,7 +486,7 @@ var initChainInformationConfig = function initChainInformationConfig(chains) {
   }, {}); // init provider instances from chain config
 
   var initalizedProviders = {};
-  var providerInstances = Object.keys(CHAINS).reduce(function (accumulator, chainId) {
+  var providerInstances = Object.keys(CHAINS).reduce((accumulator, chainId) => {
     var numberChainId = Number(chainId);
     accumulator[numberChainId] = {
       get instance() {
@@ -989,7 +509,7 @@ var initChainInformationConfig = function initChainInformationConfig(chains) {
 
     if (isExtendedChainInformation(chainInformation)) {
       return {
-        chainId: chainId,
+        chainId,
         chainName: chainInformation.name,
         nativeCurrency: chainInformation.nativeCurrency,
         rpcUrls: chainInformation.urls,
@@ -998,7 +518,7 @@ var initChainInformationConfig = function initChainInformationConfig(chains) {
     } else {
       // this case can only ever occure when a wallet is connected with a unknown chainId which will not allow interaction
       return {
-        chainId: chainId,
+        chainId,
         chainName: "unknown network: " + chainId,
         nativeCurrency: initialChains[1].nativeCurrency,
         rpcUrls: initialChains[1].urls,
@@ -1008,9 +528,9 @@ var initChainInformationConfig = function initChainInformationConfig(chains) {
   }
 
   return {
-    urls: urls,
-    providerInstances: providerInstances,
-    getChainParameters: getChainParameters
+    urls,
+    providerInstances,
+    getChainParameters
   };
 };
 
@@ -1404,9 +924,7 @@ function getBrowserWalletLabelAndIcon() {
 
   if (typeof window !== 'undefined') {
     if (!!window.ethereum) {
-      var userBrowserWallets = wallets.filter(function (wallet) {
-        return !!window.ethereum[wallet.identityFlag];
-      });
+      var userBrowserWallets = wallets.filter(wallet => !!window.ethereum[wallet.identityFlag]);
 
       if (userBrowserWallets.length > 1 || userBrowserWallets.length === 0) {
         return defaultBrowserWallet;
@@ -1424,99 +942,75 @@ function getBrowserWalletLabelAndIcon() {
   }
 }
 
-var ImpersonatedProvider = /*#__PURE__*/function (_providers$JsonRpcPro) {
-  _inheritsLoose(ImpersonatedProvider, _providers$JsonRpcPro);
-
-  function ImpersonatedProvider(url) {
-    var _this;
-
-    _this = _providers$JsonRpcPro.call(this, url) || this;
-    _this.copyProvider = new ethers.providers.JsonRpcProvider(url);
-    return _this;
+class ImpersonatedProvider extends ethers.providers.JsonRpcProvider {
+  constructor(url) {
+    super(url);
+    this.copyProvider = new ethers.providers.JsonRpcProvider(url);
   }
 
-  var _proto = ImpersonatedProvider.prototype;
-
-  _proto.getSigner = function getSigner(address) {
+  getSigner(address) {
     return this.copyProvider.getUncheckedSigner(address);
-  };
-
-  return ImpersonatedProvider;
-}(ethers.providers.JsonRpcProvider);
-var ImpersonatedConnector = /*#__PURE__*/function (_Connector) {
-  _inheritsLoose(ImpersonatedConnector, _Connector);
-
-  function ImpersonatedConnector(actions, options) {
-    var _this2;
-
-    _this2 = _Connector.call(this, actions) || this;
-    _this2.urls = options.urls;
-    _this2.chainId = options.chainId;
-    return _this2;
   }
 
-  var _proto2 = ImpersonatedConnector.prototype;
+}
+class ImpersonatedConnector extends types.Connector {
+  constructor(actions, options) {
+    super(actions);
+    this.urls = options.urls;
+    this.chainId = options.chainId;
+  }
 
-  _proto2.activate = function activate(_ref) {
-    var address = _ref.address,
-        chainId = _ref.chainId;
+  activate(_ref) {
+    var {
+      address,
+      chainId
+    } = _ref;
     this.actions.startActivation();
     this.customProvider = new ImpersonatedProvider(this.urls[chainId || this.chainId][0]);
     this.actions.update({
       chainId: chainId || this.chainId,
       accounts: [address]
     });
-  };
+  }
 
-  return ImpersonatedConnector;
-}(types.Connector);
+}
 
-var initAllConnectors = function initAllConnectors(props) {
+var initAllConnectors = props => {
   var projectId = props.wcProjectId;
   var chainIds = Object.keys(props.chains).map(Number);
-  var metaMask = core$1.initializeConnector(function (actions) {
-    return new metamask$1.MetaMask({
-      actions: actions
-    });
-  });
+  var metaMask = core$1.initializeConnector(actions => new metamask$1.MetaMask({
+    actions
+  }));
   var walletConnect = null;
 
   if (projectId) {
-    walletConnect = core$1.initializeConnector(function (actions) {
-      return new walletconnectV2.WalletConnect({
-        actions: actions,
-        options: {
-          projectId: projectId,
-          chains: chainIds,
-          showQrModal: true
-        },
-        onError: function onError(error) {
-          console.error('walletconnect error', error);
-        }
-      });
-    });
+    walletConnect = core$1.initializeConnector(actions => new walletconnectV2.WalletConnect({
+      actions,
+      options: {
+        projectId,
+        chains: chainIds,
+        showQrModal: true
+      },
+      onError: error => {
+        console.error('walletconnect error', error);
+      }
+    }));
   }
 
-  var coinbase = core$1.initializeConnector(function (actions) {
-    return new coinbaseWallet.CoinbaseWallet({
-      actions: actions,
-      options: {
-        url: props.chains[props.defaultChainId || chainIds[0]].urls[0],
-        appName: props.appName
-      }
-    });
-  });
-  var gnosisSafe$1 = core$1.initializeConnector(function (actions) {
-    return new gnosisSafe.GnosisSafe({
-      actions: actions
-    });
-  });
-  var impersonatedConnector = core$1.initializeConnector(function (actions) {
-    return new ImpersonatedConnector(actions, {
-      urls: props.urls,
-      chainId: props.defaultChainId || chainIds[0]
-    });
-  });
+  var coinbase = core$1.initializeConnector(actions => new coinbaseWallet.CoinbaseWallet({
+    actions,
+    options: {
+      url: props.chains[props.defaultChainId || chainIds[0]].urls[0],
+      appName: props.appName
+    }
+  }));
+  var gnosisSafe$1 = core$1.initializeConnector(actions => new gnosisSafe.GnosisSafe({
+    actions
+  }));
+  var impersonatedConnector = core$1.initializeConnector(actions => new ImpersonatedConnector(actions, {
+    urls: props.urls,
+    chainId: props.defaultChainId || chainIds[0]
+  }));
   var connectors = [metaMask, coinbase, gnosisSafe$1, impersonatedConnector];
 
   if (walletConnect !== null) {
@@ -1535,47 +1029,38 @@ function getConnectorName(connector) {
 }
 
 function Child(_ref) {
-  var useStore = _ref.useStore,
-      connectors = _ref.connectors;
-
-  var _useWeb3React = core$1.useWeb3React(),
-      connector = _useWeb3React.connector,
-      chainId = _useWeb3React.chainId,
-      isActive = _useWeb3React.isActive,
-      accounts = _useWeb3React.accounts,
-      provider = _useWeb3React.provider;
-
-  var setActiveWallet = useStore(function (state) {
-    return state.setActiveWallet;
-  });
-  var setConnectors = useStore(function (state) {
-    return state.setConnectors;
-  });
-  var disconnectActiveWallet = useStore(function (state) {
-    return state.disconnectActiveWallet;
-  });
-
-  var _useState = React.useState(''),
-      currentWalletType = _useState[0],
-      setCurrentWalletType = _useState[1];
-
-  React.useEffect(function () {
+  var {
+    useStore,
+    connectors
+  } = _ref;
+  var {
+    connector,
+    chainId,
+    isActive,
+    accounts,
+    provider
+  } = core$1.useWeb3React();
+  var setActiveWallet = useStore(state => state.setActiveWallet);
+  var setConnectors = useStore(state => state.setConnectors);
+  var disconnectActiveWallet = useStore(state => state.disconnectActiveWallet);
+  var [currentWalletType, setCurrentWalletType] = React.useState('');
+  React.useEffect(() => {
     if (connectors) {
       setConnectors(connectors);
     }
   }, [connectors]);
-  React.useEffect(function () {
+  React.useEffect(() => {
     var walletType = connector && getConnectorName(connector);
 
     if (walletType && accounts && isActive && provider) {
       setCurrentWalletType(walletType); // TODO: don't forget to change to different
 
       setActiveWallet({
-        walletType: walletType,
-        accounts: accounts,
-        chainId: chainId,
-        provider: provider,
-        isActive: isActive,
+        walletType,
+        accounts,
+        chainId,
+        provider,
+        isActive,
         isContractAddress: false
       });
     } else if (currentWalletType !== walletType) {
@@ -1586,17 +1071,12 @@ function Child(_ref) {
 }
 
 function Web3Provider(_ref2) {
-  var useStore = _ref2.useStore,
-      connectorsInitProps = _ref2.connectorsInitProps;
-
-  var _useState2 = React.useState(initAllConnectors(connectorsInitProps)),
-      connectors = _useState2[0];
-
-  var _useState3 = React.useState(connectors.map(function (connector) {
-    return connector[0];
-  })),
-      mappedConnectors = _useState3[0];
-
+  var {
+    useStore,
+    connectorsInitProps
+  } = _ref2;
+  var [connectors] = React.useState(initAllConnectors(connectorsInitProps));
+  var [mappedConnectors] = React.useState(connectors.map(connector => connector[0]));
   return React__default.createElement(core$1.Web3ReactProvider, {
     connectors: connectors
   }, React__default.createElement(Child, {
@@ -1605,984 +1085,633 @@ function Web3Provider(_ref2) {
   }));
 }
 
-var EthereumAdapter = function EthereumAdapter(get, set) {
-  var _this = this;
+class EthereumAdapter {
+  constructor(get, set) {
+    var _this = this;
 
-  this.transactionsIntervalsMap = {};
+    this.transactionsIntervalsMap = {};
 
-  this.executeTx = /*#__PURE__*/function () {
-    var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(params) {
-      var activeWallet, chainId, type, tx, transaction, txPool;
-      return _regeneratorRuntime().wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              activeWallet = params.activeWallet, chainId = params.chainId, type = params.type;
-              tx = params.tx; // ethereum tx
+    this.executeTx = /*#__PURE__*/function () {
+      var _ref = _asyncToGenerator(function* (params) {
+        var {
+          activeWallet,
+          chainId,
+          type
+        } = params;
+        var tx = params.tx; // ethereum tx
 
-              transaction = {
-                chainId: chainId,
-                hash: tx.hash,
-                type: type,
-                payload: params.payload,
-                from: tx.from,
-                to: tx.to,
-                nonce: tx.nonce
-              };
-              txPool = _this.get().addTXToPool(transaction, activeWallet.walletType);
+        var transaction = {
+          chainId,
+          hash: tx.hash,
+          type,
+          payload: params.payload,
+          from: tx.from,
+          to: tx.to,
+          nonce: tx.nonce
+        };
 
-              _this.waitForTxReceipt(tx, tx.hash);
+        var txPool = _this.get().addTXToPool(transaction, activeWallet.walletType);
 
-              return _context.abrupt("return", txPool[tx.hash]);
+        _this.waitForTxReceipt(tx, tx.hash);
 
-            case 6:
-            case "end":
-              return _context.stop();
+        return txPool[tx.hash];
+      });
+
+      return function (_x) {
+        return _ref.apply(this, arguments);
+      };
+    }();
+
+    this.startTxTracking = /*#__PURE__*/function () {
+      var _ref2 = _asyncToGenerator(function* (txKey) {
+        var retryCount = 5;
+
+        var txData = _this.get().transactionsPool[txKey];
+
+        if (txData) {
+          var provider = _this.get().providers[txData.chainId];
+
+          if (txData.hash) {
+            // Find the transaction in the waiting pool
+            for (var i = 0; i < retryCount; i++) {
+              var tx = yield provider.getTransaction(txData.hash); // If the transaction is found, wait for the receipt
+
+              if (tx) {
+                yield _this.waitForTxReceipt(tx, txData.hash);
+                return; // Exit the function if successful
+              }
+            } // Wait before the next retry
+
+
+            yield new Promise(resolve => setTimeout(resolve, 3000));
           }
         }
-      }, _callee);
-    }));
+      });
 
-    return function (_x) {
-      return _ref.apply(this, arguments);
-    };
-  }();
+      return function (_x2) {
+        return _ref2.apply(this, arguments);
+      };
+    }();
 
-  this.startTxTracking = /*#__PURE__*/function () {
-    var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(txKey) {
-      var retryCount, txData, provider, i, tx;
-      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-        while (1) {
-          switch (_context2.prev = _context2.next) {
-            case 0:
-              retryCount = 5;
-              txData = _this.get().transactionsPool[txKey];
+    this.waitForTxReceipt = /*#__PURE__*/function () {
+      var _ref3 = _asyncToGenerator(function* (tx, txHash) {
+        var chainId = tx.chainId || _this.get().transactionsPool[txHash].chainId;
 
-              if (!txData) {
-                _context2.next = 21;
-                break;
-              }
+        var provider = _this.get().providers[chainId];
 
-              provider = _this.get().providers[txData.chainId];
+        try {
+          var txn = yield tx.wait();
 
-              if (!txData.hash) {
-                _context2.next = 19;
-                break;
-              }
+          _this.updateTXStatus(txHash, txn.status);
 
-              i = 0;
+          var updatedTX = _this.get().transactionsPool[txHash];
 
-            case 6:
-              if (!(i < retryCount)) {
-                _context2.next = 17;
-                break;
-              }
+          var txBlock = yield provider.getBlock(txn.blockNumber);
+          var timestamp = txBlock.timestamp;
 
-              _context2.next = 9;
-              return provider.getTransaction(txData.hash);
-
-            case 9:
-              tx = _context2.sent;
-
-              if (!tx) {
-                _context2.next = 14;
-                break;
-              }
-
-              _context2.next = 13;
-              return _this.waitForTxReceipt(tx, txData.hash);
-
-            case 13:
-              return _context2.abrupt("return");
-
-            case 14:
-              i++;
-              _context2.next = 6;
-              break;
-
-            case 17:
-              _context2.next = 19;
-              return new Promise(function (resolve) {
-                return setTimeout(resolve, 3000);
-              });
-
-            case 19:
-              _context2.next = 21;
-              break;
-
-            case 21:
-            case "end":
-              return _context2.stop();
-          }
+          _this.get().txStatusChangedCallback(_extends({}, updatedTX, {
+            timestamp
+          }));
+        } catch (e) {
+          console.log(e);
         }
-      }, _callee2);
-    }));
+      });
 
-    return function (_x2) {
-      return _ref2.apply(this, arguments);
-    };
-  }();
+      return function (_x3, _x4) {
+        return _ref3.apply(this, arguments);
+      };
+    }();
 
-  this.waitForTxReceipt = /*#__PURE__*/function () {
-    var _ref3 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(tx, txHash) {
-      var chainId, provider, txn, updatedTX, txBlock, timestamp;
-      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-        while (1) {
-          switch (_context3.prev = _context3.next) {
-            case 0:
-              chainId = tx.chainId || _this.get().transactionsPool[txHash].chainId;
-              provider = _this.get().providers[chainId];
-              _context3.prev = 2;
-              _context3.next = 5;
-              return tx.wait();
-
-            case 5:
-              txn = _context3.sent;
-
-              _this.updateTXStatus(txHash, txn.status);
-
-              updatedTX = _this.get().transactionsPool[txHash];
-              _context3.next = 10;
-              return provider.getBlock(txn.blockNumber);
-
-            case 10:
-              txBlock = _context3.sent;
-              timestamp = txBlock.timestamp;
-
-              _this.get().txStatusChangedCallback(_extends({}, updatedTX, {
-                timestamp: timestamp
-              }));
-
-              _context3.next = 18;
-              break;
-
-            case 15:
-              _context3.prev = 15;
-              _context3.t0 = _context3["catch"](2);
-              console.log(_context3.t0);
-
-            case 18:
-            case "end":
-              return _context3.stop();
-          }
-        }
-      }, _callee3, null, [[2, 15]]);
-    }));
-
-    return function (_x3, _x4) {
-      return _ref3.apply(this, arguments);
-    };
-  }();
-
-  this.updateTXStatus = function (hash, status) {
-    _this.set(function (state) {
-      return immer.produce(state, function (draft) {
+    this.updateTXStatus = (hash, status) => {
+      this.set(state => immer.produce(state, draft => {
         draft.transactionsPool[hash].status = status;
         draft.transactionsPool[hash].pending = false;
+      }));
+      setLocalStorageTxPool(this.get().transactionsPool);
+    };
+
+    this.get = get;
+    this.set = set;
+  }
+
+}
+
+class GnosisAdapter {
+  constructor(get, set) {
+    var _this = this;
+
+    this.transactionsIntervalsMap = {};
+
+    this.executeTx = /*#__PURE__*/function () {
+      var _ref = _asyncToGenerator(function* (params) {
+        var {
+          activeWallet,
+          chainId,
+          type
+        } = params;
+        var tx = params.tx; // ethereum tx
+
+        var transaction = {
+          chainId,
+          hash: tx.hash,
+          type,
+          payload: params.payload,
+          from: tx.from,
+          to: tx.to,
+          nonce: tx.nonce
+        };
+
+        var txPool = _this.get().addTXToPool(transaction, activeWallet.walletType);
+
+        _this.startTxTracking(tx.hash);
+
+        return txPool[tx.hash];
       });
-    });
 
-    setLocalStorageTxPool(_this.get().transactionsPool);
-  };
+      return function (_x) {
+        return _ref.apply(this, arguments);
+      };
+    }();
 
-  this.get = get;
-  this.set = set;
-};
+    this.startTxTracking = /*#__PURE__*/function () {
+      var _ref2 = _asyncToGenerator(function* (txKey) {
+        var tx = _this.get().transactionsPool[txKey];
 
-var GnosisAdapter = function GnosisAdapter(get, set) {
-  var _this = this;
+        var isPending = tx.pending;
 
-  this.transactionsIntervalsMap = {};
+        if (!isPending) {
+          return;
+        }
 
-  this.executeTx = /*#__PURE__*/function () {
-    var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(params) {
-      var activeWallet, chainId, type, tx, transaction, txPool;
-      return _regeneratorRuntime().wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              activeWallet = params.activeWallet, chainId = params.chainId, type = params.type;
-              tx = params.tx; // ethereum tx
+        _this.stopPollingGnosisTXStatus(txKey);
 
-              transaction = {
-                chainId: chainId,
-                hash: tx.hash,
-                type: type,
-                payload: params.payload,
-                from: tx.from,
-                to: tx.to,
-                nonce: tx.nonce
-              };
-              txPool = _this.get().addTXToPool(transaction, activeWallet.walletType);
+        var newGnosisInterval = setInterval(() => {
+          _this.fetchGnosisTxStatus(txKey); // TODO: maybe change timeout or even stop tracking after some time (day/week)
 
-              _this.startTxTracking(tx.hash);
+        }, 10000);
+        _this.transactionsIntervalsMap[txKey] = Number(newGnosisInterval);
+      });
 
-              return _context.abrupt("return", txPool[tx.hash]);
+      return function (_x2) {
+        return _ref2.apply(this, arguments);
+      };
+    }();
 
-            case 6:
-            case "end":
-              return _context.stop();
+    this.fetchGnosisTxStatus = /*#__PURE__*/function () {
+      var _ref3 = _asyncToGenerator(function* (txKey) {
+        var tx = _this.get().transactionsPool[txKey];
+
+        var response = yield fetch(SafeTransactionServiceUrls[tx.chainId] + "/multisig-transactions/" + txKey + "/");
+
+        if (!response.ok) ; else {
+          var gnosisStatus = yield response.json();
+          var gnosisStatusModified = dayjs(gnosisStatus.modified);
+          var currentTime = dayjs(); // check if more than a day passed to stop polling
+
+          var daysPassed = currentTime.diff(gnosisStatusModified, 'day');
+
+          if (daysPassed >= 1) {
+            _this.updateGnosisTxStatus(txKey, gnosisStatus, true);
+
+            _this.stopPollingGnosisTXStatus(txKey);
+
+            _this.get().txStatusChangedCallback(tx);
+
+            return;
+          }
+
+          var isPending = !gnosisStatus.isExecuted;
+
+          _this.updateGnosisTxStatus(txKey, gnosisStatus);
+
+          if (!isPending) {
+            _this.stopPollingGnosisTXStatus(txKey);
+
+            _this.get().txStatusChangedCallback(tx);
           }
         }
-      }, _callee);
-    }));
+      });
 
-    return function (_x) {
-      return _ref.apply(this, arguments);
+      return function (_x3) {
+        return _ref3.apply(this, arguments);
+      };
+    }();
+
+    this.stopPollingGnosisTXStatus = txKey => {
+      var currentInterval = this.transactionsIntervalsMap[txKey];
+      clearInterval(currentInterval);
+      this.transactionsIntervalsMap[txKey] = undefined;
     };
-  }();
 
-  this.startTxTracking = /*#__PURE__*/function () {
-    var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(txKey) {
-      var tx, isPending, newGnosisInterval;
-      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-        while (1) {
-          switch (_context2.prev = _context2.next) {
-            case 0:
-              tx = _this.get().transactionsPool[txKey];
-              isPending = tx.pending;
-
-              if (isPending) {
-                _context2.next = 4;
-                break;
-              }
-
-              return _context2.abrupt("return");
-
-            case 4:
-              _this.stopPollingGnosisTXStatus(txKey);
-
-              newGnosisInterval = setInterval(function () {
-                _this.fetchGnosisTxStatus(txKey); // TODO: maybe change timeout or even stop tracking after some time (day/week)
-
-              }, 10000);
-              _this.transactionsIntervalsMap[txKey] = Number(newGnosisInterval);
-
-            case 7:
-            case "end":
-              return _context2.stop();
-          }
-        }
-      }, _callee2);
-    }));
-
-    return function (_x2) {
-      return _ref2.apply(this, arguments);
-    };
-  }();
-
-  this.fetchGnosisTxStatus = /*#__PURE__*/function () {
-    var _ref3 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(txKey) {
-      var tx, response, gnosisStatus, gnosisStatusModified, currentTime, daysPassed, isPending;
-      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-        while (1) {
-          switch (_context3.prev = _context3.next) {
-            case 0:
-              tx = _this.get().transactionsPool[txKey];
-              _context3.next = 3;
-              return fetch(SafeTransactionServiceUrls[tx.chainId] + "/multisig-transactions/" + txKey + "/");
-
-            case 3:
-              response = _context3.sent;
-
-              if (response.ok) {
-                _context3.next = 7;
-                break;
-              }
-
-              _context3.next = 21;
-              break;
-
-            case 7:
-              _context3.next = 9;
-              return response.json();
-
-            case 9:
-              gnosisStatus = _context3.sent;
-              gnosisStatusModified = dayjs(gnosisStatus.modified);
-              currentTime = dayjs(); // check if more than a day passed to stop polling
-
-              daysPassed = currentTime.diff(gnosisStatusModified, 'day');
-
-              if (!(daysPassed >= 1)) {
-                _context3.next = 18;
-                break;
-              }
-
-              _this.updateGnosisTxStatus(txKey, gnosisStatus, true);
-
-              _this.stopPollingGnosisTXStatus(txKey);
-
-              _this.get().txStatusChangedCallback(tx);
-
-              return _context3.abrupt("return");
-
-            case 18:
-              isPending = !gnosisStatus.isExecuted;
-
-              _this.updateGnosisTxStatus(txKey, gnosisStatus);
-
-              if (!isPending) {
-                _this.stopPollingGnosisTXStatus(txKey);
-
-                _this.get().txStatusChangedCallback(tx);
-              }
-
-            case 21:
-            case "end":
-              return _context3.stop();
-          }
-        }
-      }, _callee3);
-    }));
-
-    return function (_x3) {
-      return _ref3.apply(this, arguments);
-    };
-  }();
-
-  this.stopPollingGnosisTXStatus = function (txKey) {
-    var currentInterval = _this.transactionsIntervalsMap[txKey];
-    clearInterval(currentInterval);
-    _this.transactionsIntervalsMap[txKey] = undefined;
-  };
-
-  this.updateGnosisTxStatus = function (txKey, statusResponse, forceStopped) {
-    _this.set(function (state) {
-      return immer.produce(state, function (draft) {
+    this.updateGnosisTxStatus = (txKey, statusResponse, forceStopped) => {
+      this.set(state => immer.produce(state, draft => {
         var tx = draft.transactionsPool[txKey];
         tx.status = forceStopped ? 0 : +!!statusResponse.isSuccessful; // turns boolean | null to 0 or 1
 
         tx.pending = forceStopped ? false : !statusResponse.isExecuted;
         tx.nonce = statusResponse.nonce;
-      });
-    });
+      }));
+      setLocalStorageTxPool(this.get().transactionsPool);
+    };
 
-    setLocalStorageTxPool(_this.get().transactionsPool);
-  };
+    this.get = get;
+    this.set = set;
+  }
 
-  this.get = get;
-  this.set = set;
-};
+}
 
 function createTransactionsSlice(_ref) {
-  var txStatusChangedCallback = _ref.txStatusChangedCallback,
-      defaultProviders = _ref.defaultProviders;
-  return function (set, get) {
-    return {
-      transactionsPool: {},
-      transactionsIntervalsMap: {},
-      providers: defaultProviders,
-      txStatusChangedCallback: txStatusChangedCallback,
-      gelatoAdapter: new GelatoAdapter(get, set),
-      ethereumAdapter: new EthereumAdapter(get, set),
-      executeTx: function () {
-        var _executeTx = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(_ref2) {
-          var body, params, activeWallet, chainId, tx, args;
-          return _regeneratorRuntime().wrap(function _callee$(_context) {
-            while (1) {
-              switch (_context.prev = _context.next) {
-                case 0:
-                  body = _ref2.body, params = _ref2.params;
-                  _context.next = 3;
-                  return get().checkAndSwitchNetwork(params.desiredChainID);
+  var {
+    txStatusChangedCallback,
+    defaultProviders
+  } = _ref;
+  return (set, get) => ({
+    transactionsPool: {},
+    transactionsIntervalsMap: {},
+    providers: defaultProviders,
+    txStatusChangedCallback,
+    gelatoAdapter: new GelatoAdapter(get, set),
+    ethereumAdapter: new EthereumAdapter(get, set),
+    executeTx: function () {
+      var _executeTx = _asyncToGenerator(function* (_ref2) {
+        var {
+          body,
+          params
+        } = _ref2;
+        yield get().checkAndSwitchNetwork(params.desiredChainID);
+        var activeWallet = get().activeWallet;
 
-                case 3:
-                  activeWallet = get().activeWallet;
+        if (!activeWallet) {
+          throw new Error('No wallet connected');
+        }
 
-                  if (activeWallet) {
-                    _context.next = 6;
-                    break;
-                  }
+        var chainId = Number(params.desiredChainID);
+        var tx = yield body();
+        var args = {
+          tx,
+          payload: params.payload,
+          activeWallet,
+          chainId,
+          type: params.type
+        };
+        return isGelatoTx(tx) // in case of gnosis safe it works in a same way
+        ? get().gelatoAdapter.executeTx(args) : get().ethereumAdapter.executeTx(args);
+      });
 
-                  throw new Error('No wallet connected');
+      function executeTx(_x) {
+        return _executeTx.apply(this, arguments);
+      }
 
-                case 6:
-                  chainId = Number(params.desiredChainID);
-                  _context.next = 9;
-                  return body();
+      return executeTx;
+    }(),
+    addTXToPool: (transaction, walletType) => {
+      var localTimestamp = new Date().getTime();
 
-                case 9:
-                  tx = _context.sent;
-                  args = {
-                    tx: tx,
-                    payload: params.payload,
-                    activeWallet: activeWallet,
-                    chainId: chainId,
-                    type: params.type
-                  };
-                  return _context.abrupt("return", isGelatoTx(tx) // in case of gnosis safe it works in a same way
-                  ? get().gelatoAdapter.executeTx(args) : get().ethereumAdapter.executeTx(args));
-
-                case 12:
-                case "end":
-                  return _context.stop();
-              }
-            }
-          }, _callee);
+      if (isGelatoBaseTxWithoutTimestamp(transaction)) {
+        set(state => immer.produce(state, draft => {
+          draft.transactionsPool[transaction.taskId] = _extends({}, transaction, {
+            pending: true,
+            walletType,
+            localTimestamp
+          });
         }));
-
-        function executeTx(_x) {
-          return _executeTx.apply(this, arguments);
-        }
-
-        return executeTx;
-      }(),
-      addTXToPool: function addTXToPool(transaction, walletType) {
-        var localTimestamp = new Date().getTime();
-
-        if (isGelatoBaseTxWithoutTimestamp(transaction)) {
-          set(function (state) {
-            return immer.produce(state, function (draft) {
-              draft.transactionsPool[transaction.taskId] = _extends({}, transaction, {
-                pending: true,
-                walletType: walletType,
-                localTimestamp: localTimestamp
-              });
-            });
+        var _txPool = get().transactionsPool;
+        setLocalStorageTxPool(_txPool);
+      } else {
+        set(state => immer.produce(state, draft => {
+          draft.transactionsPool[transaction.hash] = _extends({}, transaction, {
+            pending: true,
+            walletType,
+            localTimestamp
           });
-          var _txPool = get().transactionsPool;
-          setLocalStorageTxPool(_txPool);
-        } else {
-          set(function (state) {
-            return immer.produce(state, function (draft) {
-              draft.transactionsPool[transaction.hash] = _extends({}, transaction, {
-                pending: true,
-                walletType: walletType,
-                localTimestamp: localTimestamp
-              });
-            });
-          });
-        }
+        }));
+      }
 
-        var txPool = get().transactionsPool;
-        setLocalStorageTxPool(txPool);
-        return txPool;
-      },
-      initTxPool: function initTxPool() {
-        var localStorageTXPool = getLocalStorageTxPool();
+      var txPool = get().transactionsPool;
+      setLocalStorageTxPool(txPool);
+      return txPool;
+    },
+    initTxPool: () => {
+      var localStorageTXPool = getLocalStorageTxPool();
 
-        if (localStorageTXPool) {
-          var transactionsPool = JSON.parse(localStorageTXPool); // TODO: figure out type casting from string via ZOD or similar
+      if (localStorageTXPool) {
+        var transactionsPool = JSON.parse(localStorageTXPool); // TODO: figure out type casting from string via ZOD or similar
 
-          set(function () {
-            return {
-              transactionsPool: transactionsPool
-            };
-          });
-        }
+        set(() => ({
+          transactionsPool
+        }));
+      }
 
-        Object.values(get().transactionsPool).forEach(function (tx) {
-          if (tx.pending) {
-            if (isGelatoBaseTx(tx)) {
-              get().gelatoAdapter.startTxTracking(tx.taskId);
-            } else {
-              if (tx.hash) {
-                get().ethereumAdapter.startTxTracking(tx.hash);
-              }
+      Object.values(get().transactionsPool).forEach(tx => {
+        if (tx.pending) {
+          if (isGelatoBaseTx(tx)) {
+            get().gelatoAdapter.startTxTracking(tx.taskId);
+          } else {
+            if (tx.hash) {
+              get().ethereumAdapter.startTxTracking(tx.hash);
             }
           }
-        });
-      },
-      setProvider: function setProvider(chainID, provider) {
-        set(function (state) {
-          return immer.produce(state, function (draft) {
-            draft.providers[chainID] = provider;
-          });
-        });
-      },
-      isGelatoAvailable: true,
-      checkIsGelatoAvailable: function () {
-        var _checkIsGelatoAvailable = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(chainId) {
-          var response, listOfRelays, isRelayAvailable;
-          return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-            while (1) {
-              switch (_context2.prev = _context2.next) {
-                case 0:
-                  _context2.prev = 0;
-                  _context2.next = 3;
-                  return fetch("https://relay.gelato.digital/relays/v2");
-
-                case 3:
-                  response = _context2.sent;
-
-                  if (response.ok) {
-                    _context2.next = 8;
-                    break;
-                  }
-
-                  set({
-                    isGelatoAvailable: false
-                  });
-                  _context2.next = 13;
-                  break;
-
-                case 8:
-                  _context2.next = 10;
-                  return response.json();
-
-                case 10:
-                  listOfRelays = _context2.sent;
-                  isRelayAvailable = !!listOfRelays.relays.find(function (id) {
-                    return +id === chainId;
-                  });
-                  set({
-                    isGelatoAvailable: isRelayAvailable
-                  });
-
-                case 13:
-                  _context2.next = 19;
-                  break;
-
-                case 15:
-                  _context2.prev = 15;
-                  _context2.t0 = _context2["catch"](0);
-                  set({
-                    isGelatoAvailable: false
-                  });
-                  console.error(_context2.t0);
-
-                case 19:
-                case "end":
-                  return _context2.stop();
-              }
-            }
-          }, _callee2, null, [[0, 15]]);
-        }));
-
-        function checkIsGelatoAvailable(_x2) {
-          return _checkIsGelatoAvailable.apply(this, arguments);
         }
+      });
+    },
+    setProvider: (chainID, provider) => {
+      set(state => immer.produce(state, draft => {
+        draft.providers[chainID] = provider;
+      }));
+    },
+    isGelatoAvailable: true,
+    checkIsGelatoAvailable: function () {
+      var _checkIsGelatoAvailable = _asyncToGenerator(function* (chainId) {
+        try {
+          var response = yield fetch("https://relay.gelato.digital/relays/v2");
 
-        return checkIsGelatoAvailable;
-      }(),
-      updateEthAdapter: function updateEthAdapter(gnosis) {
-        set(function (state) {
-          return immer.produce(state, function (draft) {
-            draft.ethereumAdapter = gnosis ? new GnosisAdapter(get, set) : new EthereumAdapter(get, set);
+          if (!response.ok) {
+            set({
+              isGelatoAvailable: false
+            });
+          } else {
+            var listOfRelays = yield response.json();
+            var isRelayAvailable = !!listOfRelays.relays.find(id => +id === chainId);
+            set({
+              isGelatoAvailable: isRelayAvailable
+            });
+          }
+        } catch (e) {
+          set({
+            isGelatoAvailable: false
           });
-        });
+          console.error(e);
+        }
+      });
+
+      function checkIsGelatoAvailable(_x2) {
+        return _checkIsGelatoAvailable.apply(this, arguments);
       }
-    };
-  };
+
+      return checkIsGelatoAvailable;
+    }(),
+    updateEthAdapter: gnosis => {
+      set(state => immer.produce(state, draft => {
+        draft.ethereumAdapter = gnosis ? new GnosisAdapter(get, set) : new EthereumAdapter(get, set);
+      }));
+    }
+  });
 }
 
 function createWalletSlice(_ref) {
-  var walletConnected = _ref.walletConnected,
-      getChainParameters = _ref.getChainParameters;
-  return function (set, get) {
-    return {
-      isContractWalletRecord: {},
-      walletActivating: false,
-      walletConnectionError: '',
-      connectors: [],
-      setConnectors: function () {
-        var _setConnectors = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(connectors) {
-          return _regeneratorRuntime().wrap(function _callee$(_context) {
-            while (1) {
-              switch (_context.prev = _context.next) {
-                case 0:
-                  if (!(get().connectors.length !== connectors.length)) {
-                    _context.next = 5;
-                    break;
-                  }
-
-                  set(function () {
-                    return {
-                      connectors: connectors
-                    };
-                  });
-                  _context.next = 4;
-                  return get().initDefaultWallet();
-
-                case 4:
-                  get().initTxPool();
-
-                case 5:
-                case "end":
-                  return _context.stop();
-              }
-            }
-          }, _callee);
-        }));
-
-        function setConnectors(_x) {
-          return _setConnectors.apply(this, arguments);
+  var {
+    walletConnected,
+    getChainParameters
+  } = _ref;
+  return (set, get) => ({
+    isContractWalletRecord: {},
+    walletActivating: false,
+    walletConnectionError: '',
+    connectors: [],
+    setConnectors: function () {
+      var _setConnectors = _asyncToGenerator(function* (connectors) {
+        if (get().connectors.length !== connectors.length) {
+          set(() => ({
+            connectors
+          }));
+          yield get().initDefaultWallet();
+          get().initTxPool();
         }
+      });
 
-        return setConnectors;
-      }(),
-      initDefaultWallet: function () {
-        var _initDefaultWallet = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-          var lastConnectedWallet;
-          return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-            while (1) {
-              switch (_context2.prev = _context2.next) {
-                case 0:
-                  lastConnectedWallet = localStorage.getItem(exports.LocalStorageKeys.LastConnectedWallet);
+      function setConnectors(_x) {
+        return _setConnectors.apply(this, arguments);
+      }
 
-                  if (!lastConnectedWallet) {
-                    _context2.next = 4;
-                    break;
-                  }
+      return setConnectors;
+    }(),
+    initDefaultWallet: function () {
+      var _initDefaultWallet = _asyncToGenerator(function* () {
+        var lastConnectedWallet = localStorage.getItem(exports.LocalStorageKeys.LastConnectedWallet);
 
-                  _context2.next = 4;
-                  return get().connectWallet(lastConnectedWallet);
-
-                case 4:
-                case "end":
-                  return _context2.stop();
-              }
-            }
-          }, _callee2);
-        }));
-
-        function initDefaultWallet() {
-          return _initDefaultWallet.apply(this, arguments);
+        if (lastConnectedWallet) {
+          yield get().connectWallet(lastConnectedWallet);
         }
+      });
 
-        return initDefaultWallet;
-      }(),
-      connectWallet: function () {
-        var _connectWallet = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(walletType, txChainID) {
-          var _get$activeWallet;
+      function initDefaultWallet() {
+        return _initDefaultWallet.apply(this, arguments);
+      }
 
-          var chainID, activeWallet, impersonatedAddress, connector, errorMessage;
-          return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-            while (1) {
-              switch (_context3.prev = _context3.next) {
-                case 0:
-                  chainID = txChainID;
-                  activeWallet = get().activeWallet;
+      return initDefaultWallet;
+    }(),
+    connectWallet: function () {
+      var _connectWallet = _asyncToGenerator(function* (walletType, txChainID) {
+        var _get$activeWallet;
 
-                  if (typeof txChainID === 'undefined' && activeWallet && activeWallet.chainId) {
-                    if (activeWallet.chainId !== chainID) {
-                      chainID = activeWallet.chainId;
-                    }
-                  }
-
-                  if (!(((_get$activeWallet = get().activeWallet) == null ? void 0 : _get$activeWallet.walletType) !== walletType)) {
-                    _context3.next = 6;
-                    break;
-                  }
-
-                  _context3.next = 6;
-                  return get().disconnectActiveWallet();
-
-                case 6:
-                  impersonatedAddress = get()._impersonatedAddress;
-                  set({
-                    walletActivating: true
-                  });
-                  set({
-                    walletConnectionError: ''
-                  });
-                  connector = get().connectors.find(function (connector) {
-                    return getConnectorName(connector) === walletType;
-                  });
-                  _context3.prev = 10;
-
-                  if (!connector) {
-                    _context3.next = 30;
-                    break;
-                  }
-
-                  _context3.t0 = walletType;
-                  _context3.next = _context3.t0 === 'Impersonated' ? 15 : _context3.t0 === 'Coinbase' ? 19 : _context3.t0 === 'Metamask' ? 19 : _context3.t0 === 'WalletConnect' ? 22 : _context3.t0 === 'GnosisSafe' ? 25 : 28;
-                  break;
-
-                case 15:
-                  if (!impersonatedAddress) {
-                    _context3.next = 18;
-                    break;
-                  }
-
-                  _context3.next = 18;
-                  return connector.activate({
-                    address: impersonatedAddress,
-                    chainId: chainID
-                  });
-
-                case 18:
-                  return _context3.abrupt("break", 28);
-
-                case 19:
-                  _context3.next = 21;
-                  return connector.activate(typeof chainID !== 'undefined' ? getChainParameters(chainID) : undefined);
-
-                case 21:
-                  return _context3.abrupt("break", 28);
-
-                case 22:
-                  _context3.next = 24;
-                  return connector.activate(chainID);
-
-                case 24:
-                  return _context3.abrupt("break", 28);
-
-                case 25:
-                  _context3.next = 27;
-                  return connector.activate(chainID);
-
-                case 27:
-                  return _context3.abrupt("break", 28);
-
-                case 28:
-                  setLocalStorageWallet(walletType);
-                  get().updateEthAdapter(walletType === 'GnosisSafe');
-
-                case 30:
-                  _context3.next = 36;
-                  break;
-
-                case 32:
-                  _context3.prev = 32;
-                  _context3.t1 = _context3["catch"](10);
-
-                  if (_context3.t1 instanceof Error) {
-                    errorMessage = _context3.t1.message ? _context3.t1.message.toString() : _context3.t1.toString();
-
-                    if (errorMessage === 'MetaMask not installed') {
-                      errorMessage = 'Browser wallet not installed';
-                    }
-
-                    set({
-                      walletConnectionError: errorMessage
-                    });
-                  }
-
-                  console.error(_context3.t1);
-
-                case 36:
-                  set({
-                    walletActivating: false
-                  });
-
-                case 37:
-                case "end":
-                  return _context3.stop();
-              }
-            }
-          }, _callee3, null, [[10, 32]]);
-        }));
-
-        function connectWallet(_x2, _x3) {
-          return _connectWallet.apply(this, arguments);
-        }
-
-        return connectWallet;
-      }(),
-      checkAndSwitchNetwork: function () {
-        var _checkAndSwitchNetwork = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(chainID) {
-          var activeWallet;
-          return _regeneratorRuntime().wrap(function _callee4$(_context4) {
-            while (1) {
-              switch (_context4.prev = _context4.next) {
-                case 0:
-                  activeWallet = get().activeWallet;
-
-                  if (!activeWallet) {
-                    _context4.next = 4;
-                    break;
-                  }
-
-                  _context4.next = 4;
-                  return get().connectWallet(activeWallet.walletType, chainID);
-
-                case 4:
-                case "end":
-                  return _context4.stop();
-              }
-            }
-          }, _callee4);
-        }));
-
-        function checkAndSwitchNetwork(_x4) {
-          return _checkAndSwitchNetwork.apply(this, arguments);
-        }
-
-        return checkAndSwitchNetwork;
-      }(),
-      disconnectActiveWallet: function () {
-        var _disconnectActiveWallet = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
-          var activeWallet, activeConnector;
-          return _regeneratorRuntime().wrap(function _callee5$(_context5) {
-            while (1) {
-              switch (_context5.prev = _context5.next) {
-                case 0:
-                  activeWallet = get().activeWallet;
-
-                  if (!activeWallet) {
-                    _context5.next = 9;
-                    break;
-                  }
-
-                  activeConnector = get().connectors.find(function (connector) {
-                    return getConnectorName(connector) == activeWallet.walletType;
-                  });
-
-                  if (!(activeConnector != null && activeConnector.deactivate)) {
-                    _context5.next = 6;
-                    break;
-                  }
-
-                  _context5.next = 6;
-                  return activeConnector.deactivate();
-
-                case 6:
-                  _context5.next = 8;
-                  return activeConnector == null ? void 0 : activeConnector.resetState();
-
-                case 8:
-                  set({
-                    activeWallet: undefined
-                  });
-
-                case 9:
-                  deleteLocalStorageWallet();
-                  clearWalletConnectLocalStorage();
-
-                case 11:
-                case "end":
-                  return _context5.stop();
-              }
-            }
-          }, _callee5);
-        }));
-
-        function disconnectActiveWallet() {
-          return _disconnectActiveWallet.apply(this, arguments);
-        }
-
-        return disconnectActiveWallet;
-      }(),
-      checkIsContractWallet: function () {
-        var _checkIsContractWallet = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(wallet) {
-          var account, walletRecord, codeOfWalletAddress, isContractWallet;
-          return _regeneratorRuntime().wrap(function _callee6$(_context6) {
-            while (1) {
-              switch (_context6.prev = _context6.next) {
-                case 0:
-                  account = wallet.accounts[0];
-                  walletRecord = get().isContractWalletRecord[account];
-
-                  if (!(walletRecord !== undefined)) {
-                    _context6.next = 4;
-                    break;
-                  }
-
-                  return _context6.abrupt("return", walletRecord);
-
-                case 4:
-                  _context6.next = 6;
-                  return wallet.provider.getCode(wallet.accounts[0]);
-
-                case 6:
-                  codeOfWalletAddress = _context6.sent;
-                  isContractWallet = codeOfWalletAddress !== '0x';
-                  set(function (state) {
-                    return immer.produce(state, function (draft) {
-                      draft.isContractWalletRecord[account] = isContractWallet;
-                    });
-                  });
-                  return _context6.abrupt("return", isContractWallet);
-
-                case 10:
-                case "end":
-                  return _context6.stop();
-              }
-            }
-          }, _callee6);
-        }));
-
-        function checkIsContractWallet(_x5) {
-          return _checkIsContractWallet.apply(this, arguments);
-        }
-
-        return checkIsContractWallet;
-      }(),
-
-      /**
-       * setActiveWallet is separate from connectWallet for a reason, after metaMask.activate()
-       * only provider is available in the returned type, but we also need accounts and chainID which for some reason
-       * is impossible to pull from .provider() still not the best approach, and I'm looking to find proper way to handle it
-       */
-      setActiveWallet: function () {
-        var _setActiveWallet = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7(wallet) {
-          var providerSigner, isContractAddress, activeWallet;
-          return _regeneratorRuntime().wrap(function _callee7$(_context7) {
-            while (1) {
-              switch (_context7.prev = _context7.next) {
-                case 0:
-                  providerSigner = wallet.walletType === 'Impersonated' ? wallet.provider.getSigner(get()._impersonatedAddress) : wallet.provider.getSigner(0);
-
-                  if (wallet.chainId !== undefined) {
-                    get().setProvider(wallet.chainId, wallet.provider);
-                  }
-
-                  _context7.next = 4;
-                  return get().checkIsContractWallet(wallet);
-
-                case 4:
-                  isContractAddress = _context7.sent;
-                  set({
-                    activeWallet: _extends({}, wallet, {
-                      isContractAddress: isContractAddress,
-                      signer: providerSigner
-                    })
-                  });
-                  activeWallet = get().activeWallet;
-
-                  if (activeWallet) {
-                    walletConnected(activeWallet);
-                  }
-
-                case 8:
-                case "end":
-                  return _context7.stop();
-              }
-            }
-          }, _callee7);
-        }));
-
-        function setActiveWallet(_x6) {
-          return _setActiveWallet.apply(this, arguments);
-        }
-
-        return setActiveWallet;
-      }(),
-      changeActiveWalletChainId: function changeActiveWalletChainId(chainId) {
-        if (chainId !== undefined) {
-          set(function (state) {
-            return immer.produce(state, function (draft) {
-              if (draft.activeWallet) {
-                draft.activeWallet.chainId = chainId;
-              }
-            });
-          });
-        }
-      },
-      getActiveAddress: function getActiveAddress() {
+        var chainID = txChainID;
         var activeWallet = get().activeWallet;
 
-        if (activeWallet && activeWallet.accounts) {
-          return activeWallet.accounts[0];
+        if (typeof txChainID === 'undefined' && activeWallet && activeWallet.chainId) {
+          if (activeWallet.chainId !== chainID) {
+            chainID = activeWallet.chainId;
+          }
         }
 
-        return undefined;
-      },
-      setImpersonatedAddress: function setImpersonatedAddress(address) {
+        if (((_get$activeWallet = get().activeWallet) == null ? void 0 : _get$activeWallet.walletType) !== walletType) {
+          yield get().disconnectActiveWallet();
+        }
+
+        var impersonatedAddress = get()._impersonatedAddress;
+
         set({
-          _impersonatedAddress: address
+          walletActivating: true
         });
-      },
-      resetWalletConnectionError: function resetWalletConnectionError() {
         set({
           walletConnectionError: ''
         });
+        var connector = get().connectors.find(connector => getConnectorName(connector) === walletType);
+
+        try {
+          if (connector) {
+            switch (walletType) {
+              case 'Impersonated':
+                if (impersonatedAddress) {
+                  yield connector.activate({
+                    address: impersonatedAddress,
+                    chainId: chainID
+                  });
+                }
+
+                break;
+
+              case 'Coinbase':
+              case 'Metamask':
+                yield connector.activate(typeof chainID !== 'undefined' ? getChainParameters(chainID) : undefined);
+                break;
+
+              case 'WalletConnect':
+                yield connector.activate(chainID);
+                break;
+
+              case 'GnosisSafe':
+                yield connector.activate(chainID);
+                break;
+            }
+
+            setLocalStorageWallet(walletType);
+            get().updateEthAdapter(walletType === 'GnosisSafe');
+          }
+        } catch (e) {
+          if (e instanceof Error) {
+            var errorMessage = e.message ? e.message.toString() : e.toString();
+
+            if (errorMessage === 'MetaMask not installed') {
+              errorMessage = 'Browser wallet not installed';
+            }
+
+            set({
+              walletConnectionError: errorMessage
+            });
+          }
+
+          console.error(e);
+        }
+
+        set({
+          walletActivating: false
+        });
+      });
+
+      function connectWallet(_x2, _x3) {
+        return _connectWallet.apply(this, arguments);
       }
-    };
-  };
+
+      return connectWallet;
+    }(),
+    checkAndSwitchNetwork: function () {
+      var _checkAndSwitchNetwork = _asyncToGenerator(function* (chainID) {
+        var activeWallet = get().activeWallet;
+
+        if (activeWallet) {
+          yield get().connectWallet(activeWallet.walletType, chainID);
+        }
+      });
+
+      function checkAndSwitchNetwork(_x4) {
+        return _checkAndSwitchNetwork.apply(this, arguments);
+      }
+
+      return checkAndSwitchNetwork;
+    }(),
+    disconnectActiveWallet: function () {
+      var _disconnectActiveWallet = _asyncToGenerator(function* () {
+        var activeWallet = get().activeWallet;
+
+        if (activeWallet) {
+          var activeConnector = get().connectors.find(connector => getConnectorName(connector) == activeWallet.walletType);
+
+          if (activeConnector != null && activeConnector.deactivate) {
+            yield activeConnector.deactivate();
+          }
+
+          yield activeConnector == null ? void 0 : activeConnector.resetState();
+          set({
+            activeWallet: undefined
+          });
+        }
+
+        deleteLocalStorageWallet();
+        clearWalletConnectLocalStorage();
+      });
+
+      function disconnectActiveWallet() {
+        return _disconnectActiveWallet.apply(this, arguments);
+      }
+
+      return disconnectActiveWallet;
+    }(),
+    checkIsContractWallet: function () {
+      var _checkIsContractWallet = _asyncToGenerator(function* (wallet) {
+        var account = wallet.accounts[0];
+        var walletRecord = get().isContractWalletRecord[account];
+
+        if (walletRecord !== undefined) {
+          return walletRecord;
+        }
+
+        var codeOfWalletAddress = yield wallet.provider.getCode(wallet.accounts[0]);
+        var isContractWallet = codeOfWalletAddress !== '0x';
+        set(state => immer.produce(state, draft => {
+          draft.isContractWalletRecord[account] = isContractWallet;
+        }));
+        return isContractWallet;
+      });
+
+      function checkIsContractWallet(_x5) {
+        return _checkIsContractWallet.apply(this, arguments);
+      }
+
+      return checkIsContractWallet;
+    }(),
+
+    /**
+     * setActiveWallet is separate from connectWallet for a reason, after metaMask.activate()
+     * only provider is available in the returned type, but we also need accounts and chainID which for some reason
+     * is impossible to pull from .provider() still not the best approach, and I'm looking to find proper way to handle it
+     */
+    setActiveWallet: function () {
+      var _setActiveWallet = _asyncToGenerator(function* (wallet) {
+        var providerSigner = wallet.walletType === 'Impersonated' ? wallet.provider.getSigner(get()._impersonatedAddress) : wallet.provider.getSigner(0);
+
+        if (wallet.chainId !== undefined) {
+          get().setProvider(wallet.chainId, wallet.provider);
+        }
+
+        var isContractAddress = yield get().checkIsContractWallet(wallet);
+        set({
+          activeWallet: _extends({}, wallet, {
+            isContractAddress: isContractAddress,
+            signer: providerSigner
+          })
+        });
+        var activeWallet = get().activeWallet;
+
+        if (activeWallet) {
+          walletConnected(activeWallet);
+        }
+      });
+
+      function setActiveWallet(_x6) {
+        return _setActiveWallet.apply(this, arguments);
+      }
+
+      return setActiveWallet;
+    }(),
+    changeActiveWalletChainId: chainId => {
+      if (chainId !== undefined) {
+        set(state => immer.produce(state, draft => {
+          if (draft.activeWallet) {
+            draft.activeWallet.chainId = chainId;
+          }
+        }));
+      }
+    },
+    getActiveAddress: () => {
+      var activeWallet = get().activeWallet;
+
+      if (activeWallet && activeWallet.accounts) {
+        return activeWallet.accounts[0];
+      }
+
+      return undefined;
+    },
+    setImpersonatedAddress: address => {
+      set({
+        _impersonatedAddress: address
+      });
+    },
+    resetWalletConnectionError: () => {
+      set({
+        walletConnectionError: ''
+      });
+    }
+  });
 }
 
 exports.AVAX = AVAX;
