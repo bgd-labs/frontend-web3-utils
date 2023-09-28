@@ -26,6 +26,7 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
 }: LastTxStatusesParams<T>) => {
   const tx = selectLastTxByTypeAndPayload(state, activeAddress, type, payload);
 
+  const [fullTxErrorMessage, setFullTxErrorMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isTxStart, setIsTxStart] = useState(false);
@@ -39,6 +40,13 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
   const txSuccess = tx && tx.status === 1 && !isError;
   const txChainId = tx && tx.chainId;
   const txWalletType = tx && tx.walletType;
+
+  useEffect(() => {
+    return () => {
+      setFullTxErrorMessage('');
+      setError('');
+    };
+  }, []);
 
   useEffect(() => {
     if (txPending || isError) {
@@ -60,8 +68,9 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
     setLoading(true);
     try {
       await callbackFunction();
-    } catch (e) {
+    } catch (e: any) {
       console.error('TX error: ', e);
+      setFullTxErrorMessage(!!e?.message ? e.message : e);
       setError(errorMessage);
     }
     setLoading(false);
@@ -81,5 +90,7 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
     txWalletType,
     isError,
     executeTxWithLocalStatuses,
+    fullTxErrorMessage,
+    setFullTxErrorMessage,
   };
 };
