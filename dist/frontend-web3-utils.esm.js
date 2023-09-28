@@ -1,23 +1,16 @@
-'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
-
-var React = require('react');
-var React__default = _interopDefault(React);
-var immer = require('immer');
-var isEqual = _interopDefault(require('lodash/isEqual'));
-var logger = require('@ethersproject/logger');
-var properties = require('@ethersproject/properties');
-var ethers = require('ethers');
-var types = require('@web3-react/types');
-var coinbaseWallet = require('@web3-react/coinbase-wallet');
-var core$1 = require('@web3-react/core');
-var gnosisSafe = require('@web3-react/gnosis-safe');
-var metamask$1 = require('@web3-react/metamask');
-var walletconnectV2 = require('@web3-react/walletconnect-v2');
-var dayjs = _interopDefault(require('dayjs'));
+import React, { useState, useEffect } from 'react';
+import { produce } from 'immer';
+import isEqual from 'lodash-es/isEqual';
+import { Logger } from '@ethersproject/logger';
+import { defineReadOnly } from '@ethersproject/properties';
+import { providers, logger } from 'ethers';
+import { Connector } from '@web3-react/types';
+import { CoinbaseWallet } from '@web3-react/coinbase-wallet';
+import { initializeConnector, Web3ReactProvider, useWeb3React } from '@web3-react/core';
+import { GnosisSafe } from '@web3-react/gnosis-safe';
+import { MetaMask } from '@web3-react/metamask';
+import { WalletConnect } from '@web3-react/walletconnect-v2';
+import dayjs from 'dayjs';
 
 function _regeneratorRuntime() {
   /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
@@ -432,23 +425,25 @@ function _setPrototypeOf(o, p) {
   return _setPrototypeOf(o, p);
 }
 
+var LocalStorageKeys;
+
 (function (LocalStorageKeys) {
   LocalStorageKeys["LastConnectedWallet"] = "LastConnectedWallet";
   LocalStorageKeys["TransactionPool"] = "TransactionPool";
-})(exports.LocalStorageKeys || (exports.LocalStorageKeys = {}));
+})(LocalStorageKeys || (LocalStorageKeys = {}));
 
 var setLocalStorageTxPool = function setLocalStorageTxPool(pool) {
   var stringifiedPool = JSON.stringify(pool);
-  localStorage.setItem(exports.LocalStorageKeys.TransactionPool, stringifiedPool);
+  localStorage.setItem(LocalStorageKeys.TransactionPool, stringifiedPool);
 };
 var getLocalStorageTxPool = function getLocalStorageTxPool() {
-  return localStorage.getItem(exports.LocalStorageKeys.TransactionPool);
+  return localStorage.getItem(LocalStorageKeys.TransactionPool);
 };
 var setLocalStorageWallet = function setLocalStorageWallet(walletType) {
-  localStorage.setItem(exports.LocalStorageKeys.LastConnectedWallet, walletType);
+  localStorage.setItem(LocalStorageKeys.LastConnectedWallet, walletType);
 };
 var deleteLocalStorageWallet = function deleteLocalStorageWallet() {
-  localStorage.removeItem(exports.LocalStorageKeys.LastConnectedWallet);
+  localStorage.removeItem(LocalStorageKeys.LastConnectedWallet);
 };
 var clearWalletConnectLocalStorage = function clearWalletConnectLocalStorage() {
   localStorage.removeItem('walletconnect');
@@ -693,7 +688,7 @@ var GelatoAdapter = function GelatoAdapter(get, set) {
 
   this.updateGelatoTX = function (taskId, statusResponse) {
     _this.set(function (state) {
-      return immer.produce(state, function (draft) {
+      return produce(state, function (draft) {
         var tx = draft.transactionsPool[taskId];
         tx.gelatoStatus = statusResponse.task.taskState;
         tx.pending = selectIsGelatoTXPending(statusResponse.task.taskState);
@@ -724,17 +719,21 @@ var useLastTxLocalStatus = function useLastTxLocalStatus(_ref) {
       payload = _ref.payload;
   var tx = selectLastTxByTypeAndPayload(state, activeAddress, type, payload);
 
-  var _useState = React.useState(''),
-      error = _useState[0],
-      setError = _useState[1];
+  var _useState = useState(''),
+      fullTxErrorMessage = _useState[0],
+      setFullTxErrorMessage = _useState[1];
 
-  var _useState2 = React.useState(false),
-      loading = _useState2[0],
-      setLoading = _useState2[1];
+  var _useState2 = useState(''),
+      error = _useState2[0],
+      setError = _useState2[1];
 
-  var _useState3 = React.useState(false),
-      isTxStart = _useState3[0],
-      setIsTxStart = _useState3[1];
+  var _useState3 = useState(false),
+      loading = _useState3[0],
+      setLoading = _useState3[1];
+
+  var _useState4 = useState(false),
+      isTxStart = _useState4[0],
+      setIsTxStart = _useState4[1];
 
   var txHash = tx && tx.hash;
   var txPending = tx && tx.pending;
@@ -742,12 +741,18 @@ var useLastTxLocalStatus = function useLastTxLocalStatus(_ref) {
   var txSuccess = tx && tx.status === 1 && !isError;
   var txChainId = tx && tx.chainId;
   var txWalletType = tx && tx.walletType;
-  React.useEffect(function () {
+  useEffect(function () {
+    return function () {
+      setFullTxErrorMessage('');
+      setError('');
+    };
+  }, []);
+  useEffect(function () {
     if (txPending || isError) {
       setIsTxStart(true);
     }
   }, [txPending, isError]);
-  React.useEffect(function () {
+  useEffect(function () {
     if (tx != null && tx.errorMessage) {
       setError(tx.errorMessage);
     }
@@ -759,7 +764,8 @@ var useLastTxLocalStatus = function useLastTxLocalStatus(_ref) {
 
   function _executeTxWithLocalStatuses() {
     _executeTxWithLocalStatuses = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(_ref2) {
-      var errorMessage, callbackFunction;
+      var errorMessage, callbackFunction, _error;
+
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
@@ -772,19 +778,21 @@ var useLastTxLocalStatus = function useLastTxLocalStatus(_ref) {
               return callbackFunction();
 
             case 6:
-              _context.next = 12;
+              _context.next = 14;
               break;
 
             case 8:
               _context.prev = 8;
               _context.t0 = _context["catch"](3);
-              console.error('TX error: ', _context.t0);
+              _error = _context.t0;
+              console.error('TX error: ', _error);
+              setFullTxErrorMessage(!!(_error != null && _error.message) ? _error.message : _error);
               setError(errorMessage);
 
-            case 12:
+            case 14:
               setLoading(false);
 
-            case 13:
+            case 15:
             case "end":
               return _context.stop();
           }
@@ -807,7 +815,9 @@ var useLastTxLocalStatus = function useLastTxLocalStatus(_ref) {
     txChainId: txChainId,
     txWalletType: txWalletType,
     isError: isError,
-    executeTxWithLocalStatuses: executeTxWithLocalStatuses
+    executeTxWithLocalStatuses: executeTxWithLocalStatuses,
+    fullTxErrorMessage: fullTxErrorMessage,
+    setFullTxErrorMessage: setFullTxErrorMessage
   };
 };
 
@@ -841,13 +851,13 @@ var StaticJsonRpcBatchProvider = /*#__PURE__*/function (_providers$JsonRpcBat) {
               network = _context.sent;
 
               if (!network) {
-                ethers.logger.throwError('no network detected', logger.Logger.errors.UNKNOWN_ERROR, {});
+                logger.throwError('no network detected', Logger.errors.UNKNOWN_ERROR, {});
               } // If still not set, set it
 
 
               if (this._network == null) {
                 // A static network does not support "any"
-                properties.defineReadOnly(this, '_network', network);
+                defineReadOnly(this, '_network', network);
                 this.emit('network', network, null);
               }
 
@@ -870,7 +880,7 @@ var StaticJsonRpcBatchProvider = /*#__PURE__*/function (_providers$JsonRpcBat) {
   }();
 
   return StaticJsonRpcBatchProvider;
-}(ethers.providers.JsonRpcBatchProvider);
+}(providers.JsonRpcBatchProvider);
 
 var ETH = {
   name: 'Ether',
@@ -1416,7 +1426,7 @@ var ImpersonatedProvider = /*#__PURE__*/function (_providers$JsonRpcPro) {
     var _this;
 
     _this = _providers$JsonRpcPro.call(this, url) || this;
-    _this.copyProvider = new ethers.providers.JsonRpcProvider(url);
+    _this.copyProvider = new providers.JsonRpcProvider(url);
     return _this;
   }
 
@@ -1427,7 +1437,7 @@ var ImpersonatedProvider = /*#__PURE__*/function (_providers$JsonRpcPro) {
   };
 
   return ImpersonatedProvider;
-}(ethers.providers.JsonRpcProvider);
+}(providers.JsonRpcProvider);
 var ImpersonatedConnector = /*#__PURE__*/function (_Connector) {
   _inheritsLoose(ImpersonatedConnector, _Connector);
 
@@ -1454,21 +1464,21 @@ var ImpersonatedConnector = /*#__PURE__*/function (_Connector) {
   };
 
   return ImpersonatedConnector;
-}(types.Connector);
+}(Connector);
 
 var initAllConnectors = function initAllConnectors(props) {
   var projectId = props.wcProjectId;
   var chainIds = Object.keys(props.chains).map(Number);
-  var metaMask = core$1.initializeConnector(function (actions) {
-    return new metamask$1.MetaMask({
+  var metaMask = initializeConnector(function (actions) {
+    return new MetaMask({
       actions: actions
     });
   });
   var walletConnect = null;
 
   if (projectId) {
-    walletConnect = core$1.initializeConnector(function (actions) {
-      return new walletconnectV2.WalletConnect({
+    walletConnect = initializeConnector(function (actions) {
+      return new WalletConnect({
         actions: actions,
         options: {
           projectId: projectId,
@@ -1482,8 +1492,8 @@ var initAllConnectors = function initAllConnectors(props) {
     });
   }
 
-  var coinbase = core$1.initializeConnector(function (actions) {
-    return new coinbaseWallet.CoinbaseWallet({
+  var coinbase = initializeConnector(function (actions) {
+    return new CoinbaseWallet({
       actions: actions,
       options: {
         url: props.chains[props.defaultChainId || chainIds[0]].urls[0],
@@ -1491,18 +1501,18 @@ var initAllConnectors = function initAllConnectors(props) {
       }
     });
   });
-  var gnosisSafe$1 = core$1.initializeConnector(function (actions) {
-    return new gnosisSafe.GnosisSafe({
+  var gnosisSafe = initializeConnector(function (actions) {
+    return new GnosisSafe({
       actions: actions
     });
   });
-  var impersonatedConnector = core$1.initializeConnector(function (actions) {
+  var impersonatedConnector = initializeConnector(function (actions) {
     return new ImpersonatedConnector(actions, {
       urls: props.urls,
       chainId: props.defaultChainId || chainIds[0]
     });
   });
-  var connectors = [metaMask, coinbase, gnosisSafe$1, impersonatedConnector];
+  var connectors = [metaMask, coinbase, gnosisSafe, impersonatedConnector];
 
   if (walletConnect !== null) {
     connectors.push(walletConnect);
@@ -1511,10 +1521,10 @@ var initAllConnectors = function initAllConnectors(props) {
   return connectors;
 };
 function getConnectorName(connector) {
-  if (connector instanceof metamask$1.MetaMask) return 'Metamask';
-  if (connector instanceof walletconnectV2.WalletConnect) return 'WalletConnect';
-  if (connector instanceof coinbaseWallet.CoinbaseWallet) return 'Coinbase';
-  if (connector instanceof gnosisSafe.GnosisSafe) return 'GnosisSafe';
+  if (connector instanceof MetaMask) return 'Metamask';
+  if (connector instanceof WalletConnect) return 'WalletConnect';
+  if (connector instanceof CoinbaseWallet) return 'Coinbase';
+  if (connector instanceof GnosisSafe) return 'GnosisSafe';
   if (connector instanceof ImpersonatedConnector) return 'Impersonated';
   return;
 }
@@ -1523,7 +1533,7 @@ function Child(_ref) {
   var useStore = _ref.useStore,
       connectors = _ref.connectors;
 
-  var _useWeb3React = core$1.useWeb3React(),
+  var _useWeb3React = useWeb3React(),
       connector = _useWeb3React.connector,
       chainId = _useWeb3React.chainId,
       isActive = _useWeb3React.isActive,
@@ -1540,16 +1550,16 @@ function Child(_ref) {
     return state.disconnectActiveWallet;
   });
 
-  var _useState = React.useState(''),
+  var _useState = useState(''),
       currentWalletType = _useState[0],
       setCurrentWalletType = _useState[1];
 
-  React.useEffect(function () {
+  useEffect(function () {
     if (connectors) {
       setConnectors(connectors);
     }
   }, [connectors]);
-  React.useEffect(function () {
+  useEffect(function () {
     var walletType = connector && getConnectorName(connector);
 
     if (walletType && accounts && isActive && provider) {
@@ -1574,17 +1584,17 @@ function Web3Provider(_ref2) {
   var useStore = _ref2.useStore,
       connectorsInitProps = _ref2.connectorsInitProps;
 
-  var _useState2 = React.useState(initAllConnectors(connectorsInitProps)),
+  var _useState2 = useState(initAllConnectors(connectorsInitProps)),
       connectors = _useState2[0];
 
-  var _useState3 = React.useState(connectors.map(function (connector) {
+  var _useState3 = useState(connectors.map(function (connector) {
     return connector[0];
   })),
       mappedConnectors = _useState3[0];
 
-  return React__default.createElement(core$1.Web3ReactProvider, {
+  return React.createElement(Web3ReactProvider, {
     connectors: connectors
-  }, React__default.createElement(Child, {
+  }, React.createElement(Child, {
     useStore: useStore,
     connectors: mappedConnectors
   }));
@@ -1761,7 +1771,7 @@ var EthereumAdapter = function EthereumAdapter(get, set) {
 
   this.updateTXStatus = function (hash, status) {
     _this.set(function (state) {
-      return immer.produce(state, function (draft) {
+      return produce(state, function (draft) {
         draft.transactionsPool[hash].status = status;
         draft.transactionsPool[hash].pending = false;
       });
@@ -1934,7 +1944,7 @@ var GnosisAdapter = function GnosisAdapter(get, set) {
 
   this.updateGnosisTxStatus = function (txKey, statusResponse, forceStopped) {
     _this.set(function (state) {
-      return immer.produce(state, function (draft) {
+      return produce(state, function (draft) {
         var tx = draft.transactionsPool[txKey];
         tx.status = forceStopped ? 0 : +!!statusResponse.isSuccessful; // turns boolean | null to 0 or 1
 
@@ -2018,7 +2028,7 @@ function createTransactionsSlice(_ref) {
 
         if (isGelatoBaseTxWithoutTimestamp(transaction)) {
           set(function (state) {
-            return immer.produce(state, function (draft) {
+            return produce(state, function (draft) {
               draft.transactionsPool[transaction.taskId] = _extends({}, transaction, {
                 pending: true,
                 walletType: walletType,
@@ -2030,7 +2040,7 @@ function createTransactionsSlice(_ref) {
           setLocalStorageTxPool(_txPool);
         } else {
           set(function (state) {
-            return immer.produce(state, function (draft) {
+            return produce(state, function (draft) {
               draft.transactionsPool[transaction.hash] = _extends({}, transaction, {
                 pending: true,
                 walletType: walletType,
@@ -2071,7 +2081,7 @@ function createTransactionsSlice(_ref) {
       },
       setProvider: function setProvider(chainID, provider) {
         set(function (state) {
-          return immer.produce(state, function (draft) {
+          return produce(state, function (draft) {
             draft.providers[chainID] = provider;
           });
         });
@@ -2143,7 +2153,7 @@ function createTransactionsSlice(_ref) {
       }(),
       updateEthAdapter: function updateEthAdapter(gnosis) {
         set(function (state) {
-          return immer.produce(state, function (draft) {
+          return produce(state, function (draft) {
             draft.ethereumAdapter = gnosis ? new GnosisAdapter(get, set) : new EthereumAdapter(get, set);
           });
         });
@@ -2204,7 +2214,7 @@ function createWalletSlice(_ref) {
             while (1) {
               switch (_context2.prev = _context2.next) {
                 case 0:
-                  lastConnectedWallet = localStorage.getItem(exports.LocalStorageKeys.LastConnectedWallet);
+                  lastConnectedWallet = localStorage.getItem(LocalStorageKeys.LastConnectedWallet);
 
                   if (!lastConnectedWallet) {
                     _context2.next = 4;
@@ -2466,7 +2476,7 @@ function createWalletSlice(_ref) {
                   codeOfWalletAddress = _context6.sent;
                   isContractWallet = codeOfWalletAddress !== '0x';
                   set(function (state) {
-                    return immer.produce(state, function (draft) {
+                    return produce(state, function (draft) {
                       draft.isContractWalletRecord[account] = isContractWallet;
                     });
                   });
@@ -2539,7 +2549,7 @@ function createWalletSlice(_ref) {
       changeActiveWalletChainId: function changeActiveWalletChainId(chainId) {
         if (chainId !== undefined) {
           set(function (state) {
-            return immer.produce(state, function (draft) {
+            return produce(state, function (draft) {
               if (draft.activeWallet) {
                 draft.activeWallet.chainId = chainId;
               }
@@ -2570,34 +2580,5 @@ function createWalletSlice(_ref) {
   };
 }
 
-exports.AVAX = AVAX;
-exports.ETH = ETH;
-exports.ImpersonatedConnector = ImpersonatedConnector;
-exports.ImpersonatedProvider = ImpersonatedProvider;
-exports.MATIC = MATIC;
-exports.SafeTransactionServiceUrls = SafeTransactionServiceUrls;
-exports.StaticJsonRpcBatchProvider = StaticJsonRpcBatchProvider;
-exports.Web3Provider = Web3Provider;
-exports.clearWalletConnectLocalStorage = clearWalletConnectLocalStorage;
-exports.createTransactionsSlice = createTransactionsSlice;
-exports.createWalletSlice = createWalletSlice;
-exports.deleteLocalStorageWallet = deleteLocalStorageWallet;
-exports.getBrowserWalletLabelAndIcon = getBrowserWalletLabelAndIcon;
-exports.getConnectorName = getConnectorName;
-exports.getLocalStorageTxPool = getLocalStorageTxPool;
-exports.initAllConnectors = initAllConnectors;
-exports.initChainInformationConfig = initChainInformationConfig;
-exports.initialChains = initialChains;
-exports.selectAllTransactions = selectAllTransactions;
-exports.selectAllTransactionsByWallet = selectAllTransactionsByWallet;
-exports.selectIsGelatoTXPending = selectIsGelatoTXPending;
-exports.selectLastTxByTypeAndPayload = selectLastTxByTypeAndPayload;
-exports.selectPendingTransactionByWallet = selectPendingTransactionByWallet;
-exports.selectPendingTransactions = selectPendingTransactions;
-exports.selectTXByHash = selectTXByHash;
-exports.selectTXByKey = selectTXByKey;
-exports.selectTxExplorerLink = selectTxExplorerLink;
-exports.setLocalStorageTxPool = setLocalStorageTxPool;
-exports.setLocalStorageWallet = setLocalStorageWallet;
-exports.useLastTxLocalStatus = useLastTxLocalStatus;
-//# sourceMappingURL=bgd-fe-utils.cjs.development.js.map
+export { AVAX, ETH, ImpersonatedConnector, ImpersonatedProvider, LocalStorageKeys, MATIC, SafeTransactionServiceUrls, StaticJsonRpcBatchProvider, Web3Provider, clearWalletConnectLocalStorage, createTransactionsSlice, createWalletSlice, deleteLocalStorageWallet, getBrowserWalletLabelAndIcon, getConnectorName, getLocalStorageTxPool, initAllConnectors, initChainInformationConfig, initialChains, selectAllTransactions, selectAllTransactionsByWallet, selectIsGelatoTXPending, selectLastTxByTypeAndPayload, selectPendingTransactionByWallet, selectPendingTransactions, selectTXByHash, selectTXByKey, selectTxExplorerLink, setLocalStorageTxPool, setLocalStorageWallet, useLastTxLocalStatus };
+//# sourceMappingURL=frontend-web3-utils.esm.js.map

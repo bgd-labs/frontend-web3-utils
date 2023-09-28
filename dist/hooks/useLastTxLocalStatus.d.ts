@@ -24,5 +24,7 @@ export declare const useLastTxLocalStatus: <T extends BaseTx>({ state, activeAdd
     txWalletType: "Metamask" | "WalletConnect" | "Coinbase" | "GnosisSafe" | "Impersonated" | undefined;
     isError: boolean;
     executeTxWithLocalStatuses: ({ errorMessage, callbackFunction, }: ExecuteTxWithLocalStatusesParams) => Promise<void>;
+    fullTxErrorMessage: string;
+    setFullTxErrorMessage: import("react").Dispatch<import("react").SetStateAction<string>>;
 };
 export {};
