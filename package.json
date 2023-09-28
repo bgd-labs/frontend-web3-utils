@@ -40,11 +40,8 @@
     "analyze": "size-limit --why"
   },
   "peerDependencies": {
-    "dayjs": "latest",
     "ethers": "5.x",
     "immer": ">=10.0.2",
-    "lodash-es": "latest",
-    "lodash": "latest",
     "react": ">=18.2.0",
     "zustand": ">=4.4.1"
   },
