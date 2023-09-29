@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useState } from 'react';
 
 import { isGelatoBaseTx } from '../web3/adapters/GelatoAdapter';
@@ -68,9 +66,10 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
     setLoading(true);
     try {
       await callbackFunction();
-    } catch (e: any) {
-      console.error('TX error: ', e);
-      setFullTxErrorMessage(!!e?.message ? e.message : e);
+    } catch (e) {
+      const error = e as any;
+      console.error('TX error: ', error);
+      setFullTxErrorMessage(!!error?.message ? error.message : error);
       setError(errorMessage);
     }
     setLoading(false);
