@@ -45,7 +45,10 @@ export type GelatoBaseTx = BasicTx & {
   gelatoStatus?: GelatoTXState;
 };
 
-export type ProvidersRecord = Record<number, StaticJsonRpcBatchProvider>;
+export type ProvidersRecord = Record<
+  number,
+  StaticJsonRpcBatchProvider | ethers.providers.JsonRpcProvider
+>;
 
 export type TransactionsSliceBaseType = {
   providers: ProvidersRecord;
