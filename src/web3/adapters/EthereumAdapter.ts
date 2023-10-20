@@ -1,3 +1,5 @@
+// TODO: need fix execute tx
+
 import { produce } from 'immer';
 import { GetTransactionReturnType, Hex, PublicClient } from 'viem';
 
@@ -29,7 +31,6 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
   }): Promise<T & { status?: number; pending: boolean }> => {
     const { activeWallet, chainId, type } = params;
     const tx = params.tx as GetTransactionReturnType;
-    console.log('tx execute', params.tx);
 
     // ethereum tx
     const transaction = {

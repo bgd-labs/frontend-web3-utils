@@ -1,3 +1,5 @@
+// TODO: need add mock connector
+
 import { Chain } from 'viem';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { InjectedConnector } from 'wagmi/connectors/injected';

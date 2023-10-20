@@ -1,6 +1,13 @@
-import { ConnectArgs } from '@wagmi/core';
+import {
+  connect,
+  disconnect,
+  getAccount,
+  getNetwork,
+  getPublicClient,
+  getWalletClient,
+} from '@wagmi/core';
 import { produce } from 'immer';
-import { Chain, PublicClient, WalletClient } from 'viem';
+import { Hex, PublicClient, WalletClient } from 'viem';
 import { mainnet } from 'viem/chains';
 
 import { StoreSlice } from '../../types/store';
@@ -15,7 +22,7 @@ import { TransactionsSliceBaseType } from './transactionsSlice';
 
 export interface Wallet {
   walletType: WalletType;
-  account: string;
+  account: Hex;
   chainId?: number;
   client: PublicClient;
   walletClient: WalletClient;
@@ -29,17 +36,12 @@ export type IWalletSlice = {
   isContractWalletRecord: Record<string, boolean>;
   activeWallet?: Wallet;
   getActiveAddress: () => string | undefined;
-  connectWallet: (
-    connect: (args?: Partial<ConnectArgs> | undefined) => void,
-    walletType: WalletType,
-    chainID?: number,
-  ) => Promise<void>;
+  connectWallet: (walletType: WalletType, chainID?: number) => Promise<void>;
   disconnectActiveWallet: () => Promise<void>;
   walletActivating: boolean;
   walletConnectionError: string;
   resetWalletConnectionError: () => void;
   initDefaultWallet: () => Promise<void>;
-  setActiveWallet: (wallet: Wallet) => Promise<void>;
   changeActiveWalletChainId: (chainId?: number) => void;
   checkAndSwitchNetwork: (chainId?: number) => Promise<void>;
   connectors: ConnectorType[];
@@ -53,10 +55,8 @@ export type IWalletSlice = {
 
 export function createWalletSlice({
   walletConnected,
-  getChainParameters,
 }: {
   walletConnected: (wallet: Wallet) => void; // TODO: why all of them here hardcoded
-  getChainParameters: (chainId: number) => Chain;
 }): StoreSlice<IWalletSlice, TransactionsSliceBaseType> {
   return (set, get) => ({
     isContractWalletRecord: {},
@@ -76,11 +76,11 @@ export function createWalletSlice({
       ) as WalletType | undefined;
 
       if (lastConnectedWallet) {
-        // TODO: need fix
-        // await get().connectWallet(lastConnectedWallet);
+        await get().connectWallet(lastConnectedWallet);
       }
     },
-    connectWallet: async (connect, walletType, txChainID) => {
+
+    connectWallet: async (walletType, txChainID) => {
       let chainID = txChainID;
 
       const activeWallet = get().activeWallet;
@@ -106,30 +106,47 @@ export function createWalletSlice({
       );
       try {
         if (connector) {
-          console.log('connector in store', connector);
-          connect({ connector, chainId: chainID });
-
-          // switch (walletType) {
-          //   case 'Coinbase':
-          //     await connector.connect({ chainId: chainID });
-          //     break;
-          //   case 'Metamask':
-          //     await connector.connect({
-          //       chainId:
-          //         typeof chainID !== 'undefined'
-          //           ? getChainParameters(chainID).id
-          //           : undefined,
-          //     });
-          //     break;
-          //   case 'WalletConnect':
-          //     await connector.connect({ chainId: chainID });
-          //     break;
-          //   case 'GnosisSafe':
-          //     await connector.connect({ chainId: chainID });
-          //     break;
-          // }
+          await connect({ connector, chainId: chainID });
           setLocalStorageWallet(walletType);
           get().updateEthAdapter(walletType === 'GnosisSafe');
+
+          const account = getAccount();
+          const network = getNetwork();
+          if (
+            account &&
+            account.isConnected &&
+            account.address &&
+            network.chain
+          ) {
+            const client = getPublicClient({ chainId: network.chain.id });
+            const walletClient = await getWalletClient({
+              chainId: network.chain.id,
+            });
+
+            if (client && walletClient) {
+              const wallet = {
+                walletType,
+                account: account.address,
+                chainId: network.chain.id,
+                client,
+                walletClient,
+                isActive: account.isConnected,
+                isContractAddress: false,
+              };
+
+              const isContractAddress =
+                await get().checkIsContractWallet(wallet);
+
+              set({
+                activeWallet: {
+                  ...wallet,
+                  isContractAddress: isContractAddress,
+                },
+              });
+
+              walletConnected(wallet);
+            }
+          }
         }
       } catch (e) {
         if (e instanceof Error) {
@@ -166,13 +183,12 @@ export function createWalletSlice({
           (connector) =>
             getConnectorName(connector) === activeWallet.walletType,
         );
-
         if (activeConnector?.disconnect) {
-          await activeConnector.disconnect();
+          await disconnect();
         }
-        // await activeConnector?.resetState(); TODO: need check
         set({ activeWallet: undefined });
       }
+      // TODO: need fix
       deleteLocalStorageWallet();
       clearWalletConnectLocalStorage();
     },
@@ -182,11 +198,9 @@ export function createWalletSlice({
       if (walletRecord !== undefined) {
         return walletRecord;
       }
-      // TODO: need fix
-      // const codeOfWalletAddress = await wallet.walletClient.getCode(
-      //   wallet.accounts[0],
-      // );
-      const codeOfWalletAddress: string = '';
+      const codeOfWalletAddress = await wallet.client.getBytecode({
+        address: wallet.account,
+      });
       const isContractWallet = codeOfWalletAddress !== '0x';
       set((state) =>
         produce(state, (draft) => {
@@ -195,30 +209,7 @@ export function createWalletSlice({
       );
       return isContractWallet;
     },
-    /**
-     * setActiveWallet is separate from connectWallet for a reason, after metaMask.activate()
-     * only provider is available in the returned type, but we also need accounts and chainID which for some reason
-     * is impossible to pull from .provider() still not the best approach, and I'm looking to find proper way to handle it
-     */
-    setActiveWallet: async (wallet) => {
-      if (wallet.chainId !== undefined) {
-        get().setClient(wallet.chainId, wallet.client);
-      }
-      console.log('activeWallet when set', wallet);
-      // TODO: need fix
-      // const isContractAddress = await get().checkIsContractWallet(wallet);
-      set({
-        activeWallet: {
-          ...wallet,
-          // isContractAddress: isContractAddress,
-          isContractAddress: false,
-        },
-      });
-      const activeWallet = get().activeWallet;
-      if (activeWallet) {
-        walletConnected(activeWallet);
-      }
-    },
+
     changeActiveWalletChainId: (chainId) => {
       if (chainId !== undefined) {
         set((state) =>
@@ -230,7 +221,6 @@ export function createWalletSlice({
         );
       }
     },
-
     getActiveAddress: () => {
       const activeWallet = get().activeWallet;
       if (activeWallet && activeWallet.account) {
@@ -238,11 +228,9 @@ export function createWalletSlice({
       }
       return undefined;
     },
-
     setImpersonatedAddress: (address) => {
       set({ _impersonatedAddress: address });
     },
-
     resetWalletConnectionError: () => {
       set({ walletConnectionError: '' });
     },

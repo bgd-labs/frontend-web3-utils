@@ -1,13 +1,10 @@
-import React, { ReactNode, useEffect, useState } from 'react';
 import {
   configureChains,
   createConfig,
-  useAccount,
-  useChainId,
-  usePublicClient,
-  useWalletClient,
-  WagmiConfig,
-} from 'wagmi';
+  GetAccountResult,
+  watchAccount,
+} from '@wagmi/core';
+import React, { useEffect, useState } from 'react';
 import { publicProvider } from 'wagmi/providers/public';
 import { StoreApi, UseBoundStore } from 'zustand';
 
@@ -29,22 +26,21 @@ interface WagmiProviderProps {
     }>
   >;
   connectorsInitProps: AllConnectorsInitProps;
-  children: ReactNode;
 }
 
 function Child({
   useStore,
   connectors,
-  children,
 }: Omit<WagmiProviderProps, 'connectorsInitProps'> & {
   connectors: ConnectorType[];
 }) {
-  const { connector, isConnected, address: account } = useAccount();
-  const chainId = useChainId();
-  const publicClient = usePublicClient();
-  const walletClient = useWalletClient();
+  const [account, setAccount] = useState<GetAccountResult | undefined>(
+    undefined,
+  );
+  watchAccount((data) => {
+    setAccount(data);
+  });
 
-  const setActiveWallet = useStore((state) => state.setActiveWallet);
   const setConnectors = useStore((state) => state.setConnectors);
   const disconnectActiveWallet = useStore(
     (state) => state.disconnectActiveWallet,
@@ -59,44 +55,25 @@ function Child({
   }, [connectors]);
 
   useEffect(() => {
-    const walletType =
-      connector && getConnectorName(connector as ConnectorType);
+    if (account && account.address && account.isConnected) {
+      const walletType =
+        account.connector &&
+        getConnectorName(account.connector as ConnectorType);
 
-    console.log('wallet client', walletClient);
-
-    if (
-      walletType &&
-      account &&
-      isConnected &&
-      publicClient &&
-      walletClient &&
-      walletClient.data
-    ) {
-      console.log('here');
-      setCurrentWalletType(walletType);
-      // TODO: don't forget to change to different
-      setActiveWallet({
-        walletType,
-        account,
-        chainId,
-        client: publicClient,
-        walletClient: walletClient.data,
-        isActive: isConnected,
-        isContractAddress: false,
-      });
-    } else if (currentWalletType !== walletType) {
-      disconnectActiveWallet();
+      if (walletType) {
+        setCurrentWalletType(walletType);
+      } else if (currentWalletType !== walletType) {
+        disconnectActiveWallet();
+      }
     }
-  }, [isConnected, chainId, publicClient, account, walletClient]);
+  }, [account]);
 
-  return children;
+  return null;
 }
 
-// TODO: maybe need fix
 export function WagmiProvider({
   useStore,
   connectorsInitProps,
-  children,
 }: WagmiProviderProps) {
   const [connectors] = useState(initAllConnectors(connectorsInitProps));
   const [mappedConnectors] = useState<ConnectorType[]>(
@@ -108,17 +85,11 @@ export function WagmiProvider({
     [publicProvider()],
   );
 
-  const client = createConfig({
+  createConfig({
     autoConnect: false,
     publicClient,
     connectors,
   });
 
-  return (
-    <WagmiConfig config={client}>
-      <Child useStore={useStore} connectors={mappedConnectors}>
-        {children}
-      </Child>
-    </WagmiConfig>
-  );
+  return <Child useStore={useStore} connectors={mappedConnectors} />;
 }
