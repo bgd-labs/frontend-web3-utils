@@ -1,163 +1,57 @@
-import type { AddEthereumChainParameter } from '@web3-react/types';
-
-import { StaticJsonRpcBatchProvider } from './StaticJsonRpcBatchProvider';
-
-export const ETH: AddEthereumChainParameter['nativeCurrency'] = {
-  name: 'Ether',
-  symbol: 'ETH',
-  decimals: 18,
-};
-
-export const MATIC: AddEthereumChainParameter['nativeCurrency'] = {
-  name: 'Matic',
-  symbol: 'MATIC',
-  decimals: 18,
-};
-
-export const AVAX: AddEthereumChainParameter['nativeCurrency'] = {
-  name: 'Avax',
-  symbol: 'AVAX',
-  decimals: 18,
-};
-
-interface BasicChainInformation {
-  urls: string[];
-  name: string;
-}
-
-interface ExtendedChainInformation extends BasicChainInformation {
-  nativeCurrency: AddEthereumChainParameter['nativeCurrency'];
-  blockExplorerUrls: AddEthereumChainParameter['blockExplorerUrls'];
-}
-
-export type ChainInformation = BasicChainInformation & ExtendedChainInformation;
-
-export const initialChains: {
-  [chainId: number]: ChainInformation;
-} = {
-  1: {
-    urls: ['https://cloudflare-eth.com'],
-    nativeCurrency: ETH,
-    name: 'Ethereum',
-    blockExplorerUrls: ['https://etherscan.io'],
-  },
-  137: {
-    urls: ['https://polygon.llamarpc.com'],
-    nativeCurrency: MATIC,
-    name: 'Polygon',
-    blockExplorerUrls: ['https://polygonscan.com'],
-  },
-  43114: {
-    urls: ['https://rpc.ankr.com/avalanche'],
-    nativeCurrency: AVAX,
-    name: 'Avalanche',
-    blockExplorerUrls: ['https://snowtrace.io'],
-  },
-
-  // testnet chains
-  5: {
-    urls: ['https://ethereum-goerli.publicnode.com'],
-    nativeCurrency: ETH,
-    name: 'Goerli testnet',
-    blockExplorerUrls: ['https://goerli.etherscan.io'],
-  },
-  43113: {
-    urls: ['https://api.avax-test.network/ext/bc/C/rpc'],
-    nativeCurrency: AVAX,
-    name: 'Avalanche fuji',
-    blockExplorerUrls: ['https://testnet.snowtrace.io'],
-  },
-  420: {
-    urls: ['https://goerli.optimism.io'],
-    nativeCurrency: ETH,
-    name: 'Optimism goerli',
-    blockExplorerUrls: ['https://goerli-optimism.etherscan.io/'],
-  },
-  11155111: {
-    urls: ['https://ethereum-sepolia.blockpi.network/v1/rpc/public'],
-    nativeCurrency: ETH,
-    name: 'Sepolia Testnet',
-    blockExplorerUrls: ['https://sepolia.etherscan.io/'],
-  },
-};
-
-function isExtendedChainInformation(
-  chainInformation: BasicChainInformation | ExtendedChainInformation,
-): chainInformation is ExtendedChainInformation {
-  return !!(chainInformation as ExtendedChainInformation)?.nativeCurrency;
-}
+import { Chain, createPublicClient, http, PublicClient } from 'viem';
+import { mainnet } from 'viem/chains';
 
 export const initChainInformationConfig = (chains?: {
-  [chainId: number]: BasicChainInformation | ExtendedChainInformation;
+  [chainId: number]: Chain;
 }) => {
-  const CHAINS = Object.assign(initialChains, chains || {});
+  const CHAINS = chains || {};
 
-  // init urls from chains config
-  const urls = Object.keys(CHAINS).reduce<{
-    [chainId: number]: string[];
-  }>((accumulator, chainId) => {
-    const validURLs: string[] = CHAINS[Number(chainId)].urls;
-
-    if (validURLs.length) {
-      accumulator[Number(chainId)] = validURLs;
-    }
-
-    return accumulator;
-  }, {});
-
-  // init provider instances from chain config
-  const initalizedProviders: Record<number, StaticJsonRpcBatchProvider> = {};
-
-  const providerInstances = Object.keys(CHAINS).reduce<{
+  // init clients instances from chain config
+  const initalizedClients: Record<number, PublicClient> = {};
+  const clientInstances = Object.values(CHAINS).reduce<{
     [chainId: number]: {
-      instance: StaticJsonRpcBatchProvider;
+      instance: PublicClient;
     };
-  }>((accumulator, chainId) => {
-    const numberChainId = Number(chainId);
+  }>((accumulator, chain) => {
+    const numberChainId = Number(chain.id);
     accumulator[numberChainId] = {
       get instance() {
-        if (initalizedProviders[numberChainId]) {
-          return initalizedProviders[numberChainId];
+        if (initalizedClients[numberChainId]) {
+          return initalizedClients[numberChainId];
         } else {
-          // TODO: add fallback provider to utilize all the urls
-          const provider = new StaticJsonRpcBatchProvider(
-            urls[numberChainId][0],
-          );
-          initalizedProviders[numberChainId] = provider;
-          return provider;
+          const client = createPublicClient({
+            batch: {
+              multicall: true,
+            },
+            chain,
+            transport: http(),
+          }) as PublicClient;
+          initalizedClients[numberChainId] = client;
+          return client;
         }
       },
     } as {
-      instance: StaticJsonRpcBatchProvider;
+      instance: PublicClient;
     };
     return accumulator;
   }, {});
 
-  function getChainParameters(chainId: number): AddEthereumChainParameter {
+  function getChainParameters(chainId: number): Chain {
     const chainInformation = CHAINS[chainId];
-    if (isExtendedChainInformation(chainInformation)) {
-      return {
-        chainId,
-        chainName: chainInformation.name,
-        nativeCurrency: chainInformation.nativeCurrency,
-        rpcUrls: chainInformation.urls,
-        blockExplorerUrls: chainInformation.blockExplorerUrls,
-      };
+    if (chainInformation) {
+      return chainInformation;
     } else {
-      // this case can only ever occure when a wallet is connected with a unknown chainId which will not allow interaction
+      // this case can only ever occure when a wallet is connected with an unknown chainId which will not allow interaction
       return {
-        chainId,
-        chainName: `unknown network: ${chainId}`,
-        nativeCurrency: initialChains[1].nativeCurrency,
-        rpcUrls: initialChains[1].urls,
-        blockExplorerUrls: initialChains[1].blockExplorerUrls,
+        ...mainnet,
+        id: chainId,
+        name: `unknown network: ${chainId}`,
       };
     }
   }
 
   return {
-    urls,
-    providerInstances,
+    clientInstances,
     getChainParameters,
   };
 };

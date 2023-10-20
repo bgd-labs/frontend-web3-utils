@@ -1,5 +1,5 @@
-import { AddEthereumChainParameter } from '@web3-react/types';
 import isEqual from 'lodash/isEqual';
+import { Chain } from 'viem';
 
 import { isGelatoBaseTx } from '../adapters/GelatoAdapter';
 import { BaseTx, GelatoBaseTx, ITransactionsState } from './transactionsSlice';
@@ -80,7 +80,7 @@ export const selectLastTxByTypeAndPayload = <T extends BaseTx>(
 
 export const selectTxExplorerLink = <T extends BaseTx>(
   state: ITransactionsState<T>,
-  getChainParameters: (chainId: number) => AddEthereumChainParameter,
+  getChainParameters: (chainId: number) => Chain,
   txHash: string,
 ) => {
   const tx = selectTXByHash(state, txHash);
@@ -94,11 +94,7 @@ export const selectTxExplorerLink = <T extends BaseTx>(
   };
 
   if (tx.walletType !== 'GnosisSafe') {
-    return `${
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      getChainParameters(tx.chainId).blockExplorerUrls[0]
-    }/tx/${txHash}`;
+    return `${getChainParameters(tx.chainId).blockExplorers}/tx/${txHash}`;
   } else {
     return `${gnosisSafeLinksHelper[tx.chainId]}${
       tx.from
@@ -110,9 +106,9 @@ export const selectIsGelatoTXPending = (
   gelatoStatus?: GelatoBaseTx['gelatoStatus'],
 ) => {
   return (
-    gelatoStatus == undefined ||
-    gelatoStatus == 'CheckPending' ||
-    gelatoStatus == 'WaitingForConfirmation' ||
-    gelatoStatus == 'ExecPending'
+    gelatoStatus === undefined ||
+    gelatoStatus === 'CheckPending' ||
+    gelatoStatus === 'WaitingForConfirmation' ||
+    gelatoStatus === 'ExecPending'
   );
 };

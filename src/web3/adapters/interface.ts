@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { GetTransactionReturnType } from 'viem';
 
 import { BaseTx, ITransactionsSlice } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
@@ -8,7 +8,7 @@ export interface AdapterInterface<T extends BaseTx> {
   get: () => ITransactionsSlice<T>;
   set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void;
   executeTx: (params: {
-    tx: ethers.ContractTransaction | GelatoTx;
+    tx: GetTransactionReturnType | GelatoTx;
     activeWallet: Wallet;
     payload: object | undefined;
     chainId: number;

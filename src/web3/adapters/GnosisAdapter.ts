@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
-import { ethers } from 'ethers';
 import { produce } from 'immer';
+import { GetTransactionReturnType, Hex } from 'viem';
 
 import { SafeTransactionServiceUrls } from '../../utils/constants';
 import { setLocalStorageTxPool } from '../../utils/localStorage';
@@ -38,14 +38,14 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
   }
 
   executeTx = async (params: {
-    tx: ethers.ContractTransaction | GelatoTx;
+    tx: GetTransactionReturnType | GelatoTx;
     activeWallet: Wallet;
     payload: object | undefined;
     chainId: number;
     type: T['type'];
   }): Promise<T & { status?: number; pending: boolean }> => {
     const { activeWallet, chainId, type } = params;
-    const tx = params.tx as ethers.ContractTransaction;
+    const tx = params.tx as GetTransactionReturnType;
     // ethereum tx
     const transaction = {
       chainId,
@@ -53,7 +53,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
       type,
       payload: params.payload,
       from: tx.from,
-      to: tx.to as string,
+      to: tx.to as Hex,
       nonce: tx.nonce,
     };
     const txPool = this.get().addTXToPool(transaction, activeWallet.walletType);

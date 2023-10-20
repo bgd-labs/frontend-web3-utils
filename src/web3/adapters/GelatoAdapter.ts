@@ -1,5 +1,5 @@
-import { ethers } from 'ethers';
 import { produce } from 'immer';
+import { GetTransactionReturnType, Hex } from 'viem';
 
 import { setLocalStorageTxPool } from '../../utils/localStorage';
 import { selectIsGelatoTXPending } from '../store/transactionsSelectors';
@@ -26,7 +26,7 @@ export type GelatoTaskStatusResponse = {
     taskState: GelatoTXState;
     creationDate?: string;
     executionDate?: string;
-    transactionHash?: string;
+    transactionHash?: Hex;
     blockNumber?: number;
     lastCheckMessage?: string;
   };
@@ -37,7 +37,7 @@ export type GelatoTx = {
 };
 
 export function isGelatoTx(
-  tx: ethers.ContractTransaction | GelatoTx,
+  tx: GetTransactionReturnType | GelatoTx,
 ): tx is GelatoTx {
   return (tx as GelatoTx).taskId !== undefined;
 }
@@ -66,7 +66,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
   }
 
   executeTx = async (params: {
-    tx: GelatoTx | ethers.ContractTransaction;
+    tx: GelatoTx | GetTransactionReturnType;
     activeWallet: Wallet;
     payload: object | undefined;
     chainId: number;
@@ -74,9 +74,9 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
   }): Promise<T & { status?: number; pending: boolean }> => {
     const { activeWallet, chainId, type } = params;
     const tx = params.tx as GelatoTx;
-    const from = activeWallet.accounts[0];
+    const from = activeWallet.account;
     const gelatoTX = {
-      from,
+      from: from as Hex,
       chainId,
       type: type,
       taskId: tx.taskId,
@@ -149,7 +149,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
         tx.pending = selectIsGelatoTXPending(statusResponse.task.taskState);
         tx.hash = statusResponse.task.transactionHash;
         tx.status =
-          statusResponse.task.taskState == 'ExecSuccess'
+          statusResponse.task.taskState === 'ExecSuccess'
             ? 1
             : tx.pending
             ? undefined

@@ -1,12 +1,11 @@
-import { ethers } from 'ethers';
 import { Draft, produce } from 'immer';
+import { GetTransactionReturnType, Hex, PublicClient } from 'viem';
 
 import { StoreSlice } from '../../types/store';
 import {
   getLocalStorageTxPool,
   setLocalStorageTxPool,
 } from '../../utils/localStorage';
-import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvider';
 import { EthereumAdapter } from '../adapters/EthereumAdapter';
 import {
   GelatoAdapter,
@@ -26,7 +25,7 @@ export type BaseTx = EthBaseTx | GelatoBaseTx;
 type BasicTx = {
   chainId: number;
   type: string;
-  from: string;
+  from: Hex;
   payload?: object;
   localTimestamp: number;
   timestamp?: number;
@@ -34,25 +33,22 @@ type BasicTx = {
 };
 
 export type EthBaseTx = BasicTx & {
-  hash: string;
-  to: string;
+  hash: Hex;
+  to: Hex;
   nonce: number;
 };
 
 export type GelatoBaseTx = BasicTx & {
   taskId: string;
-  hash?: string;
+  hash?: Hex;
   gelatoStatus?: GelatoTXState;
 };
 
-export type ProvidersRecord = Record<
-  number,
-  StaticJsonRpcBatchProvider | ethers.providers.JsonRpcProvider
->;
+export type ClientsRecord = Record<number, PublicClient>;
 
 export type TransactionsSliceBaseType = {
-  providers: ProvidersRecord;
-  setProvider: (chainId: number, provider: StaticJsonRpcBatchProvider) => void;
+  clients: ClientsRecord;
+  setClient: (chainId: number, client: PublicClient) => void;
   initTxPool: () => void;
   updateEthAdapter: (gnosis: boolean) => void;
 };
@@ -80,7 +76,7 @@ export interface ITransactionsActions<T extends BaseTx> {
     },
   ) => void;
   executeTx: (params: {
-    body: () => Promise<ethers.ContractTransaction | GelatoTx>;
+    body: () => Promise<GetTransactionReturnType | GelatoTx>;
     params: {
       type: T['type'];
       payload: T['payload'];
@@ -109,10 +105,10 @@ export type ITransactionsSlice<T extends BaseTx> = ITransactionsActions<T> &
 
 export function createTransactionsSlice<T extends BaseTx>({
   txStatusChangedCallback,
-  defaultProviders,
+  defaultClients,
 }: {
   txStatusChangedCallback: (tx: T) => void;
-  defaultProviders: ProvidersRecord;
+  defaultClients: ClientsRecord;
 }): StoreSlice<
   ITransactionsSlice<T>,
   Pick<IWalletSlice, 'checkAndSwitchNetwork' | 'activeWallet'>
@@ -120,18 +116,24 @@ export function createTransactionsSlice<T extends BaseTx>({
   return (set, get) => ({
     transactionsPool: {},
     transactionsIntervalsMap: {},
-    providers: defaultProviders,
+    clients: defaultClients,
     txStatusChangedCallback,
     gelatoAdapter: new GelatoAdapter(get, set), // TODO: think when to init, maybe only when working with gelato or it's available
     ethereumAdapter: new EthereumAdapter(get, set), // This might be a Gnosis Safe adapter, re-inits when wallet.type === GnosisSafe
     executeTx: async ({ body, params }) => {
       await get().checkAndSwitchNetwork(params.desiredChainID);
       const activeWallet = get().activeWallet;
+      console.log('activeWallet', activeWallet);
       if (!activeWallet) {
         throw new Error('No wallet connected');
       }
       const chainId = Number(params.desiredChainID);
-      const tx = await body();
+      // TODO: need fix
+      const initTx = await body();
+      const tx = isGelatoTx(initTx)
+        ? initTx
+        : // @ts-ignore
+          { ...initTx, hash: initTx as Hex };
       const args = {
         tx,
         payload: params.payload,
@@ -145,6 +147,8 @@ export function createTransactionsSlice<T extends BaseTx>({
     },
 
     addTXToPool: (transaction, walletType) => {
+      console.log('tx', transaction);
+
       const localTimestamp = new Date().getTime();
       if (isGelatoBaseTxWithoutTimestamp(transaction)) {
         set((state) =>
@@ -210,10 +214,12 @@ export function createTransactionsSlice<T extends BaseTx>({
       });
     },
 
-    setProvider: (chainID, provider) => {
+    setClient: (chainID, client) => {
       set((state) =>
         produce(state, (draft) => {
-          draft.providers[chainID] = provider;
+          // TODO: need fix
+          // @ts-ignore
+          draft.clients[chainID] = client;
         }),
       );
     },

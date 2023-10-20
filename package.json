@@ -40,7 +40,6 @@
     "analyze": "size-limit --why"
   },
   "peerDependencies": {
-    "ethers": "5.x",
     "immer": "10.x",
     "react": "18.x",
     "zustand": "4.x"
@@ -75,7 +74,6 @@
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
-    "ethers": "^5.7.2",
     "husky": "^8.0.3",
     "immer": "^10.0.2",
     "prettier": "^3.0.3",
@@ -88,16 +86,10 @@
     "zustand": "^4.4.1"
   },
   "dependencies": {
-    "@coinbase/wallet-sdk": "^3.7.1",
-    "@walletconnect/ethereum-provider": "^2.10.0",
-    "@web3-react/coinbase-wallet": "8.2.2",
-    "@web3-react/core": "8.2.2",
-    "@web3-react/gnosis-safe": "8.2.3",
-    "@web3-react/metamask": "8.2.3",
-    "@web3-react/types": "8.2.2",
-    "@web3-react/walletconnect-v2": "^8.5.0",
     "dayjs": "^1.11.10",
     "lodash": "^4.17.21",
-    "lodash-es": "^4.17.21"
+    "lodash-es": "^4.17.21",
+    "viem": "^1.16.6",
+    "wagmi": "^1.4.4"
   }
 }

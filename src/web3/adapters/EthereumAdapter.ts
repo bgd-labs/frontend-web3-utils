@@ -1,8 +1,7 @@
-import { ethers } from 'ethers';
 import { produce } from 'immer';
+import { GetTransactionReturnType, Hex, PublicClient } from 'viem';
 
 import { setLocalStorageTxPool } from '../../utils/localStorage';
-import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvider';
 import { BaseTx, ITransactionsSlice } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
 import { GelatoTx } from './GelatoAdapter';
@@ -22,14 +21,16 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
   }
 
   executeTx = async (params: {
-    tx: ethers.ContractTransaction | GelatoTx;
+    tx: GetTransactionReturnType | GelatoTx;
     activeWallet: Wallet;
     payload: object | undefined;
     chainId: number;
     type: T['type'];
   }): Promise<T & { status?: number; pending: boolean }> => {
     const { activeWallet, chainId, type } = params;
-    const tx = params.tx as ethers.ContractTransaction;
+    const tx = params.tx as GetTransactionReturnType;
+    console.log('tx execute', params.tx);
+
     // ethereum tx
     const transaction = {
       chainId,
@@ -37,7 +38,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
       type,
       payload: params.payload,
       from: tx.from,
-      to: tx.to as string,
+      to: tx.to as Hex,
       nonce: tx.nonce,
     };
     const txPool = this.get().addTXToPool(transaction, activeWallet.walletType);
@@ -48,14 +49,12 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     const retryCount = 5;
     const txData = this.get().transactionsPool[txKey];
     if (txData) {
-      const provider = this.get().providers[
-        txData.chainId
-      ] as StaticJsonRpcBatchProvider;
+      const client = this.get().clients[txData.chainId] as PublicClient;
 
       if (txData.hash) {
         // Find the transaction in the waiting pool
         for (let i = 0; i < retryCount; i++) {
-          const tx = await provider.getTransaction(txData.hash);
+          const tx = await client.getTransaction({ hash: txData.hash });
           // If the transaction is found, wait for the receipt
           if (tx) {
             await this.waitForTxReceipt(tx, txData.hash);
@@ -71,20 +70,18 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
   };
 
   private waitForTxReceipt = async (
-    tx: ethers.providers.TransactionResponse,
-    txHash: string,
+    tx: GetTransactionReturnType,
+    txHash: Hex,
   ) => {
     const chainId = tx.chainId || this.get().transactionsPool[txHash].chainId;
-    const provider = this.get().providers[
-      chainId
-    ] as StaticJsonRpcBatchProvider;
+    const client = this.get().clients[chainId] as PublicClient;
 
     try {
-      const txn = await tx.wait();
+      const txn = await client.waitForTransactionReceipt({ hash: tx.hash });
       this.updateTXStatus(txHash, txn.status);
 
       const updatedTX = this.get().transactionsPool[txHash];
-      const txBlock = await provider.getBlock(txn.blockNumber);
+      const txBlock = await client.getBlock({ blockNumber: txn.blockNumber });
       const timestamp = txBlock.timestamp;
       this.get().txStatusChangedCallback({
         ...updatedTX,
@@ -95,10 +92,15 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     }
   };
 
-  private updateTXStatus = (hash: string, status?: number) => {
+  private updateTXStatus = (hash: string, status?: 'success' | 'reverted') => {
     this.set((state) =>
       produce(state, (draft) => {
-        draft.transactionsPool[hash].status = status;
+        draft.transactionsPool[hash].status =
+          status === 'success'
+            ? 1
+            : draft.transactionsPool[hash].pending
+            ? undefined
+            : 0;
         draft.transactionsPool[hash].pending = false;
       }),
     );

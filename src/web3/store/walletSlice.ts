@@ -1,6 +1,7 @@
-import type { AddEthereumChainParameter, Connector } from '@web3-react/types';
-import { providers } from 'ethers';
+import { ConnectArgs } from '@wagmi/core';
 import { produce } from 'immer';
+import { Chain, PublicClient, WalletClient } from 'viem';
+import { mainnet } from 'viem/chains';
 
 import { StoreSlice } from '../../types/store';
 import {
@@ -9,16 +10,15 @@ import {
   LocalStorageKeys,
   setLocalStorageWallet,
 } from '../../utils/localStorage';
-import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvider';
-import { getConnectorName, WalletType } from '../connectors';
+import { ConnectorType, getConnectorName, WalletType } from '../connectors';
 import { TransactionsSliceBaseType } from './transactionsSlice';
 
 export interface Wallet {
   walletType: WalletType;
-  accounts: string[];
+  account: string;
   chainId?: number;
-  provider: providers.JsonRpcProvider;
-  signer: providers.JsonRpcSigner;
+  client: PublicClient;
+  walletClient: WalletClient;
   // isActive is added, because Wallet can be connected but not active, i.e. wrong network
   isActive: boolean;
   // isContractAddress is added, to check if wallet address is contract
@@ -29,20 +29,26 @@ export type IWalletSlice = {
   isContractWalletRecord: Record<string, boolean>;
   activeWallet?: Wallet;
   getActiveAddress: () => string | undefined;
-  connectWallet: (walletType: WalletType, chainID?: number) => Promise<void>;
+  connectWallet: (
+    connect: (args?: Partial<ConnectArgs> | undefined) => void,
+    walletType: WalletType,
+    chainID?: number,
+  ) => Promise<void>;
   disconnectActiveWallet: () => Promise<void>;
   walletActivating: boolean;
   walletConnectionError: string;
   resetWalletConnectionError: () => void;
   initDefaultWallet: () => Promise<void>;
-  setActiveWallet: (wallet: Omit<Wallet, 'signer'>) => Promise<void>;
+  setActiveWallet: (wallet: Wallet) => Promise<void>;
   changeActiveWalletChainId: (chainId?: number) => void;
   checkAndSwitchNetwork: (chainId?: number) => Promise<void>;
-  connectors: Connector[];
-  setConnectors: (connectors: Connector[]) => void;
+  connectors: ConnectorType[];
+  setConnectors: (connectors: ConnectorType[]) => void;
   _impersonatedAddress?: string;
   setImpersonatedAddress: (address: string) => void;
-  checkIsContractWallet: (wallet: Omit<Wallet, 'signer'>) => Promise<boolean>;
+  checkIsContractWallet: (
+    wallet: Omit<Wallet, 'walletClient'>,
+  ) => Promise<boolean>;
 };
 
 export function createWalletSlice({
@@ -50,7 +56,7 @@ export function createWalletSlice({
   getChainParameters,
 }: {
   walletConnected: (wallet: Wallet) => void; // TODO: why all of them here hardcoded
-  getChainParameters: (chainId: number) => AddEthereumChainParameter | number;
+  getChainParameters: (chainId: number) => Chain;
 }): StoreSlice<IWalletSlice, TransactionsSliceBaseType> {
   return (set, get) => ({
     isContractWalletRecord: {},
@@ -70,10 +76,11 @@ export function createWalletSlice({
       ) as WalletType | undefined;
 
       if (lastConnectedWallet) {
-        await get().connectWallet(lastConnectedWallet);
+        // TODO: need fix
+        // await get().connectWallet(lastConnectedWallet);
       }
     },
-    connectWallet: async (walletType: WalletType, txChainID?: number) => {
+    connectWallet: async (connect, walletType, txChainID) => {
       let chainID = txChainID;
 
       const activeWallet = get().activeWallet;
@@ -92,7 +99,6 @@ export function createWalletSlice({
         await get().disconnectActiveWallet();
       }
 
-      const impersonatedAddress = get()._impersonatedAddress;
       set({ walletActivating: true });
       set({ walletConnectionError: '' });
       const connector = get().connectors.find(
@@ -100,30 +106,28 @@ export function createWalletSlice({
       );
       try {
         if (connector) {
-          switch (walletType) {
-            case 'Impersonated':
-              if (impersonatedAddress) {
-                await connector.activate({
-                  address: impersonatedAddress,
-                  chainId: chainID,
-                });
-              }
-              break;
-            case 'Coinbase':
-            case 'Metamask':
-              await connector.activate(
-                typeof chainID !== 'undefined'
-                  ? getChainParameters(chainID)
-                  : undefined,
-              );
-              break;
-            case 'WalletConnect':
-              await connector.activate(chainID);
-              break;
-            case 'GnosisSafe':
-              await connector.activate(chainID);
-              break;
-          }
+          console.log('connector in store', connector);
+          connect({ connector, chainId: chainID });
+
+          // switch (walletType) {
+          //   case 'Coinbase':
+          //     await connector.connect({ chainId: chainID });
+          //     break;
+          //   case 'Metamask':
+          //     await connector.connect({
+          //       chainId:
+          //         typeof chainID !== 'undefined'
+          //           ? getChainParameters(chainID).id
+          //           : undefined,
+          //     });
+          //     break;
+          //   case 'WalletConnect':
+          //     await connector.connect({ chainId: chainID });
+          //     break;
+          //   case 'GnosisSafe':
+          //     await connector.connect({ chainId: chainID });
+          //     break;
+          // }
           setLocalStorageWallet(walletType);
           get().updateEthAdapter(walletType === 'GnosisSafe');
         }
@@ -131,6 +135,7 @@ export function createWalletSlice({
         if (e instanceof Error) {
           let errorMessage = e.message ? e.message.toString() : e.toString();
           if (errorMessage === 'MetaMask not installed') {
+            // TODO: need check
             errorMessage = 'Browser wallet not installed';
           }
 
@@ -142,37 +147,46 @@ export function createWalletSlice({
       }
       set({ walletActivating: false });
     },
-    checkAndSwitchNetwork: async (chainID?: number) => {
+    checkAndSwitchNetwork: async (chainID) => {
       const activeWallet = get().activeWallet;
-      if (activeWallet) {
-        await get().connectWallet(activeWallet.walletType, chainID);
+      if (
+        activeWallet &&
+        activeWallet.chainId &&
+        activeWallet.chainId !== chainID
+      ) {
+        await activeWallet.walletClient.switchChain({
+          id: chainID || mainnet.id,
+        });
       }
     },
     disconnectActiveWallet: async () => {
       const activeWallet = get().activeWallet;
       if (activeWallet) {
         const activeConnector = get().connectors.find(
-          (connector) => getConnectorName(connector) == activeWallet.walletType,
+          (connector) =>
+            getConnectorName(connector) === activeWallet.walletType,
         );
 
-        if (activeConnector?.deactivate) {
-          await activeConnector.deactivate();
+        if (activeConnector?.disconnect) {
+          await activeConnector.disconnect();
         }
-        await activeConnector?.resetState();
+        // await activeConnector?.resetState(); TODO: need check
         set({ activeWallet: undefined });
       }
       deleteLocalStorageWallet();
       clearWalletConnectLocalStorage();
     },
-    checkIsContractWallet: async (wallet: Omit<Wallet, 'signer'>) => {
-      const account = wallet.accounts[0];
+    checkIsContractWallet: async (wallet) => {
+      const account = wallet.account;
       const walletRecord = get().isContractWalletRecord[account];
       if (walletRecord !== undefined) {
         return walletRecord;
       }
-      const codeOfWalletAddress = await wallet.provider.getCode(
-        wallet.accounts[0],
-      );
+      // TODO: need fix
+      // const codeOfWalletAddress = await wallet.walletClient.getCode(
+      //   wallet.accounts[0],
+      // );
+      const codeOfWalletAddress: string = '';
       const isContractWallet = codeOfWalletAddress !== '0x';
       set((state) =>
         produce(state, (draft) => {
@@ -186,24 +200,18 @@ export function createWalletSlice({
      * only provider is available in the returned type, but we also need accounts and chainID which for some reason
      * is impossible to pull from .provider() still not the best approach, and I'm looking to find proper way to handle it
      */
-    setActiveWallet: async (wallet: Omit<Wallet, 'signer'>) => {
-      const providerSigner =
-        wallet.walletType === 'Impersonated'
-          ? wallet.provider.getSigner(get()._impersonatedAddress)
-          : wallet.provider.getSigner(0);
-
+    setActiveWallet: async (wallet) => {
       if (wallet.chainId !== undefined) {
-        get().setProvider(
-          wallet.chainId,
-          wallet.provider as StaticJsonRpcBatchProvider,
-        );
+        get().setClient(wallet.chainId, wallet.client);
       }
-      const isContractAddress = await get().checkIsContractWallet(wallet);
+      console.log('activeWallet when set', wallet);
+      // TODO: need fix
+      // const isContractAddress = await get().checkIsContractWallet(wallet);
       set({
         activeWallet: {
           ...wallet,
-          isContractAddress: isContractAddress,
-          signer: providerSigner,
+          // isContractAddress: isContractAddress,
+          isContractAddress: false,
         },
       });
       const activeWallet = get().activeWallet;
@@ -211,7 +219,7 @@ export function createWalletSlice({
         walletConnected(activeWallet);
       }
     },
-    changeActiveWalletChainId: (chainId?: number) => {
+    changeActiveWalletChainId: (chainId) => {
       if (chainId !== undefined) {
         set((state) =>
           produce(state, (draft) => {
@@ -225,8 +233,8 @@ export function createWalletSlice({
 
     getActiveAddress: () => {
       const activeWallet = get().activeWallet;
-      if (activeWallet && activeWallet.accounts) {
-        return activeWallet.accounts[0];
+      if (activeWallet && activeWallet.account) {
+        return activeWallet.account;
       }
       return undefined;
     },
