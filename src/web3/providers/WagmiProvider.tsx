@@ -3,26 +3,25 @@ import {
   createConfig,
   GetAccountResult,
   watchAccount,
+  watchNetwork,
 } from '@wagmi/core';
 import React, { useEffect, useState } from 'react';
+import { Chain } from 'viem';
 import { publicProvider } from 'wagmi/providers/public';
 import { StoreApi, UseBoundStore } from 'zustand';
 
 import {
   AllConnectorsInitProps,
   ConnectorType,
-  getConnectorName,
   initAllConnectors,
 } from '../connectors';
-import { Wallet } from '../store/walletSlice';
 
 interface WagmiProviderProps {
   useStore: UseBoundStore<
     StoreApi<{
-      setActiveWallet: (wallet: Wallet) => void;
-      changeActiveWalletChainId: (chainID: number) => void;
+      changeActiveWalletAccount: (account?: GetAccountResult) => Promise<void>;
+      changeActiveWalletChain: (chain?: Chain) => Promise<void>;
       setConnectors: (connectors: ConnectorType[]) => void;
-      disconnectActiveWallet: () => void;
     }>
   >;
   connectorsInitProps: AllConnectorsInitProps;
@@ -34,39 +33,25 @@ function Child({
 }: Omit<WagmiProviderProps, 'connectorsInitProps'> & {
   connectors: ConnectorType[];
 }) {
-  const [account, setAccount] = useState<GetAccountResult | undefined>(
-    undefined,
-  );
-  watchAccount((data) => {
-    setAccount(data);
+  const { setConnectors, changeActiveWalletAccount, changeActiveWalletChain } =
+    useStore();
+
+  watchAccount(async (data) => {
+    if (data.address) {
+      await changeActiveWalletAccount(data);
+    }
   });
-
-  const setConnectors = useStore((state) => state.setConnectors);
-  const disconnectActiveWallet = useStore(
-    (state) => state.disconnectActiveWallet,
-  );
-
-  const [currentWalletType, setCurrentWalletType] = useState<string>('');
+  watchNetwork(async (data) => {
+    if (data.chain?.id) {
+      await changeActiveWalletChain(data.chain);
+    }
+  });
 
   useEffect(() => {
     if (connectors) {
       setConnectors(connectors);
     }
   }, [connectors]);
-
-  useEffect(() => {
-    if (account && account.address && account.isConnected) {
-      const walletType =
-        account.connector &&
-        getConnectorName(account.connector as ConnectorType);
-
-      if (walletType) {
-        setCurrentWalletType(walletType);
-      } else if (currentWalletType !== walletType) {
-        disconnectActiveWallet();
-      }
-    }
-  }, [account]);
 
   return null;
 }

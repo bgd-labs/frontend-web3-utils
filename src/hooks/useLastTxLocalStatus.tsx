@@ -24,7 +24,9 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
 }: LastTxStatusesParams<T>) => {
   const tx = selectLastTxByTypeAndPayload(state, activeAddress, type, payload);
 
-  const [fullTxErrorMessage, setFullTxErrorMessage] = useState('');
+  const [fullTxErrorMessage, setFullTxErrorMessage] = useState<string | Error>(
+    '',
+  );
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isTxStart, setIsTxStart] = useState(false);
@@ -67,10 +69,11 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
     try {
       await callbackFunction();
     } catch (e) {
-      const error = e as any;
-      console.error('TX error: ', error);
-      setFullTxErrorMessage(!!error?.message ? error.message : error);
-      setError(errorMessage);
+      if (e instanceof Error) {
+        console.error('TX error: ', e);
+        setFullTxErrorMessage(!!e?.message ? e.message : e);
+        setError(errorMessage);
+      }
     }
     setLoading(false);
   }

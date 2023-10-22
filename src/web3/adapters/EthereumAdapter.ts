@@ -1,12 +1,9 @@
-// TODO: need fix execute tx
-
 import { produce } from 'immer';
 import { GetTransactionReturnType, Hex, PublicClient } from 'viem';
 
 import { setLocalStorageTxPool } from '../../utils/localStorage';
-import { BaseTx, ITransactionsSlice } from '../store/transactionsSlice';
+import { BaseTx, ITransactionsSlice, NewTx } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
-import { GelatoTx } from './GelatoAdapter';
 import { AdapterInterface } from './interface';
 
 export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
@@ -23,7 +20,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
   }
 
   executeTx = async (params: {
-    tx: GetTransactionReturnType | GelatoTx;
+    tx: NewTx;
     activeWallet: Wallet;
     payload: object | undefined;
     chainId: number;
@@ -78,6 +75,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     const client = this.get().clients[chainId] as PublicClient;
 
     try {
+      // TODO: need added onReplaced logic
       const txn = await client.waitForTransactionReceipt({ hash: tx.hash });
       this.updateTXStatus(txHash, txn.status);
 
@@ -89,7 +87,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
         timestamp,
       });
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   };
 

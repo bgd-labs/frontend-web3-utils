@@ -1,10 +1,26 @@
 import { Chain, createPublicClient, http, PublicClient } from 'viem';
-import { mainnet } from 'viem/chains';
+import {
+  avalanche,
+  avalancheFuji,
+  goerli,
+  mainnet,
+  polygon,
+  polygonMumbai,
+  sepolia,
+} from 'viem/chains';
 
-export const initChainInformationConfig = (chains?: {
-  [chainId: number]: Chain;
-}) => {
-  const CHAINS = chains || {};
+export const initialChains: Record<number, Chain> = {
+  [mainnet.id]: mainnet,
+  [polygon.id]: polygon,
+  [polygonMumbai.id]: polygonMumbai,
+  [avalanche.id]: avalanche,
+  [avalancheFuji.id]: avalancheFuji,
+  [goerli.id]: goerli,
+  [sepolia.id]: sepolia,
+};
+
+export const initChainInformationConfig = (chains?: Record<number, Chain>) => {
+  const CHAINS = { ...initialChains, ...chains } || {};
 
   // init clients instances from chain config
   const initalizedClients: Record<number, PublicClient> = {};

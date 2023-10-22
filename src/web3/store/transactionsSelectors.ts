@@ -1,5 +1,6 @@
 import isEqual from 'lodash/isEqual';
 import { Chain } from 'viem';
+import { goerli, mainnet } from 'viem/chains';
 
 import { isGelatoBaseTx } from '../adapters/GelatoAdapter';
 import { BaseTx, GelatoBaseTx, ITransactionsState } from './transactionsSlice';
@@ -33,21 +34,21 @@ export const selectTXByHash = <T extends BaseTx>(
   if (txByKey) {
     return txByKey;
   }
-  return selectAllTransactions(state).find((tx) => tx.hash == hash);
+  return selectAllTransactions(state).find((tx) => tx.hash === hash);
 };
 
 export const selectAllTransactionsByWallet = <T extends BaseTx>(
   state: ITransactionsState<T>,
   from: string,
 ) => {
-  return selectAllTransactions(state).filter((tx) => tx.from == from);
+  return selectAllTransactions(state).filter((tx) => tx.from === from);
 };
 
 export const selectPendingTransactionByWallet = <T extends BaseTx>(
   state: ITransactionsState<T>,
   from: string,
 ) => {
-  return selectPendingTransactions(state).filter((tx) => tx.from == from);
+  return selectPendingTransactions(state).filter((tx) => tx.from === from);
 };
 
 export const selectLastTxByTypeAndPayload = <T extends BaseTx>(
@@ -88,9 +89,10 @@ export const selectTxExplorerLink = <T extends BaseTx>(
     return '';
   }
 
+  // TODO: need check
   const gnosisSafeLinksHelper: Record<number, string> = {
-    1: 'https://app.safe.global/eth:',
-    5: 'https://app.safe.global/gor:',
+    [mainnet.id]: 'https://app.safe.global/eth:',
+    [goerli.id]: 'https://app.safe.global/gor:',
   };
 
   if (tx.walletType !== 'GnosisSafe') {

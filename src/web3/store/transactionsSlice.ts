@@ -1,7 +1,5 @@
-// TODO: need fix execute tx
-
 import { Draft, produce } from 'immer';
-import { GetTransactionReturnType, Hex, PublicClient } from 'viem';
+import { Hex, PublicClient } from 'viem';
 
 import { StoreSlice } from '../../types/store';
 import {
@@ -23,6 +21,9 @@ import { WalletType } from '../connectors';
 import { IWalletSlice } from './walletSlice';
 
 export type BaseTx = EthBaseTx | GelatoBaseTx;
+
+export type InitialTx = Hex | GelatoTx;
+export type NewTx = { hash: Hex } | GelatoTx;
 
 type BasicTx = {
   chainId: number;
@@ -78,7 +79,7 @@ export interface ITransactionsActions<T extends BaseTx> {
     },
   ) => void;
   executeTx: (params: {
-    body: () => Promise<GetTransactionReturnType | GelatoTx>;
+    body: () => Promise<InitialTx>;
     params: {
       type: T['type'];
       payload: T['payload'];
@@ -125,32 +126,27 @@ export function createTransactionsSlice<T extends BaseTx>({
     executeTx: async ({ body, params }) => {
       await get().checkAndSwitchNetwork(params.desiredChainID);
       const activeWallet = get().activeWallet;
-      console.log('activeWallet', activeWallet);
       if (!activeWallet) {
         throw new Error('No wallet connected');
       }
+
       const chainId = Number(params.desiredChainID);
-      // TODO: need fix
-      const initTx = await body();
-      const tx = isGelatoTx(initTx)
-        ? initTx
-        : // @ts-ignore
-          { ...initTx, hash: initTx as Hex };
+
+      const tx: InitialTx = await body();
       const args = {
-        tx,
+        tx: isGelatoTx(tx) ? tx : { hash: tx },
         payload: params.payload,
         activeWallet,
         chainId,
         type: params.type,
       };
+
       return isGelatoTx(tx) // in case of gnosis safe it works in a same way
         ? get().gelatoAdapter.executeTx(args)
         : get().ethereumAdapter.executeTx(args);
     },
 
     addTXToPool: (transaction, walletType) => {
-      console.log('tx', transaction);
-
       const localTimestamp = new Date().getTime();
       if (isGelatoBaseTxWithoutTimestamp(transaction)) {
         set((state) =>
@@ -216,14 +212,10 @@ export function createTransactionsSlice<T extends BaseTx>({
       });
     },
 
-    setClient: (chainID, client) => {
-      set((state) =>
-        produce(state, (draft) => {
-          // TODO: need fix
-          // @ts-ignore
-          draft.clients[chainID] = client;
-        }),
-      );
+    setClient: (chainId, client) => {
+      const stateClients = get().clients;
+      const updatedClients = (stateClients[chainId] = client);
+      set({ clients: updatedClients });
     },
 
     isGelatoAvailable: true,

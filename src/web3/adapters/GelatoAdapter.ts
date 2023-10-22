@@ -1,14 +1,14 @@
-// TODO: need fix execute tx
-
 import { produce } from 'immer';
-import { GetTransactionReturnType, Hex } from 'viem';
+import { Hex } from 'viem';
 
 import { setLocalStorageTxPool } from '../../utils/localStorage';
 import { selectIsGelatoTXPending } from '../store/transactionsSelectors';
 import {
   BaseTx,
   GelatoBaseTx,
+  InitialTx,
   ITransactionsSlice,
+  NewTx,
 } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
 import { AdapterInterface } from './interface';
@@ -38,9 +38,7 @@ export type GelatoTx = {
   taskId: string;
 };
 
-export function isGelatoTx(
-  tx: GetTransactionReturnType | GelatoTx,
-): tx is GelatoTx {
+export function isGelatoTx(tx: InitialTx): tx is GelatoTx {
   return (tx as GelatoTx).taskId !== undefined;
 }
 
@@ -68,7 +66,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
   }
 
   executeTx = async (params: {
-    tx: GelatoTx | GetTransactionReturnType;
+    tx: NewTx;
     activeWallet: Wallet;
     payload: object | undefined;
     chainId: number;
@@ -76,7 +74,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
   }): Promise<T & { status?: number; pending: boolean }> => {
     const { activeWallet, chainId, type } = params;
     const tx = params.tx as GelatoTx;
-    const from = activeWallet.account;
+    const from = activeWallet.address;
     const gelatoTX = {
       from: from as Hex,
       chainId,
@@ -92,9 +90,6 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
   };
 
   startTxTracking = async (taskId: string) => {
-    // TODO: need fix typing for transactions pool
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     const tx = this.get().transactionsPool[taskId] as GelatoBaseTx;
 
     const isPending = selectIsGelatoTXPending(tx.gelatoStatus);

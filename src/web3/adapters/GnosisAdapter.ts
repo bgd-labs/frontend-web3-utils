@@ -1,5 +1,3 @@
-// TODO: need fix execute tx
-
 import dayjs from 'dayjs';
 import { produce } from 'immer';
 import { GetTransactionReturnType, Hex } from 'viem';
@@ -10,9 +8,9 @@ import {
   BaseTx,
   EthBaseTx,
   ITransactionsSlice,
+  NewTx,
 } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
-import { GelatoTx } from './GelatoAdapter';
 import { AdapterInterface } from './interface';
 
 export type GnosisTxStatusResponse = {
@@ -40,7 +38,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
   }
 
   executeTx = async (params: {
-    tx: GetTransactionReturnType | GelatoTx;
+    tx: NewTx;
     activeWallet: Wallet;
     payload: object | undefined;
     chainId: number;

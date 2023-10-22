@@ -23,9 +23,10 @@ export const setLocalStorageWallet = (walletType: WalletType) => {
 
 export const deleteLocalStorageWallet = () => {
   localStorage.removeItem(LocalStorageKeys.LastConnectedWallet);
+  localStorage.removeItem('wagmi.wallet');
 };
 
-export const clearWalletConnectLocalStorage = () => {
+export const clearWalletLinkLocalStorage = () => {
   localStorage.removeItem('walletconnect');
   localStorage.removeItem('-walletlink:https://www.walletlink.org:version');
   localStorage.removeItem('-walletlink:https://www.walletlink.org:session:id');
@@ -40,4 +41,15 @@ export const clearWalletConnectLocalStorage = () => {
   localStorage.removeItem(
     '-walletlink:https://www.walletlink.org:walletUsername',
   );
+};
+
+export const clearWalletConnectV2LocalStorage = () => {
+  localStorage.removeItem('wc@2:core:0.3//messages');
+  localStorage.removeItem('wc@2:client:0.3//proposal');
+  localStorage.removeItem('wc@2:universal_provider:/namespaces');
+  localStorage.removeItem('wc@2:core:0.3//subscription');
+  localStorage.removeItem('wc@2:core:0.3//history');
+  localStorage.removeItem('wc@2:core:0.3//expirer');
+  localStorage.removeItem('wc@2:core:0.3//pairing');
+  localStorage.removeItem('wc@2:universal_provider:/optionalNamespaces');
 };
