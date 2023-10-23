@@ -2373,7 +2373,18 @@ var initAllConnectors = (props) => {
       debug: false
     }
   });
-  const connectors = [injected, coinbase2, gnosisSafe];
+  const impersonated = new ImpersonatedConnector({
+    chains,
+    options: {
+      chainId: props.chains[props.defaultChainId || chainIds[0]].id
+    }
+  });
+  const connectors = [
+    injected,
+    coinbase2,
+    gnosisSafe,
+    impersonated
+  ];
   if (walletConnect !== null) {
     connectors.push(walletConnect);
   }
