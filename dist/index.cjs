@@ -298,7 +298,7 @@ var clearWalletConnectV2LocalStorage = () => {
 };
 
 // src/web3/store/transactionsSelectors.ts
-var import_isEqual = __toESM(require("lodash/isEqual"), 1);
+var import_isEqual = __toESM(require("lodash/isEqual.js"), 1);
 var import_chains = require("viem/chains");
 var selectAllTransactions = (state) => {
   return Object.values(state.transactionsPool).sort(

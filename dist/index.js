@@ -260,7 +260,7 @@ var clearWalletConnectV2LocalStorage = () => {
 };
 
 // src/web3/store/transactionsSelectors.ts
-import isEqual from "lodash/isEqual";
+import isEqual from "lodash/isEqual.js";
 import { goerli, mainnet } from "viem/chains";
 var selectAllTransactions = (state) => {
   return Object.values(state.transactionsPool).sort(

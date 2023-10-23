@@ -1,4 +1,4 @@
-import isEqual from 'lodash/isEqual';
+import isEqual from 'lodash/isEqual.js';
 import { Chain } from 'viem';
 import { goerli, mainnet } from 'viem/chains';
 
