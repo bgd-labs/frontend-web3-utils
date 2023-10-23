@@ -21,8 +21,6 @@
   ],
   "version": "0.1.1",
   "license": "MIT",
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
   "files": [
     "dist",
     "src"
@@ -30,39 +28,32 @@
   "engines": {
     "node": ">=18"
   },
+  "type": "module",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "module": "dist/index.js",
+  "size-limit": [
+    {
+      "path": "dist/index.js",
+      "limit": "10 KB"
+    }
+  ],
   "scripts": {
-    "start": "tsdx watch",
-    "build": "tsdx build",
-    "test": "tsdx test --passWithNoTests",
-    "lint": "tsdx lint",
-    "prepare": "tsdx build",
+    "start": "tsup src/index.tsx --watch",
+    "build": "tsup",
     "size": "size-limit",
     "analyze": "size-limit --why"
   },
   "peerDependencies": {
     "immer": "10.x",
     "react": "18.x",
+    "viem": "1.16.6",
+    "wagmi": "1.4.4",
     "zustand": "4.x"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsdx lint"
-    }
-  },
-  "module": "dist/bgd-frontend-web3-utils.esm.js",
-  "size-limit": [
-    {
-      "path": "dist/bgd-frontend-web3-utils.cjs.production.min.js",
-      "limit": "10 KB"
-    },
-    {
-      "path": "dist/bgd-frontend-web3-utils.esm.js",
-      "limit": "10 KB"
-    }
-  ],
   "devDependencies": {
     "@size-limit/preset-small-lib": "^9.0.0",
-    "@types/lodash": "^4.14.199",
+    "@types/lodash": "^4.14.200",
     "@types/react": "^18.2.23",
     "@types/react-dom": "^18.2.8",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
@@ -75,21 +66,20 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "husky": "^8.0.3",
-    "immer": "^10.0.2",
+    "immer": "^10.0.3",
     "prettier": "^3.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "size-limit": "^9.0.0",
-    "tsdx": "^0.14.1",
-    "tslib": "^2.6.2",
+    "tsup": "^7.2.0",
     "typescript": "5.1.6",
-    "zustand": "^4.4.1"
+    "zustand": "^4.4.4"
   },
   "dependencies": {
     "dayjs": "^1.11.10",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "viem": "^1.16.6",
-    "wagmi": "^1.4.4"
+    "wagmi": "^1.4.5"
   }
 }
