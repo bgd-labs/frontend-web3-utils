@@ -55,8 +55,8 @@ export type IWalletSlice = {
   checkAndSwitchNetwork: (chainId?: number) => Promise<void>;
   connectors: ConnectorType[];
   setConnectors: (connectors: ConnectorType[]) => void;
-  _impersonatedAddress?: string;
-  setImpersonatedAddress: (address: string) => void;
+  _impersonatedAddress?: Hex;
+  setImpersonatedAddress: (address: Hex) => void;
   checkIsContractWallet: (
     wallet: Omit<Wallet, 'walletClient'>,
   ) => Promise<boolean>;
@@ -135,7 +135,15 @@ export function createWalletSlice({
 
       try {
         if (connector) {
-          await connect({ connector });
+          if (walletType === 'Impersonated') {
+            // @ts-ignore
+            await connector.connect({
+              address: get()._impersonatedAddress,
+            });
+          } else {
+            await connect({ connector });
+          }
+
           setLocalStorageWallet(walletType);
           get().updateEthAdapter(walletType === 'GnosisSafe');
 

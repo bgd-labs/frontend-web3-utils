@@ -28,7 +28,6 @@
   "engines": {
     "node": ">=18"
   },
-  "type": "module",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "module": "dist/index.js",

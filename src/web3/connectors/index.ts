@@ -1,16 +1,17 @@
-// TODO: need add mock connector
-
 import { Chain } from 'viem';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import { SafeConnector } from 'wagmi/connectors/safe';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 
+import { ImpersonatedConnector } from './ImpersonatedConnector';
+
 export type ConnectorType =
   | InjectedConnector
   | WalletConnectConnector
   | CoinbaseWalletConnector
-  | SafeConnector;
+  | SafeConnector
+  | ImpersonatedConnector;
 
 export type AllConnectorsInitProps = {
   appName: string;
@@ -79,17 +80,19 @@ export const initAllConnectors = (props: AllConnectorsInitProps) => {
 };
 
 export type WalletType =
-  | 'Metamask'
+  | 'Injected'
   | 'WalletConnect'
   | 'Coinbase'
-  | 'GnosisSafe';
+  | 'GnosisSafe'
+  | 'Impersonated';
 
 export function getConnectorName(
   connector: ConnectorType,
 ): WalletType | undefined {
-  if (connector instanceof InjectedConnector) return 'Metamask'; // TODO: change to injected
+  if (connector instanceof InjectedConnector) return 'Injected';
   if (connector instanceof WalletConnectConnector) return 'WalletConnect';
   if (connector instanceof CoinbaseWalletConnector) return 'Coinbase';
   if (connector instanceof SafeConnector) return 'GnosisSafe';
+  if (connector instanceof ImpersonatedConnector) return 'Impersonated';
   return;
 }

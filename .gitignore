@@ -1,6 +1,6 @@
 *.log
 .DS_Store
 node_modules
-#dist TODO: need for test
+dist
 .cache
 .idea
