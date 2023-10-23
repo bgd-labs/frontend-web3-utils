@@ -1,18 +1,3 @@
-import React, { useState, useEffect } from 'react';
-import { produce } from 'immer';
-import isEqual from 'lodash/isEqual';
-import { mainnet, polygon, polygonMumbai, avalanche, avalancheFuji, goerli, sepolia, optimism, arbitrum } from 'viem/chains';
-import { createPublicClient, http, fallback, webSocket, getAddress, UserRejectedRequestError, ResourceUnavailableRpcError, createWalletClient, custom, numberToHex, SwitchChainError } from 'viem';
-import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
-import { InjectedConnector } from 'wagmi/connectors/injected';
-import { SafeConnector } from 'wagmi/connectors/safe';
-import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
-import { subscribeWithSelector, persist } from 'zustand/middleware';
-import { createStore } from 'zustand/vanilla';
-import { shallow } from 'zustand/shallow';
-import { publicProvider } from 'wagmi/providers/public';
-import dayjs from 'dayjs';
-
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -42,6 +27,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 // node_modules/eventemitter3/index.js
 var require_eventemitter3 = __commonJS({
   "node_modules/eventemitter3/index.js"(exports, module) {
+    "use strict";
     var has = Object.prototype.hasOwnProperty;
     var prefix = "~";
     function Events() {
@@ -220,6 +206,12 @@ var require_eventemitter3 = __commonJS({
   }
 });
 
+// src/hooks/useLastTxLocalStatus.tsx
+import { useEffect, useState } from "react";
+
+// src/web3/adapters/GelatoAdapter.ts
+import { produce } from "immer";
+
 // src/utils/localStorage.ts
 var LocalStorageKeys = /* @__PURE__ */ ((LocalStorageKeys2) => {
   LocalStorageKeys2["LastConnectedWallet"] = "LastConnectedWallet";
@@ -266,6 +258,10 @@ var clearWalletConnectV2LocalStorage = () => {
   localStorage.removeItem("wc@2:core:0.3//pairing");
   localStorage.removeItem("wc@2:universal_provider:/optionalNamespaces");
 };
+
+// src/web3/store/transactionsSelectors.ts
+import isEqual from "lodash/isEqual";
+import { goerli, mainnet } from "viem/chains";
 var selectAllTransactions = (state) => {
   return Object.values(state.transactionsPool).sort(
     (a, b) => Number(a.localTimestamp) - Number(b.localTimestamp)
@@ -383,7 +379,8 @@ var GelatoAdapter = class {
     const response = await fetch(
       `https://api.gelato.digital/tasks/status/${taskId}/`
     );
-    if (!response.ok) ; else {
+    if (!response.ok) {
+    } else {
       const gelatoStatus = await response.json();
       const isPending = selectIsGelatoTXPending(gelatoStatus.task.taskState);
       this.updateGelatoTX(taskId, gelatoStatus);
@@ -485,13 +482,25 @@ var useLastTxLocalStatus = ({
     setFullTxErrorMessage
   };
 };
+
+// src/utils/chainInfoHelpers.ts
+import { createPublicClient, http } from "viem";
+import {
+  avalanche,
+  avalancheFuji,
+  goerli as goerli2,
+  mainnet as mainnet2,
+  polygon,
+  polygonMumbai,
+  sepolia
+} from "viem/chains";
 var initialChains = {
-  [mainnet.id]: mainnet,
+  [mainnet2.id]: mainnet2,
   [polygon.id]: polygon,
   [polygonMumbai.id]: polygonMumbai,
   [avalanche.id]: avalanche,
   [avalancheFuji.id]: avalancheFuji,
-  [goerli.id]: goerli,
+  [goerli2.id]: goerli2,
   [sepolia.id]: sepolia
 };
 var initChainInformationConfig = (chains) => {
@@ -524,7 +533,7 @@ var initChainInformationConfig = (chains) => {
       return chainInformation;
     } else {
       return {
-        ...mainnet,
+        ...mainnet2,
         id: chainId,
         name: `unknown network: ${chainId}`
       };
@@ -535,13 +544,23 @@ var initChainInformationConfig = (chains) => {
     getChainParameters
   };
 };
+
+// src/utils/constants.ts
+import {
+  arbitrum,
+  avalanche as avalanche2,
+  goerli as goerli3,
+  mainnet as mainnet3,
+  optimism,
+  polygon as polygon2
+} from "viem/chains";
 var SafeTransactionServiceUrls = {
-  [mainnet.id]: "https://safe-transaction-mainnet.safe.global/api/v1",
-  [goerli.id]: "https://safe-transaction-goerli.safe.global/api/v1",
+  [mainnet3.id]: "https://safe-transaction-mainnet.safe.global/api/v1",
+  [goerli3.id]: "https://safe-transaction-goerli.safe.global/api/v1",
   [optimism.id]: "https://safe-transaction-optimism.safe.global/api/v1",
-  [polygon.id]: "https://safe-transaction-polygon.safe.global/api/v1",
+  [polygon2.id]: "https://safe-transaction-polygon.safe.global/api/v1",
   [arbitrum.id]: "https://safe-transaction-arbitrum.safe.global/api/v1",
-  [avalanche.id]: "https://safe-transaction-avalanche.safe.global/api/v1"
+  [avalanche2.id]: "https://safe-transaction-avalanche.safe.global/api/v1"
 };
 
 // src/utils/wallets/wallets/alphawallet.ts
@@ -932,6 +951,12 @@ function getBrowserWalletLabelAndIcon() {
     return defaultBrowserWallet;
   }
 }
+
+// src/web3/connectors/index.ts
+import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
+import { InjectedConnector } from "wagmi/connectors/injected";
+import { SafeConnector } from "wagmi/connectors/safe";
+import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 var initAllConnectors = (props) => {
   const chains = Object.values(props.chains);
   const chainIds = Object.keys(props.chains).map(Number);
@@ -1015,6 +1040,7 @@ function normalizeChainId(chainId) {
 
 // node_modules/@wagmi/connectors/dist/chunk-W65LBPLT.js
 var import_eventemitter3 = __toESM(require_eventemitter3(), 1);
+import { goerli as goerli4, mainnet as mainnet4 } from "viem/chains";
 var __accessCheck = (obj, member, msg) => {
   if (!member.has(obj))
     throw TypeError("Cannot " + msg);
@@ -1035,7 +1061,7 @@ var __privateSet = (obj, member, value, setter) => {
 };
 var Connector = class extends import_eventemitter3.default {
   constructor({
-    chains = [mainnet, goerli],
+    chains = [mainnet4, goerli4],
     options
   }) {
     super();
@@ -1057,6 +1083,17 @@ var Connector = class extends import_eventemitter3.default {
     this.storage = storage;
   }
 };
+
+// node_modules/@wagmi/connectors/dist/chunk-2UFLHRLT.js
+import {
+  ResourceUnavailableRpcError,
+  SwitchChainError,
+  UserRejectedRequestError,
+  createWalletClient,
+  custom,
+  getAddress,
+  numberToHex
+} from "viem";
 function getInjectedName(ethereum) {
   if (!ethereum)
     return "Injected";
@@ -1440,6 +1477,37 @@ var __privateMethod = (obj, member, method) => {
   __accessCheck2(obj, member, "access private method");
   return method;
 };
+
+// node_modules/@wagmi/core/dist/chunk-TSH6VVF4.js
+import { createPublicClient as createPublicClient2, fallback, http as http2, webSocket } from "viem";
+import { weiUnits } from "viem";
+import { persist, subscribeWithSelector } from "zustand/middleware";
+import { createStore } from "zustand/vanilla";
+import {
+  ContractFunctionExecutionError as ContractFunctionExecutionError3,
+  formatUnits as formatUnits2,
+  hexToString as hexToString2,
+  trim as trim2
+} from "viem";
+import {
+  ContractFunctionExecutionError,
+  formatUnits,
+  hexToString,
+  trim
+} from "viem";
+import { shallow } from "zustand/shallow";
+import { getContract as getContract_ } from "viem";
+import { ContractFunctionExecutionError as ContractFunctionExecutionError2 } from "viem";
+import { shallow as shallow2 } from "zustand/shallow";
+import { shallow as shallow3 } from "zustand/shallow";
+import { shallow as shallow4 } from "zustand/shallow";
+import { shallow as shallow5 } from "zustand/shallow";
+import { getAddress as getAddress2 } from "viem";
+import { getAddress as getAddress22 } from "viem";
+import { formatUnits as formatUnits3, parseGwei } from "viem";
+import { isAddress } from "viem";
+import { hexToString as hexToString3 } from "viem";
+import { shallow as shallow6 } from "zustand/shallow";
 function configureChains(defaultChains, providers, {
   batch = { multicall: { wait: 32 } },
   pollingInterval = 4e3,
@@ -1492,11 +1560,11 @@ function configureChains(defaultChains, providers, {
       const chainHttpUrls = httpUrls[activeChain.id];
       if (!chainHttpUrls || !chainHttpUrls[0])
         throw new Error(`No providers configured for chain "${activeChain.id}"`);
-      const publicClient = createPublicClient({
+      const publicClient = createPublicClient2({
         batch,
         chain: activeChain,
         transport: fallback(
-          chainHttpUrls.map((url) => http(url, { timeout: stallTimeout })),
+          chainHttpUrls.map((url) => http2(url, { timeout: stallTimeout })),
           { rank, retryCount, retryDelay }
         ),
         pollingInterval
@@ -1510,7 +1578,7 @@ function configureChains(defaultChains, providers, {
       const chainWsUrls = wsUrls[activeChain.id];
       if (!chainWsUrls || !chainWsUrls[0])
         return void 0;
-      const publicClient = createPublicClient({
+      const publicClient = createPublicClient2({
         batch,
         chain: activeChain,
         transport: fallback(
@@ -2077,7 +2145,7 @@ function watchAccount(callback, { selector = (x) => x } = {}) {
     }),
     handleChange,
     {
-      equalityFn: shallow
+      equalityFn: shallow4
     }
   );
   return unsubscribe;
@@ -2089,11 +2157,15 @@ function watchNetwork(callback, { selector = (x) => x } = {}) {
     ({ data, chains }) => selector({ chainId: data?.chain?.id, chains }),
     handleChange,
     {
-      equalityFn: shallow
+      equalityFn: shallow5
     }
   );
   return unsubscribe;
 }
+
+// src/web3/providers/WagmiProvider.tsx
+import React, { useEffect as useEffect2, useState as useState2 } from "react";
+import { publicProvider } from "wagmi/providers/public";
 function Child({
   useStore,
   connectors
@@ -2109,7 +2181,7 @@ function Child({
       await changeActiveWalletChain(data.chain);
     }
   });
-  useEffect(() => {
+  useEffect2(() => {
     if (connectors) {
       setConnectors(connectors);
     }
@@ -2120,8 +2192,8 @@ function WagmiProvider({
   useStore,
   connectorsInitProps
 }) {
-  const [connectors] = useState(initAllConnectors(connectorsInitProps));
-  const [mappedConnectors] = useState(
+  const [connectors] = useState2(initAllConnectors(connectorsInitProps));
+  const [mappedConnectors] = useState2(
     connectors.map((connector) => connector)
   );
   const { publicClient } = configureChains(
@@ -2135,6 +2207,12 @@ function WagmiProvider({
   });
   return /* @__PURE__ */ React.createElement(Child, { useStore, connectors: mappedConnectors });
 }
+
+// src/web3/store/transactionsSlice.ts
+import { produce as produce4 } from "immer";
+
+// src/web3/adapters/EthereumAdapter.ts
+import { produce as produce2 } from "immer";
 var EthereumAdapter = class {
   get;
   set;
@@ -2174,6 +2252,7 @@ var EthereumAdapter = class {
         }
         await new Promise((resolve) => setTimeout(resolve, 3e3));
       }
+    } else {
     }
   };
   waitForTxReceipt = async (tx, txHash) => {
@@ -2195,7 +2274,7 @@ var EthereumAdapter = class {
   };
   updateTXStatus = (hash, status2) => {
     this.set(
-      (state) => produce(state, (draft) => {
+      (state) => produce2(state, (draft) => {
         draft.transactionsPool[hash].status = status2 === "success" ? 1 : draft.transactionsPool[hash].pending ? void 0 : 0;
         draft.transactionsPool[hash].pending = false;
       })
@@ -2203,6 +2282,10 @@ var EthereumAdapter = class {
     setLocalStorageTxPool(this.get().transactionsPool);
   };
 };
+
+// src/web3/adapters/GnosisAdapter.ts
+import dayjs from "dayjs";
+import { produce as produce3 } from "immer";
 var GnosisAdapter = class {
   get;
   set;
@@ -2244,7 +2327,8 @@ var GnosisAdapter = class {
     const response = await fetch(
       `${SafeTransactionServiceUrls[tx.chainId]}/multisig-transactions/${txKey}/`
     );
-    if (!response.ok) ; else {
+    if (!response.ok) {
+    } else {
       const gnosisStatus = await response.json();
       const gnosisStatusModified = dayjs(gnosisStatus.modified);
       const currentTime = dayjs();
@@ -2270,7 +2354,7 @@ var GnosisAdapter = class {
   };
   updateGnosisTxStatus = (txKey, statusResponse, forceStopped) => {
     this.set(
-      (state) => produce(state, (draft) => {
+      (state) => produce3(state, (draft) => {
         const tx = draft.transactionsPool[txKey];
         tx.status = forceStopped ? 0 : +!!statusResponse.isSuccessful;
         tx.pending = forceStopped ? false : !statusResponse.isExecuted;
@@ -2316,7 +2400,7 @@ function createTransactionsSlice({
       const localTimestamp = (/* @__PURE__ */ new Date()).getTime();
       if (isGelatoBaseTxWithoutTimestamp(transaction)) {
         set(
-          (state) => produce(state, (draft) => {
+          (state) => produce4(state, (draft) => {
             draft.transactionsPool[transaction.taskId] = {
               ...transaction,
               pending: true,
@@ -2329,7 +2413,7 @@ function createTransactionsSlice({
         setLocalStorageTxPool(txPool2);
       } else {
         set(
-          (state) => produce(state, (draft) => {
+          (state) => produce4(state, (draft) => {
             draft.transactionsPool[transaction.hash] = {
               ...transaction,
               pending: true,
@@ -2388,13 +2472,16 @@ function createTransactionsSlice({
     },
     updateEthAdapter: (gnosis) => {
       set(
-        (state) => produce(state, (draft) => {
+        (state) => produce4(state, (draft) => {
           draft.ethereumAdapter = gnosis ? new GnosisAdapter(get, set) : new EthereumAdapter(get, set);
         })
       );
     }
   });
 }
+
+// src/web3/store/walletSlice.ts
+import { produce as produce5 } from "immer";
 function createWalletSlice({
   walletConnected
 }) {
@@ -2519,7 +2606,7 @@ function createWalletSlice({
       });
       const isContractWallet = !!codeOfWalletAddress;
       set(
-        (state) => produce(state, (draft) => {
+        (state) => produce5(state, (draft) => {
           draft.isContractWalletRecord[address] = isContractWallet;
         })
       );
@@ -2563,7 +2650,32 @@ function createWalletSlice({
     }
   });
 }
-
-export { LocalStorageKeys, SafeTransactionServiceUrls, WagmiProvider, clearWalletConnectV2LocalStorage, clearWalletLinkLocalStorage, createTransactionsSlice, createWalletSlice, deleteLocalStorageWallet, getBrowserWalletLabelAndIcon, getConnectorName, getLocalStorageTxPool, initAllConnectors, initChainInformationConfig, initialChains, selectAllTransactions, selectAllTransactionsByWallet, selectIsGelatoTXPending, selectLastTxByTypeAndPayload, selectPendingTransactionByWallet, selectPendingTransactions, selectTXByHash, selectTXByKey, selectTxExplorerLink, setLocalStorageTxPool, setLocalStorageWallet, useLastTxLocalStatus };
-//# sourceMappingURL=out.js.map
+export {
+  LocalStorageKeys,
+  SafeTransactionServiceUrls,
+  WagmiProvider,
+  clearWalletConnectV2LocalStorage,
+  clearWalletLinkLocalStorage,
+  createTransactionsSlice,
+  createWalletSlice,
+  deleteLocalStorageWallet,
+  getBrowserWalletLabelAndIcon,
+  getConnectorName,
+  getLocalStorageTxPool,
+  initAllConnectors,
+  initChainInformationConfig,
+  initialChains,
+  selectAllTransactions,
+  selectAllTransactionsByWallet,
+  selectIsGelatoTXPending,
+  selectLastTxByTypeAndPayload,
+  selectPendingTransactionByWallet,
+  selectPendingTransactions,
+  selectTXByHash,
+  selectTXByKey,
+  selectTxExplorerLink,
+  setLocalStorageTxPool,
+  setLocalStorageWallet,
+  useLastTxLocalStatus
+};
 //# sourceMappingURL=index.js.map
