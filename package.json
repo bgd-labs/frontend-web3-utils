@@ -19,7 +19,7 @@
       "url": "https://github.com/Tima0203"
     }
   ],
-  "version": "0.2.1",
+  "version": "0.2.2",
   "license": "MIT",
   "files": [
     "dist",
@@ -45,11 +45,11 @@
     "analyze": "size-limit --why"
   },
   "peerDependencies": {
-    "immer": "10.x",
-    "react": "18.x",
+    "immer": "10.x.x",
+    "react": "18.x.x",
     "viem": "1.16.6",
-    "wagmi": "1.4.4",
-    "zustand": "4.x"
+    "wagmi": "1.4.5",
+    "zustand": "4.x.x"
   },
   "devDependencies": {
     "@size-limit/preset-small-lib": "^9.0.0",
