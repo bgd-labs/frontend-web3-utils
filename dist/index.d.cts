@@ -20,11 +20,13 @@ declare class ImpersonatedConnector extends Connector<MockProvider, MockConnecto
     readonly id = "impersonated";
     readonly name = "Impersonated";
     readonly ready = true;
+    private accountAddress;
     constructor({ chains, options, }: {
         chains?: Chain[];
         options: MockConnectorOptions;
     });
-    connect({ address, chainId, }?: {
+    setAccountAddress(address: Hex | undefined): void;
+    connect({ chainId }?: {
         address?: Hex;
         chainId?: number;
     }): Promise<Required<ConnectorData>>;

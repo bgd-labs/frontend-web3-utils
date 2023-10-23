@@ -2202,7 +2202,7 @@ function watchNetwork(callback, { selector = (x) => x } = {}) {
 }
 
 // src/web3/connectors/ImpersonatedConnector.ts
-import { createWalletClient as createWalletClient2, getAddress as getAddress5, http as http3 } from "viem";
+import { createWalletClient as createWalletClient2, getAddress as getAddress5, http as http3, zeroAddress } from "viem";
 import { mainnet as mainnet5 } from "viem/chains";
 function normalizeChainId2(chainId) {
   if (typeof chainId === "string")
@@ -2218,6 +2218,7 @@ var ImpersonatedConnector = class extends Connector {
   id = "impersonated";
   name = "Impersonated";
   ready = true;
+  accountAddress;
   #provider;
   constructor({
     chains,
@@ -2230,13 +2231,16 @@ var ImpersonatedConnector = class extends Connector {
         chainId: options.chainId ?? chains?.[0]?.id
       }
     });
+    this.accountAddress = zeroAddress;
   }
-  async connect({
-    address,
-    chainId
-  } = {}) {
-    console.log("address", address);
-    const provider = await this.getProvider({ address, chainId });
+  setAccountAddress(address) {
+    this.accountAddress = address || zeroAddress;
+  }
+  async connect({ chainId } = {}) {
+    const provider = await this.getProvider({
+      address: this.accountAddress,
+      chainId
+    });
     provider.on("accountsChanged", this.onAccountsChanged);
     provider.on("chainChanged", this.onChainChanged);
     provider.on("disconnect", this.onDisconnect);
@@ -2275,12 +2279,13 @@ var ImpersonatedConnector = class extends Connector {
     address,
     chainId
   } = {}) {
+    console.log("address", address);
     if (!this.#provider || chainId)
       this.#provider = new MockProvider({
         ...this.options,
         chainId: chainId ?? this.options.chainId ?? this.chains[0].id,
         walletClient: createWalletClient2({
-          account: address || "0x0",
+          account: address || zeroAddress,
           chain: this.chains.find((chain) => chain.id === chainId) || mainnet5,
           transport: http3()
         })
@@ -2778,11 +2783,9 @@ function createWalletSlice({
       );
       try {
         if (connector) {
-          if (walletType === "Impersonated") {
+          if (connector instanceof ImpersonatedConnector) {
+            connector.setAccountAddress(get()._impersonatedAddress);
             await connect({ connector });
-            await connector.connect({
-              address: get()._impersonatedAddress
-            });
           } else {
             await connect({ connector });
           }

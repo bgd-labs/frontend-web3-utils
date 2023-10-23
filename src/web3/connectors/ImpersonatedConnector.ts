@@ -1,6 +1,6 @@
 import { MockProvider, MockProviderOptions } from '@wagmi/connectors/mock';
 import { Connector, ConnectorData, WalletClient } from '@wagmi/core';
-import { createWalletClient, getAddress, Hex, http } from 'viem';
+import { createWalletClient, getAddress, Hex, http, zeroAddress } from 'viem';
 import type { Chain } from 'viem/chains';
 import { mainnet } from 'viem/chains';
 
@@ -28,6 +28,7 @@ export class ImpersonatedConnector extends Connector<
   readonly id = 'impersonated';
   readonly name = 'Impersonated';
   readonly ready = true;
+  private accountAddress: Hex;
 
   #provider?: MockProvider;
 
@@ -45,14 +46,18 @@ export class ImpersonatedConnector extends Connector<
         chainId: options.chainId ?? chains?.[0]?.id,
       },
     });
+    this.accountAddress = zeroAddress;
   }
 
-  async connect({
-    address,
-    chainId,
-  }: { address?: Hex; chainId?: number } = {}) {
-    console.log('address', address);
-    const provider = await this.getProvider({ address, chainId });
+  setAccountAddress(address: Hex | undefined) {
+    this.accountAddress = address || zeroAddress;
+  }
+
+  async connect({ chainId }: { address?: Hex; chainId?: number } = {}) {
+    const provider = await this.getProvider({
+      address: this.accountAddress,
+      chainId,
+    });
     provider.on('accountsChanged', this.onAccountsChanged);
     provider.on('chainChanged', this.onChainChanged);
     provider.on('disconnect', this.onDisconnect);
@@ -100,12 +105,13 @@ export class ImpersonatedConnector extends Connector<
     address,
     chainId,
   }: { address?: Hex; chainId?: number } = {}) {
+    console.log('address', address);
     if (!this.#provider || chainId)
       this.#provider = new MockProvider({
         ...this.options,
         chainId: chainId ?? this.options.chainId ?? this.chains[0]!.id,
         walletClient: createWalletClient({
-          account: address || '0x0',
+          account: address || zeroAddress,
           chain: this.chains.find((chain) => chain.id === chainId) || mainnet,
           transport: http(),
         }),

@@ -21,6 +21,7 @@ import {
   setLocalStorageWallet,
 } from '../../utils/localStorage';
 import { ConnectorType, getConnectorName, WalletType } from '../connectors';
+import { ImpersonatedConnector } from '../connectors/ImpersonatedConnector';
 import { TransactionsSliceBaseType } from './transactionsSlice';
 
 export interface Wallet {
@@ -135,12 +136,9 @@ export function createWalletSlice({
 
       try {
         if (connector) {
-          if (walletType === 'Impersonated') {
+          if (connector instanceof ImpersonatedConnector) {
+            connector.setAccountAddress(get()._impersonatedAddress);
             await connect({ connector });
-            // @ts-ignore
-            await connector.connect({
-              address: get()._impersonatedAddress,
-            });
           } else {
             await connect({ connector });
           }

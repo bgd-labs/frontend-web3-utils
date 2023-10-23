@@ -2223,6 +2223,7 @@ var ImpersonatedConnector = class extends Connector {
   id = "impersonated";
   name = "Impersonated";
   ready = true;
+  accountAddress;
   #provider;
   constructor({
     chains,
@@ -2235,13 +2236,16 @@ var ImpersonatedConnector = class extends Connector {
         chainId: options.chainId ?? chains?.[0]?.id
       }
     });
+    this.accountAddress = import_viem16.zeroAddress;
   }
-  async connect({
-    address,
-    chainId
-  } = {}) {
-    console.log("address", address);
-    const provider = await this.getProvider({ address, chainId });
+  setAccountAddress(address) {
+    this.accountAddress = address || import_viem16.zeroAddress;
+  }
+  async connect({ chainId } = {}) {
+    const provider = await this.getProvider({
+      address: this.accountAddress,
+      chainId
+    });
     provider.on("accountsChanged", this.onAccountsChanged);
     provider.on("chainChanged", this.onChainChanged);
     provider.on("disconnect", this.onDisconnect);
@@ -2280,12 +2284,13 @@ var ImpersonatedConnector = class extends Connector {
     address,
     chainId
   } = {}) {
+    console.log("address", address);
     if (!this.#provider || chainId)
       this.#provider = new MockProvider({
         ...this.options,
         chainId: chainId ?? this.options.chainId ?? this.chains[0].id,
         walletClient: (0, import_viem16.createWalletClient)({
-          account: address || "0x0",
+          account: address || import_viem16.zeroAddress,
           chain: this.chains.find((chain) => chain.id === chainId) || import_chains5.mainnet,
           transport: (0, import_viem16.http)()
         })
@@ -2783,11 +2788,9 @@ function createWalletSlice({
       );
       try {
         if (connector) {
-          if (walletType === "Impersonated") {
+          if (connector instanceof ImpersonatedConnector) {
+            connector.setAccountAddress(get()._impersonatedAddress);
             await connect({ connector });
-            await connector.connect({
-              address: get()._impersonatedAddress
-            });
           } else {
             await connect({ connector });
           }
