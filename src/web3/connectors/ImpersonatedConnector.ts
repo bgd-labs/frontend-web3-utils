@@ -51,6 +51,7 @@ export class ImpersonatedConnector extends Connector<
     address,
     chainId,
   }: { address?: Hex; chainId?: number } = {}) {
+    console.log('address', address);
     const provider = await this.getProvider({ address, chainId });
     provider.on('accountsChanged', this.onAccountsChanged);
     provider.on('chainChanged', this.onChainChanged);

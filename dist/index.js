@@ -2235,6 +2235,7 @@ var ImpersonatedConnector = class extends Connector {
     address,
     chainId
   } = {}) {
+    console.log("address", address);
     const provider = await this.getProvider({ address, chainId });
     provider.on("accountsChanged", this.onAccountsChanged);
     provider.on("chainChanged", this.onChainChanged);
@@ -2766,7 +2767,10 @@ function createWalletSlice({
       );
       try {
         if (connector) {
+          console.log(connector);
+          console.log(walletType);
           if (walletType === "Impersonated") {
+            console.log("here");
             await connector.connect({
               address: get()._impersonatedAddress
             });

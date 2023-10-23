@@ -135,7 +135,10 @@ export function createWalletSlice({
 
       try {
         if (connector) {
+          console.log(connector);
+          console.log(walletType);
           if (walletType === 'Impersonated') {
+            console.log('here');
             // @ts-ignore
             await connector.connect({
               address: get()._impersonatedAddress,
