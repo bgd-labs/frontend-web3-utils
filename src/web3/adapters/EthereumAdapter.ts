@@ -1,5 +1,5 @@
 import { produce } from 'immer';
-import { GetTransactionReturnType, Hex, PublicClient } from 'viem';
+import { GetTransactionReturnType, Hex, PublicClient, Transaction } from 'viem';
 
 import { setLocalStorageTxPool } from '../../utils/localStorage';
 import { BaseTx, ITransactionsSlice, NewTx } from '../store/transactionsSlice';
@@ -68,7 +68,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
   };
 
   private waitForTxReceipt = async (
-    tx: GetTransactionReturnType,
+    tx: GetTransactionReturnType | Transaction,
     txHash: Hex,
   ) => {
     const chainId = tx.chainId || this.get().transactionsPool[txHash].chainId;
@@ -76,7 +76,17 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
     try {
       // TODO: need added onReplaced logic
-      const txn = await client.waitForTransactionReceipt({ hash: tx.hash });
+      const txn = await client.waitForTransactionReceipt({
+        hash: tx.hash,
+        onReplaced: (replacement) => {
+          console.log('onReplaced', replacement);
+          this.get().replaceTXinPool(txHash, replacement.transaction.hash);
+          return this.waitForTxReceipt(
+            replacement.transaction,
+            replacement.transaction.hash,
+          );
+        },
+      });
       this.updateTXStatus(txHash, txn.status);
 
       const updatedTX = this.get().transactionsPool[txHash];
