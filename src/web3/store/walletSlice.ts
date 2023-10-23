@@ -1,5 +1,3 @@
-// TODO: need add logic for mock connector
-
 import {
   connect,
   disconnect,
@@ -43,7 +41,7 @@ export type IWalletSlice = {
     wallet: Omit<Wallet, 'walletClient' | 'client'>,
   ) => Promise<void>;
   isActiveWalletSetting: boolean;
-  connectWallet: (walletType: WalletType) => Promise<void>;
+  connectWallet: (walletType: WalletType, chainId?: number) => Promise<void>;
   disconnectActiveWallet: () => Promise<void>;
   walletActivating: boolean;
   walletConnectionError: string;
@@ -119,7 +117,7 @@ export function createWalletSlice({
     },
     isActiveWalletSetting: false,
 
-    connectWallet: async (walletType) => {
+    connectWallet: async (walletType, chainId) => {
       clearWalletLinkLocalStorage();
       clearWalletConnectV2LocalStorage();
 
@@ -138,7 +136,7 @@ export function createWalletSlice({
         if (connector) {
           if (connector instanceof ImpersonatedConnector) {
             connector.setAccountAddress(get()._impersonatedAddress);
-            await connect({ connector });
+            await connect({ connector, chainId });
           } else {
             await connect({ connector });
           }

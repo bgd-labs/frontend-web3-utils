@@ -84,7 +84,7 @@ type IWalletSlice = {
     activeWallet?: Wallet;
     setActiveWallet: (wallet: Omit<Wallet, 'walletClient' | 'client'>) => Promise<void>;
     isActiveWalletSetting: boolean;
-    connectWallet: (walletType: WalletType) => Promise<void>;
+    connectWallet: (walletType: WalletType, chainId?: number) => Promise<void>;
     disconnectActiveWallet: () => Promise<void>;
     walletActivating: boolean;
     walletConnectionError: string;

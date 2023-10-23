@@ -2775,7 +2775,7 @@ function createWalletSlice({
       }
     },
     isActiveWalletSetting: false,
-    connectWallet: async (walletType) => {
+    connectWallet: async (walletType, chainId) => {
       clearWalletLinkLocalStorage();
       clearWalletConnectV2LocalStorage();
       if (get().activeWallet?.walletType !== walletType) {
@@ -2790,7 +2790,7 @@ function createWalletSlice({
         if (connector) {
           if (connector instanceof ImpersonatedConnector) {
             connector.setAccountAddress(get()._impersonatedAddress);
-            await connect({ connector });
+            await connect({ connector, chainId });
           } else {
             await connect({ connector });
           }
