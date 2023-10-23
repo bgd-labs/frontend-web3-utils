@@ -19,7 +19,7 @@
       "url": "https://github.com/Tima0203"
     }
   ],
-  "version": "0.2.22",
+  "version": "0.2.23",
   "license": "MIT",
   "files": [
     "dist",
@@ -28,6 +28,7 @@
   "engines": {
     "node": ">=18"
   },
+  "type": "module",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "module": "dist/index.js",

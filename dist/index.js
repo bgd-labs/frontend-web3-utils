@@ -1,4 +1,3 @@
-"use strict";
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -7,10 +6,6 @@ var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-};
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
 };
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
@@ -28,11 +23,10 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // node_modules/eventemitter3/index.js
 var require_eventemitter3 = __commonJS({
-  "node_modules/eventemitter3/index.js"(exports, module2) {
+  "node_modules/eventemitter3/index.js"(exports, module) {
     "use strict";
     var has = Object.prototype.hasOwnProperty;
     var prefix = "~";
@@ -206,49 +200,17 @@ var require_eventemitter3 = __commonJS({
     EventEmitter3.prototype.addListener = EventEmitter3.prototype.on;
     EventEmitter3.prefixed = prefix;
     EventEmitter3.EventEmitter = EventEmitter3;
-    if ("undefined" !== typeof module2) {
-      module2.exports = EventEmitter3;
+    if ("undefined" !== typeof module) {
+      module.exports = EventEmitter3;
     }
   }
 });
 
-// src/index.tsx
-var src_exports = {};
-__export(src_exports, {
-  LocalStorageKeys: () => LocalStorageKeys,
-  SafeTransactionServiceUrls: () => SafeTransactionServiceUrls,
-  WagmiProvider: () => WagmiProvider,
-  clearWalletConnectV2LocalStorage: () => clearWalletConnectV2LocalStorage,
-  clearWalletLinkLocalStorage: () => clearWalletLinkLocalStorage,
-  createTransactionsSlice: () => createTransactionsSlice,
-  createWalletSlice: () => createWalletSlice,
-  deleteLocalStorageWallet: () => deleteLocalStorageWallet,
-  getBrowserWalletLabelAndIcon: () => getBrowserWalletLabelAndIcon,
-  getConnectorName: () => getConnectorName,
-  getLocalStorageTxPool: () => getLocalStorageTxPool,
-  initAllConnectors: () => initAllConnectors,
-  initChainInformationConfig: () => initChainInformationConfig,
-  initialChains: () => initialChains,
-  selectAllTransactions: () => selectAllTransactions,
-  selectAllTransactionsByWallet: () => selectAllTransactionsByWallet,
-  selectIsGelatoTXPending: () => selectIsGelatoTXPending,
-  selectLastTxByTypeAndPayload: () => selectLastTxByTypeAndPayload,
-  selectPendingTransactionByWallet: () => selectPendingTransactionByWallet,
-  selectPendingTransactions: () => selectPendingTransactions,
-  selectTXByHash: () => selectTXByHash,
-  selectTXByKey: () => selectTXByKey,
-  selectTxExplorerLink: () => selectTxExplorerLink,
-  setLocalStorageTxPool: () => setLocalStorageTxPool,
-  setLocalStorageWallet: () => setLocalStorageWallet,
-  useLastTxLocalStatus: () => useLastTxLocalStatus
-});
-module.exports = __toCommonJS(src_exports);
-
 // src/hooks/useLastTxLocalStatus.tsx
-var import_react = require("react");
+import { useEffect, useState } from "react";
 
 // src/web3/adapters/GelatoAdapter.ts
-var import_immer = require("immer");
+import { produce } from "immer";
 
 // src/utils/localStorage.ts
 var LocalStorageKeys = /* @__PURE__ */ ((LocalStorageKeys2) => {
@@ -298,8 +260,8 @@ var clearWalletConnectV2LocalStorage = () => {
 };
 
 // src/web3/store/transactionsSelectors.ts
-var import_isEqual = __toESM(require("lodash/isEqual.js"));
-var import_chains = require("viem/chains");
+import isEqual from "lodash/isEqual.js";
+import { goerli, mainnet } from "viem/chains";
 var selectAllTransactions = (state) => {
   return Object.values(state.transactionsPool).sort(
     (a, b) => Number(a.localTimestamp) - Number(b.localTimestamp)
@@ -327,7 +289,7 @@ var selectPendingTransactionByWallet = (state, from) => {
 var selectLastTxByTypeAndPayload = (state, from, type, payload) => {
   const allTransactions = selectAllTransactionsByWallet(state, from);
   const filteredTransactions = allTransactions.filter(
-    (tx) => tx.type === type && (0, import_isEqual.default)(tx.payload, payload)
+    (tx) => tx.type === type && isEqual(tx.payload, payload)
   );
   const lastFilteredTransaction = filteredTransactions[filteredTransactions.length - 1];
   if (lastFilteredTransaction) {
@@ -350,8 +312,8 @@ var selectTxExplorerLink = (state, getChainParameters, txHash) => {
     return "";
   }
   const gnosisSafeLinksHelper = {
-    [import_chains.mainnet.id]: "https://app.safe.global/eth:",
-    [import_chains.goerli.id]: "https://app.safe.global/gor:"
+    [mainnet.id]: "https://app.safe.global/eth:",
+    [goerli.id]: "https://app.safe.global/gor:"
   };
   if (tx.walletType !== "GnosisSafe") {
     return `${getChainParameters(tx.chainId).blockExplorers}/tx/${txHash}`;
@@ -431,7 +393,7 @@ var GelatoAdapter = class {
   };
   updateGelatoTX = (taskId, statusResponse) => {
     this.set(
-      (state) => (0, import_immer.produce)(state, (draft) => {
+      (state) => produce(state, (draft) => {
         const tx = draft.transactionsPool[taskId];
         tx.gelatoStatus = statusResponse.task.taskState;
         tx.pending = selectIsGelatoTXPending(statusResponse.task.taskState);
@@ -457,30 +419,30 @@ var useLastTxLocalStatus = ({
   payload
 }) => {
   const tx = selectLastTxByTypeAndPayload(state, activeAddress, type, payload);
-  const [fullTxErrorMessage, setFullTxErrorMessage] = (0, import_react.useState)(
+  const [fullTxErrorMessage, setFullTxErrorMessage] = useState(
     ""
   );
-  const [error, setError] = (0, import_react.useState)("");
-  const [loading, setLoading] = (0, import_react.useState)(false);
-  const [isTxStart, setIsTxStart] = (0, import_react.useState)(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isTxStart, setIsTxStart] = useState(false);
   const txHash = tx && tx.hash;
   const txPending = tx && tx.pending;
   const isError = tx && isGelatoBaseTx(tx) ? !tx.pending && (tx.status !== 1 || !!error) : tx && !tx.pending && tx.status !== 1 || !!error;
   const txSuccess = tx && tx.status === 1 && !isError;
   const txChainId = tx && tx.chainId;
   const txWalletType = tx && tx.walletType;
-  (0, import_react.useEffect)(() => {
+  useEffect(() => {
     return () => {
       setFullTxErrorMessage("");
       setError("");
     };
   }, []);
-  (0, import_react.useEffect)(() => {
+  useEffect(() => {
     if (txPending || isError) {
       setIsTxStart(true);
     }
   }, [txPending, isError]);
-  (0, import_react.useEffect)(() => {
+  useEffect(() => {
     if (tx?.errorMessage) {
       setError(tx.errorMessage);
     }
@@ -522,16 +484,24 @@ var useLastTxLocalStatus = ({
 };
 
 // src/utils/chainInfoHelpers.ts
-var import_viem = require("viem");
-var import_chains2 = require("viem/chains");
+import { createPublicClient, http } from "viem";
+import {
+  avalanche,
+  avalancheFuji,
+  goerli as goerli2,
+  mainnet as mainnet2,
+  polygon,
+  polygonMumbai,
+  sepolia
+} from "viem/chains";
 var initialChains = {
-  [import_chains2.mainnet.id]: import_chains2.mainnet,
-  [import_chains2.polygon.id]: import_chains2.polygon,
-  [import_chains2.polygonMumbai.id]: import_chains2.polygonMumbai,
-  [import_chains2.avalanche.id]: import_chains2.avalanche,
-  [import_chains2.avalancheFuji.id]: import_chains2.avalancheFuji,
-  [import_chains2.goerli.id]: import_chains2.goerli,
-  [import_chains2.sepolia.id]: import_chains2.sepolia
+  [mainnet2.id]: mainnet2,
+  [polygon.id]: polygon,
+  [polygonMumbai.id]: polygonMumbai,
+  [avalanche.id]: avalanche,
+  [avalancheFuji.id]: avalancheFuji,
+  [goerli2.id]: goerli2,
+  [sepolia.id]: sepolia
 };
 var initChainInformationConfig = (chains) => {
   const CHAINS = { ...initialChains, ...chains };
@@ -543,12 +513,12 @@ var initChainInformationConfig = (chains) => {
         if (initalizedClients[numberChainId]) {
           return initalizedClients[numberChainId];
         } else {
-          const client = (0, import_viem.createPublicClient)({
+          const client = createPublicClient({
             batch: {
               multicall: true
             },
             chain,
-            transport: (0, import_viem.http)()
+            transport: http()
           });
           initalizedClients[numberChainId] = client;
           return client;
@@ -563,7 +533,7 @@ var initChainInformationConfig = (chains) => {
       return chainInformation;
     } else {
       return {
-        ...import_chains2.mainnet,
+        ...mainnet2,
         id: chainId,
         name: `unknown network: ${chainId}`
       };
@@ -576,14 +546,21 @@ var initChainInformationConfig = (chains) => {
 };
 
 // src/utils/constants.ts
-var import_chains3 = require("viem/chains");
+import {
+  arbitrum,
+  avalanche as avalanche2,
+  goerli as goerli3,
+  mainnet as mainnet3,
+  optimism,
+  polygon as polygon2
+} from "viem/chains";
 var SafeTransactionServiceUrls = {
-  [import_chains3.mainnet.id]: "https://safe-transaction-mainnet.safe.global/api/v1",
-  [import_chains3.goerli.id]: "https://safe-transaction-goerli.safe.global/api/v1",
-  [import_chains3.optimism.id]: "https://safe-transaction-optimism.safe.global/api/v1",
-  [import_chains3.polygon.id]: "https://safe-transaction-polygon.safe.global/api/v1",
-  [import_chains3.arbitrum.id]: "https://safe-transaction-arbitrum.safe.global/api/v1",
-  [import_chains3.avalanche.id]: "https://safe-transaction-avalanche.safe.global/api/v1"
+  [mainnet3.id]: "https://safe-transaction-mainnet.safe.global/api/v1",
+  [goerli3.id]: "https://safe-transaction-goerli.safe.global/api/v1",
+  [optimism.id]: "https://safe-transaction-optimism.safe.global/api/v1",
+  [polygon2.id]: "https://safe-transaction-polygon.safe.global/api/v1",
+  [arbitrum.id]: "https://safe-transaction-arbitrum.safe.global/api/v1",
+  [avalanche2.id]: "https://safe-transaction-avalanche.safe.global/api/v1"
 };
 
 // src/utils/wallets/wallets/alphawallet.ts
@@ -976,10 +953,10 @@ function getBrowserWalletLabelAndIcon() {
 }
 
 // src/web3/connectors/index.ts
-var import_coinbaseWallet = require("wagmi/connectors/coinbaseWallet");
-var import_injected2 = require("wagmi/connectors/injected");
-var import_safe = require("wagmi/connectors/safe");
-var import_walletConnect = require("wagmi/connectors/walletConnect");
+import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
+import { InjectedConnector as InjectedConnector2 } from "wagmi/connectors/injected";
+import { SafeConnector } from "wagmi/connectors/safe";
+import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 
 // node_modules/@wagmi/connectors/dist/chunk-OQILYQDO.js
 function normalizeChainId(chainId) {
@@ -995,7 +972,7 @@ function normalizeChainId(chainId) {
 
 // node_modules/@wagmi/connectors/dist/chunk-W65LBPLT.js
 var import_eventemitter3 = __toESM(require_eventemitter3(), 1);
-var import_chains4 = require("viem/chains");
+import { goerli as goerli4, mainnet as mainnet4 } from "viem/chains";
 var __accessCheck = (obj, member, msg) => {
   if (!member.has(obj))
     throw TypeError("Cannot " + msg);
@@ -1016,7 +993,7 @@ var __privateSet = (obj, member, value, setter) => {
 };
 var Connector = class extends import_eventemitter3.default {
   constructor({
-    chains = [import_chains4.mainnet, import_chains4.goerli],
+    chains = [mainnet4, goerli4],
     options
   }) {
     super();
@@ -1040,9 +1017,9 @@ var Connector = class extends import_eventemitter3.default {
 };
 
 // node_modules/@wagmi/connectors/dist/mock/index.js
-var import_viem2 = require("viem");
 var import_eventemitter32 = __toESM(require_eventemitter3(), 1);
-var import_viem3 = require("viem");
+import { getAddress as getAddress2 } from "viem";
+import { UserRejectedRequestError, getAddress } from "viem";
 var _options;
 var _walletClient;
 var MockProvider = class {
@@ -1055,7 +1032,7 @@ var MockProvider = class {
   }
   async enable() {
     if (__privateGet(this, _options).flags?.failConnect)
-      throw new import_viem3.UserRejectedRequestError(new Error("Failed to connect."));
+      throw new UserRejectedRequestError(new Error("Failed to connect."));
     if (!__privateGet(this, _walletClient))
       __privateSet(this, _walletClient, __privateGet(this, _options).walletClient);
     const address = __privateGet(this, _walletClient).account.address;
@@ -1070,7 +1047,7 @@ var MockProvider = class {
     const address = __privateGet(this, _walletClient)?.account.address;
     if (!address)
       return [];
-    return [(0, import_viem3.getAddress)(address)];
+    return [getAddress(address)];
   }
   getWalletClient() {
     const walletClient = __privateGet(this, _walletClient);
@@ -1080,7 +1057,7 @@ var MockProvider = class {
   }
   async switchChain(chainId) {
     if (__privateGet(this, _options).flags?.failSwitchChain)
-      throw new import_viem3.UserRejectedRequestError(new Error("Failed to switch chain."));
+      throw new UserRejectedRequestError(new Error("Failed to switch chain."));
     __privateGet(this, _options).chainId = chainId;
     this.chainId = chainId;
     this.events.emit("chainChanged", chainId);
@@ -1146,7 +1123,15 @@ var ConnectorNotFoundError = class extends Error {
 };
 
 // node_modules/@wagmi/connectors/dist/chunk-2UFLHRLT.js
-var import_viem4 = require("viem");
+import {
+  ResourceUnavailableRpcError,
+  SwitchChainError,
+  UserRejectedRequestError as UserRejectedRequestError2,
+  createWalletClient,
+  custom,
+  getAddress as getAddress3,
+  numberToHex
+} from "viem";
 function getInjectedName(ethereum) {
   if (!ethereum)
     return "Injected";
@@ -1287,7 +1272,7 @@ var InjectedConnector = class extends Connector {
         this.emit("disconnect");
       else
         this.emit("change", {
-          account: (0, import_viem4.getAddress)(accounts[0])
+          account: getAddress3(accounts[0])
         });
     };
     this.onChainChanged = (chainId) => {
@@ -1339,7 +1324,7 @@ var InjectedConnector = class extends Connector {
       const accounts = await provider.request({
         method: "eth_requestAccounts"
       });
-      const account = (0, import_viem4.getAddress)(accounts[0]);
+      const account = getAddress3(accounts[0]);
       let id = await this.getChainId();
       let unsupported = this.isChainUnsupported(id);
       if (chainId && id !== chainId) {
@@ -1352,9 +1337,9 @@ var InjectedConnector = class extends Connector {
       return { account, chain: { id, unsupported } };
     } catch (error) {
       if (this.isUserRejectedRequestError(error))
-        throw new import_viem4.UserRejectedRequestError(error);
+        throw new UserRejectedRequestError2(error);
       if (error.code === -32002)
-        throw new import_viem4.ResourceUnavailableRpcError(error);
+        throw new ResourceUnavailableRpcError(error);
       throw error;
     }
   }
@@ -1375,7 +1360,7 @@ var InjectedConnector = class extends Connector {
     const accounts = await provider.request({
       method: "eth_accounts"
     });
-    return (0, import_viem4.getAddress)(accounts[0]);
+    return getAddress3(accounts[0]);
   }
   async getChainId() {
     const provider = await this.getProvider();
@@ -1399,10 +1384,10 @@ var InjectedConnector = class extends Connector {
     const chain = this.chains.find((x) => x.id === chainId);
     if (!provider)
       throw new Error("provider is required.");
-    return (0, import_viem4.createWalletClient)({
+    return createWalletClient({
       account,
       chain,
-      transport: (0, import_viem4.custom)(provider)
+      transport: custom(provider)
     });
   }
   async isAuthorized() {
@@ -1422,7 +1407,7 @@ var InjectedConnector = class extends Connector {
     const provider = await this.getProvider();
     if (!provider)
       throw new ConnectorNotFoundError();
-    const id = (0, import_viem4.numberToHex)(chainId);
+    const id = numberToHex(chainId);
     try {
       await Promise.all([
         provider.request({
@@ -1466,17 +1451,17 @@ var InjectedConnector = class extends Connector {
           });
           const currentChainId = await this.getChainId();
           if (currentChainId !== chainId)
-            throw new import_viem4.UserRejectedRequestError(
+            throw new UserRejectedRequestError2(
               new Error("User rejected switch after adding network.")
             );
           return chain;
         } catch (error2) {
-          throw new import_viem4.UserRejectedRequestError(error2);
+          throw new UserRejectedRequestError2(error2);
         }
       }
       if (this.isUserRejectedRequestError(error))
-        throw new import_viem4.UserRejectedRequestError(error);
-      throw new import_viem4.SwitchChainError(error);
+        throw new UserRejectedRequestError2(error);
+      throw new SwitchChainError(error);
     }
   }
   async watchAsset({
@@ -1532,25 +1517,35 @@ var __privateMethod2 = (obj, member, method) => {
 };
 
 // node_modules/@wagmi/core/dist/chunk-TSH6VVF4.js
-var import_viem5 = require("viem");
-var import_viem6 = require("viem");
-var import_middleware = require("zustand/middleware");
-var import_vanilla = require("zustand/vanilla");
-var import_viem7 = require("viem");
-var import_viem8 = require("viem");
-var import_shallow = require("zustand/shallow");
-var import_viem9 = require("viem");
-var import_viem10 = require("viem");
-var import_shallow2 = require("zustand/shallow");
-var import_shallow3 = require("zustand/shallow");
-var import_shallow4 = require("zustand/shallow");
-var import_shallow5 = require("zustand/shallow");
-var import_viem11 = require("viem");
-var import_viem12 = require("viem");
-var import_viem13 = require("viem");
-var import_viem14 = require("viem");
-var import_viem15 = require("viem");
-var import_shallow6 = require("zustand/shallow");
+import { createPublicClient as createPublicClient2, fallback, http as http2, webSocket } from "viem";
+import { weiUnits } from "viem";
+import { persist, subscribeWithSelector } from "zustand/middleware";
+import { createStore } from "zustand/vanilla";
+import {
+  ContractFunctionExecutionError as ContractFunctionExecutionError3,
+  formatUnits as formatUnits2,
+  hexToString as hexToString2,
+  trim as trim2
+} from "viem";
+import {
+  ContractFunctionExecutionError,
+  formatUnits,
+  hexToString,
+  trim
+} from "viem";
+import { shallow } from "zustand/shallow";
+import { getContract as getContract_ } from "viem";
+import { ContractFunctionExecutionError as ContractFunctionExecutionError2 } from "viem";
+import { shallow as shallow2 } from "zustand/shallow";
+import { shallow as shallow3 } from "zustand/shallow";
+import { shallow as shallow4 } from "zustand/shallow";
+import { shallow as shallow5 } from "zustand/shallow";
+import { getAddress as getAddress4 } from "viem";
+import { getAddress as getAddress22 } from "viem";
+import { formatUnits as formatUnits3, parseGwei } from "viem";
+import { isAddress } from "viem";
+import { hexToString as hexToString3 } from "viem";
+import { shallow as shallow6 } from "zustand/shallow";
 function configureChains(defaultChains, providers, {
   batch = { multicall: { wait: 32 } },
   pollingInterval = 4e3,
@@ -1603,11 +1598,11 @@ function configureChains(defaultChains, providers, {
       const chainHttpUrls = httpUrls[activeChain.id];
       if (!chainHttpUrls || !chainHttpUrls[0])
         throw new Error(`No providers configured for chain "${activeChain.id}"`);
-      const publicClient = (0, import_viem5.createPublicClient)({
+      const publicClient = createPublicClient2({
         batch,
         chain: activeChain,
-        transport: (0, import_viem5.fallback)(
-          chainHttpUrls.map((url) => (0, import_viem5.http)(url, { timeout: stallTimeout })),
+        transport: fallback(
+          chainHttpUrls.map((url) => http2(url, { timeout: stallTimeout })),
           { rank, retryCount, retryDelay }
         ),
         pollingInterval
@@ -1621,11 +1616,11 @@ function configureChains(defaultChains, providers, {
       const chainWsUrls = wsUrls[activeChain.id];
       if (!chainWsUrls || !chainWsUrls[0])
         return void 0;
-      const publicClient = (0, import_viem5.createPublicClient)({
+      const publicClient = createPublicClient2({
         batch,
         chain: activeChain,
-        transport: (0, import_viem5.fallback)(
-          chainWsUrls.map((url) => (0, import_viem5.webSocket)(url, { timeout: stallTimeout })),
+        transport: fallback(
+          chainWsUrls.map((url) => webSocket(url, { timeout: stallTimeout })),
           { rank, retryCount, retryDelay }
         ),
         pollingInterval
@@ -1810,9 +1805,9 @@ var Config = class {
     }
     const connectors_ = typeof connectors === "function" ? connectors() : connectors;
     connectors_.forEach((connector) => connector.setStorage(storage));
-    this.store = (0, import_vanilla.createStore)(
-      (0, import_middleware.subscribeWithSelector)(
-        (0, import_middleware.persist)(
+    this.store = createStore(
+      subscribeWithSelector(
+        persist(
           () => ({
             connectors: connectors_,
             publicClient: this.getPublicClient({ chainId }),
@@ -2188,7 +2183,7 @@ function watchAccount(callback, { selector = (x) => x } = {}) {
     }),
     handleChange,
     {
-      equalityFn: import_shallow4.shallow
+      equalityFn: shallow4
     }
   );
   return unsubscribe;
@@ -2200,15 +2195,15 @@ function watchNetwork(callback, { selector = (x) => x } = {}) {
     ({ data, chains }) => selector({ chainId: data?.chain?.id, chains }),
     handleChange,
     {
-      equalityFn: import_shallow5.shallow
+      equalityFn: shallow5
     }
   );
   return unsubscribe;
 }
 
 // src/web3/connectors/ImpersonatedConnector.ts
-var import_viem16 = require("viem");
-var import_chains5 = require("viem/chains");
+import { createWalletClient as createWalletClient2, getAddress as getAddress5, http as http3 } from "viem";
+import { mainnet as mainnet5 } from "viem/chains";
 function normalizeChainId2(chainId) {
   if (typeof chainId === "string")
     return Number.parseInt(
@@ -2246,7 +2241,7 @@ var ImpersonatedConnector = class extends Connector {
     provider.on("disconnect", this.onDisconnect);
     this.emit("message", { type: "connecting" });
     const accounts = await provider.enable();
-    const account = (0, import_viem16.getAddress)(accounts[0]);
+    const account = getAddress5(accounts[0]);
     const id = normalizeChainId2(provider.chainId);
     const unsupported = this.isChainUnsupported(id);
     const data = { account, chain: { id, unsupported }, provider };
@@ -2269,7 +2264,7 @@ var ImpersonatedConnector = class extends Connector {
     const account = accounts[0];
     if (!account)
       throw new Error("Failed to get account");
-    return (0, import_viem16.getAddress)(account);
+    return getAddress5(account);
   }
   async getChainId() {
     const provider = await this.getProvider();
@@ -2283,10 +2278,10 @@ var ImpersonatedConnector = class extends Connector {
       this.#provider = new MockProvider({
         ...this.options,
         chainId: chainId ?? this.options.chainId ?? this.chains[0].id,
-        walletClient: (0, import_viem16.createWalletClient)({
+        walletClient: createWalletClient2({
           account: address || "0x0",
-          chain: this.chains.find((chain) => chain.id === chainId) || import_chains5.mainnet,
-          transport: (0, import_viem16.http)()
+          chain: this.chains.find((chain) => chain.id === chainId) || mainnet5,
+          transport: http3()
         })
       });
     return this.#provider;
@@ -2323,7 +2318,7 @@ var ImpersonatedConnector = class extends Connector {
     if (accounts.length === 0)
       this.emit("disconnect");
     else
-      this.emit("change", { account: (0, import_viem16.getAddress)(accounts[0]) });
+      this.emit("change", { account: getAddress5(accounts[0]) });
   };
   onChainChanged = (chainId) => {
     const id = normalizeChainId2(chainId);
@@ -2345,27 +2340,27 @@ var initAllConnectors = (props) => {
   const wcParams = props.wcParams;
   let walletConnect = null;
   if (wcParams) {
-    walletConnect = new import_walletConnect.WalletConnectConnector({
+    walletConnect = new WalletConnectConnector({
       chains,
       options: {
         ...wcParams
       }
     });
   }
-  const injected = new import_injected2.InjectedConnector({
+  const injected = new InjectedConnector2({
     chains,
     options: {
       name: (detectedName) => `${typeof detectedName === "string" ? detectedName : detectedName.join(", ")}`
     }
   });
-  const coinbase2 = new import_coinbaseWallet.CoinbaseWalletConnector({
+  const coinbase2 = new CoinbaseWalletConnector({
     chains,
     options: {
       appName: props.appName,
       jsonRpcUrl: props.chains[props.defaultChainId || chainIds[0]].rpcUrls.default.http[0]
     }
   });
-  const gnosisSafe = new import_safe.SafeConnector({
+  const gnosisSafe = new SafeConnector({
     chains,
     options: {
       allowedDomains: [/gnosis-safe.io$/, /app.safe.global$/],
@@ -2379,13 +2374,13 @@ var initAllConnectors = (props) => {
   return connectors;
 };
 function getConnectorName(connector) {
-  if (connector instanceof import_injected2.InjectedConnector)
+  if (connector instanceof InjectedConnector2)
     return "Injected";
-  if (connector instanceof import_walletConnect.WalletConnectConnector)
+  if (connector instanceof WalletConnectConnector)
     return "WalletConnect";
-  if (connector instanceof import_coinbaseWallet.CoinbaseWalletConnector)
+  if (connector instanceof CoinbaseWalletConnector)
     return "Coinbase";
-  if (connector instanceof import_safe.SafeConnector)
+  if (connector instanceof SafeConnector)
     return "GnosisSafe";
   if (connector instanceof ImpersonatedConnector)
     return "Impersonated";
@@ -2393,8 +2388,8 @@ function getConnectorName(connector) {
 }
 
 // src/web3/providers/WagmiProvider.tsx
-var import_react2 = __toESM(require("react"));
-var import_public = require("wagmi/providers/public");
+import React, { useEffect as useEffect2, useState as useState2 } from "react";
+import { publicProvider } from "wagmi/providers/public";
 function Child({
   useStore,
   connectors
@@ -2410,7 +2405,7 @@ function Child({
       await changeActiveWalletChain(data.chain);
     }
   });
-  (0, import_react2.useEffect)(() => {
+  useEffect2(() => {
     if (connectors) {
       setConnectors(connectors);
     }
@@ -2421,27 +2416,27 @@ function WagmiProvider({
   useStore,
   connectorsInitProps
 }) {
-  const [connectors] = (0, import_react2.useState)(initAllConnectors(connectorsInitProps));
-  const [mappedConnectors] = (0, import_react2.useState)(
+  const [connectors] = useState2(initAllConnectors(connectorsInitProps));
+  const [mappedConnectors] = useState2(
     connectors.map((connector) => connector)
   );
   const { publicClient } = configureChains(
     Object.values(connectorsInitProps.chains),
-    [(0, import_public.publicProvider)()]
+    [publicProvider()]
   );
   createConfig({
     autoConnect: false,
     publicClient,
     connectors
   });
-  return /* @__PURE__ */ import_react2.default.createElement(Child, { useStore, connectors: mappedConnectors });
+  return /* @__PURE__ */ React.createElement(Child, { useStore, connectors: mappedConnectors });
 }
 
 // src/web3/store/transactionsSlice.ts
-var import_immer4 = require("immer");
+import { produce as produce4 } from "immer";
 
 // src/web3/adapters/EthereumAdapter.ts
-var import_immer2 = require("immer");
+import { produce as produce2 } from "immer";
 var EthereumAdapter = class {
   get;
   set;
@@ -2503,7 +2498,7 @@ var EthereumAdapter = class {
   };
   updateTXStatus = (hash, status2) => {
     this.set(
-      (state) => (0, import_immer2.produce)(state, (draft) => {
+      (state) => produce2(state, (draft) => {
         draft.transactionsPool[hash].status = status2 === "success" ? 1 : draft.transactionsPool[hash].pending ? void 0 : 0;
         draft.transactionsPool[hash].pending = false;
       })
@@ -2513,8 +2508,8 @@ var EthereumAdapter = class {
 };
 
 // src/web3/adapters/GnosisAdapter.ts
-var import_dayjs = __toESM(require("dayjs"));
-var import_immer3 = require("immer");
+import dayjs from "dayjs";
+import { produce as produce3 } from "immer";
 var GnosisAdapter = class {
   get;
   set;
@@ -2559,8 +2554,8 @@ var GnosisAdapter = class {
     if (!response.ok) {
     } else {
       const gnosisStatus = await response.json();
-      const gnosisStatusModified = (0, import_dayjs.default)(gnosisStatus.modified);
-      const currentTime = (0, import_dayjs.default)();
+      const gnosisStatusModified = dayjs(gnosisStatus.modified);
+      const currentTime = dayjs();
       const daysPassed = currentTime.diff(gnosisStatusModified, "day");
       if (daysPassed >= 1) {
         this.updateGnosisTxStatus(txKey, gnosisStatus, true);
@@ -2583,7 +2578,7 @@ var GnosisAdapter = class {
   };
   updateGnosisTxStatus = (txKey, statusResponse, forceStopped) => {
     this.set(
-      (state) => (0, import_immer3.produce)(state, (draft) => {
+      (state) => produce3(state, (draft) => {
         const tx = draft.transactionsPool[txKey];
         tx.status = forceStopped ? 0 : +!!statusResponse.isSuccessful;
         tx.pending = forceStopped ? false : !statusResponse.isExecuted;
@@ -2629,7 +2624,7 @@ function createTransactionsSlice({
       const localTimestamp = (/* @__PURE__ */ new Date()).getTime();
       if (isGelatoBaseTxWithoutTimestamp(transaction)) {
         set(
-          (state) => (0, import_immer4.produce)(state, (draft) => {
+          (state) => produce4(state, (draft) => {
             draft.transactionsPool[transaction.taskId] = {
               ...transaction,
               pending: true,
@@ -2642,7 +2637,7 @@ function createTransactionsSlice({
         setLocalStorageTxPool(txPool2);
       } else {
         set(
-          (state) => (0, import_immer4.produce)(state, (draft) => {
+          (state) => produce4(state, (draft) => {
             draft.transactionsPool[transaction.hash] = {
               ...transaction,
               pending: true,
@@ -2701,7 +2696,7 @@ function createTransactionsSlice({
     },
     updateEthAdapter: (gnosis) => {
       set(
-        (state) => (0, import_immer4.produce)(state, (draft) => {
+        (state) => produce4(state, (draft) => {
           draft.ethereumAdapter = gnosis ? new GnosisAdapter(get, set) : new EthereumAdapter(get, set);
         })
       );
@@ -2710,7 +2705,7 @@ function createTransactionsSlice({
 }
 
 // src/web3/store/walletSlice.ts
-var import_immer5 = require("immer");
+import { produce as produce5 } from "immer";
 function createWalletSlice({
   walletConnected
 }) {
@@ -2841,7 +2836,7 @@ function createWalletSlice({
       });
       const isContractWallet = !!codeOfWalletAddress;
       set(
-        (state) => (0, import_immer5.produce)(state, (draft) => {
+        (state) => produce5(state, (draft) => {
           draft.isContractWalletRecord[address] = isContractWallet;
         })
       );
@@ -2885,8 +2880,7 @@ function createWalletSlice({
     }
   });
 }
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
+export {
   LocalStorageKeys,
   SafeTransactionServiceUrls,
   WagmiProvider,
@@ -2913,5 +2907,5 @@ function createWalletSlice({
   setLocalStorageTxPool,
   setLocalStorageWallet,
   useLastTxLocalStatus
-});
+};
 //# sourceMappingURL=index.js.map
