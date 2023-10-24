@@ -295,6 +295,7 @@ var clearWalletConnectV2LocalStorage = () => {
   localStorage.removeItem("wc@2:core:0.3//expirer");
   localStorage.removeItem("wc@2:core:0.3//pairing");
   localStorage.removeItem("wc@2:universal_provider:/optionalNamespaces");
+  localStorage.removeItem("wc@2:core:0.3//keychain");
 };
 
 // src/web3/store/transactionsSelectors.ts
@@ -351,7 +352,13 @@ var selectTxExplorerLink = (state, getChainParameters, txHash) => {
   }
   const gnosisSafeLinksHelper = {
     [import_chains.mainnet.id]: "https://app.safe.global/eth:",
-    [import_chains.goerli.id]: "https://app.safe.global/gor:"
+    [import_chains.goerli.id]: "https://app.safe.global/gor:",
+    [import_chains.optimism.id]: "https://app.safe.global/oeth:",
+    [import_chains.polygon.id]: "https://app.safe.global/matic:",
+    [import_chains.arbitrum.id]: "https://app.safe.global/arb1:",
+    [import_chains.avalanche.id]: "https://app.safe.global/avax:",
+    [import_chains.bsc.id]: "https://app.safe.global/bnb:",
+    [import_chains.base.id]: "https://app.safe.global/base:"
   };
   if (tx.walletType !== "GnosisSafe") {
     return `${getChainParameters(tx.chainId).blockExplorers}/tx/${txHash}`;
@@ -497,7 +504,7 @@ var useLastTxLocalStatus = ({
       if (e instanceof Error) {
         console.error("TX error: ", e);
         setFullTxErrorMessage(!!e?.message ? e.message : e);
-        setError(errorMessage);
+        setError(!!errorMessage ? errorMessage : !!e?.message ? e.message : e);
       }
     }
     setLoading(false);
@@ -583,7 +590,9 @@ var SafeTransactionServiceUrls = {
   [import_chains3.optimism.id]: "https://safe-transaction-optimism.safe.global/api/v1",
   [import_chains3.polygon.id]: "https://safe-transaction-polygon.safe.global/api/v1",
   [import_chains3.arbitrum.id]: "https://safe-transaction-arbitrum.safe.global/api/v1",
-  [import_chains3.avalanche.id]: "https://safe-transaction-avalanche.safe.global/api/v1"
+  [import_chains3.avalanche.id]: "https://safe-transaction-avalanche.safe.global/api/v1",
+  [import_chains3.bsc.id]: "https://safe-transaction-bsc.safe.global/api/v1",
+  [import_chains3.base.id]: "https://safe-transaction-base.safe.global/api/v1"
 };
 
 // src/utils/wallets/wallets/alphawallet.ts
@@ -2417,7 +2426,7 @@ function getConnectorName(connector) {
 
 // src/web3/providers/WagmiProvider.tsx
 var import_react2 = __toESM(require("react"), 1);
-var import_public = require("wagmi/providers/public");
+var import_jsonRpc = require("wagmi/providers/jsonRpc");
 function Child({
   useStore,
   connectors
@@ -2450,7 +2459,13 @@ function WagmiProvider({
   );
   const { publicClient } = configureChains(
     Object.values(connectorsInitProps.chains),
-    [(0, import_public.publicProvider)()]
+    [
+      (0, import_jsonRpc.jsonRpcProvider)({
+        rpc: (chain) => ({
+          http: connectorsInitProps.chains[chain.id].rpcUrls.default.http[0]
+        })
+      })
+    ]
   );
   createConfig({
     autoConnect: false,

@@ -1,6 +1,15 @@
 import isEqual from 'lodash/isEqual.js';
 import { Chain } from 'viem';
-import { goerli, mainnet } from 'viem/chains';
+import {
+  arbitrum,
+  avalanche,
+  base,
+  bsc,
+  goerli,
+  mainnet,
+  optimism,
+  polygon,
+} from 'viem/chains';
 
 import { isGelatoBaseTx } from '../adapters/GelatoAdapter';
 import { BaseTx, GelatoBaseTx, ITransactionsState } from './transactionsSlice';
@@ -89,10 +98,15 @@ export const selectTxExplorerLink = <T extends BaseTx>(
     return '';
   }
 
-  // TODO: need check
   const gnosisSafeLinksHelper: Record<number, string> = {
     [mainnet.id]: 'https://app.safe.global/eth:',
     [goerli.id]: 'https://app.safe.global/gor:',
+    [optimism.id]: 'https://app.safe.global/oeth:',
+    [polygon.id]: 'https://app.safe.global/matic:',
+    [arbitrum.id]: 'https://app.safe.global/arb1:',
+    [avalanche.id]: 'https://app.safe.global/avax:',
+    [bsc.id]: 'https://app.safe.global/bnb:',
+    [base.id]: 'https://app.safe.global/base:',
   };
 
   if (tx.walletType !== 'GnosisSafe') {

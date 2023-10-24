@@ -257,11 +257,21 @@ var clearWalletConnectV2LocalStorage = () => {
   localStorage.removeItem("wc@2:core:0.3//expirer");
   localStorage.removeItem("wc@2:core:0.3//pairing");
   localStorage.removeItem("wc@2:universal_provider:/optionalNamespaces");
+  localStorage.removeItem("wc@2:core:0.3//keychain");
 };
 
 // src/web3/store/transactionsSelectors.ts
 import isEqual from "lodash/isEqual.js";
-import { goerli, mainnet } from "viem/chains";
+import {
+  arbitrum,
+  avalanche,
+  base,
+  bsc,
+  goerli,
+  mainnet,
+  optimism,
+  polygon
+} from "viem/chains";
 var selectAllTransactions = (state) => {
   return Object.values(state.transactionsPool).sort(
     (a, b) => Number(a.localTimestamp) - Number(b.localTimestamp)
@@ -313,7 +323,13 @@ var selectTxExplorerLink = (state, getChainParameters, txHash) => {
   }
   const gnosisSafeLinksHelper = {
     [mainnet.id]: "https://app.safe.global/eth:",
-    [goerli.id]: "https://app.safe.global/gor:"
+    [goerli.id]: "https://app.safe.global/gor:",
+    [optimism.id]: "https://app.safe.global/oeth:",
+    [polygon.id]: "https://app.safe.global/matic:",
+    [arbitrum.id]: "https://app.safe.global/arb1:",
+    [avalanche.id]: "https://app.safe.global/avax:",
+    [bsc.id]: "https://app.safe.global/bnb:",
+    [base.id]: "https://app.safe.global/base:"
   };
   if (tx.walletType !== "GnosisSafe") {
     return `${getChainParameters(tx.chainId).blockExplorers}/tx/${txHash}`;
@@ -459,7 +475,7 @@ var useLastTxLocalStatus = ({
       if (e instanceof Error) {
         console.error("TX error: ", e);
         setFullTxErrorMessage(!!e?.message ? e.message : e);
-        setError(errorMessage);
+        setError(!!errorMessage ? errorMessage : !!e?.message ? e.message : e);
       }
     }
     setLoading(false);
@@ -486,19 +502,19 @@ var useLastTxLocalStatus = ({
 // src/utils/chainInfoHelpers.ts
 import { createPublicClient, http } from "viem";
 import {
-  avalanche,
+  avalanche as avalanche2,
   avalancheFuji,
   goerli as goerli2,
   mainnet as mainnet2,
-  polygon,
+  polygon as polygon2,
   polygonMumbai,
   sepolia
 } from "viem/chains";
 var initialChains = {
   [mainnet2.id]: mainnet2,
-  [polygon.id]: polygon,
+  [polygon2.id]: polygon2,
   [polygonMumbai.id]: polygonMumbai,
-  [avalanche.id]: avalanche,
+  [avalanche2.id]: avalanche2,
   [avalancheFuji.id]: avalancheFuji,
   [goerli2.id]: goerli2,
   [sepolia.id]: sepolia
@@ -547,20 +563,24 @@ var initChainInformationConfig = (chains) => {
 
 // src/utils/constants.ts
 import {
-  arbitrum,
-  avalanche as avalanche2,
+  arbitrum as arbitrum2,
+  avalanche as avalanche3,
+  base as base2,
+  bsc as bsc2,
   goerli as goerli3,
   mainnet as mainnet3,
-  optimism,
-  polygon as polygon2
+  optimism as optimism2,
+  polygon as polygon3
 } from "viem/chains";
 var SafeTransactionServiceUrls = {
   [mainnet3.id]: "https://safe-transaction-mainnet.safe.global/api/v1",
   [goerli3.id]: "https://safe-transaction-goerli.safe.global/api/v1",
-  [optimism.id]: "https://safe-transaction-optimism.safe.global/api/v1",
-  [polygon2.id]: "https://safe-transaction-polygon.safe.global/api/v1",
-  [arbitrum.id]: "https://safe-transaction-arbitrum.safe.global/api/v1",
-  [avalanche2.id]: "https://safe-transaction-avalanche.safe.global/api/v1"
+  [optimism2.id]: "https://safe-transaction-optimism.safe.global/api/v1",
+  [polygon3.id]: "https://safe-transaction-polygon.safe.global/api/v1",
+  [arbitrum2.id]: "https://safe-transaction-arbitrum.safe.global/api/v1",
+  [avalanche3.id]: "https://safe-transaction-avalanche.safe.global/api/v1",
+  [bsc2.id]: "https://safe-transaction-bsc.safe.global/api/v1",
+  [base2.id]: "https://safe-transaction-base.safe.global/api/v1"
 };
 
 // src/utils/wallets/wallets/alphawallet.ts
@@ -2412,7 +2432,7 @@ function getConnectorName(connector) {
 
 // src/web3/providers/WagmiProvider.tsx
 import React, { useEffect as useEffect2, useState as useState2 } from "react";
-import { publicProvider } from "wagmi/providers/public";
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 function Child({
   useStore,
   connectors
@@ -2445,7 +2465,13 @@ function WagmiProvider({
   );
   const { publicClient } = configureChains(
     Object.values(connectorsInitProps.chains),
-    [publicProvider()]
+    [
+      jsonRpcProvider({
+        rpc: (chain) => ({
+          http: connectorsInitProps.chains[chain.id].rpcUrls.default.http[0]
+        })
+      })
+    ]
   );
   createConfig({
     autoConnect: false,
@@ -2729,9 +2755,7 @@ function createTransactionsSlice({
 
 // src/web3/store/walletSlice.ts
 import { produce as produce5 } from "immer";
-import {
-  isAddress as isAddress2
-} from "viem";
+import { isAddress as isAddress2 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 function createWalletSlice({
   walletConnected

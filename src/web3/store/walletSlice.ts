@@ -6,16 +6,11 @@ import {
   getNetwork,
   getPublicClient,
   getWalletClient,
-} from '@wagmi/core';
-import { produce } from 'immer';
-import {
-  Account,
-  Chain,
-  Hex,
-  isAddress,
   PublicClient,
   WalletClient,
-} from 'viem';
+} from '@wagmi/core';
+import { produce } from 'immer';
+import { Account, Chain, Hex, isAddress } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
 import { StoreSlice } from '../../types/store';

@@ -1,8 +1,8 @@
 import * as react from 'react';
 import react__default from 'react';
-import { Account, Hex, Chain as Chain$1, PublicClient, WalletClient as WalletClient$1 } from 'viem';
+import { Connector, ConnectorData, WalletClient, PublicClient, GetAccountResult } from '@wagmi/core';
+import { Account, Hex, Chain as Chain$1, PublicClient as PublicClient$1 } from 'viem';
 import { StoreApi, UseBoundStore } from 'zustand';
-import { Connector, ConnectorData, WalletClient, GetAccountResult } from '@wagmi/core';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import { SafeConnector } from 'wagmi/connectors/safe';
@@ -75,7 +75,7 @@ interface Wallet {
     address: Hex;
     chain?: Chain$1;
     client: PublicClient;
-    walletClient: WalletClient$1;
+    walletClient: WalletClient;
     isActive: boolean;
     isContractAddress: boolean;
 }
@@ -207,12 +207,12 @@ interface LastTxStatusesParams<T extends BaseTx> {
     payload: T['payload'];
 }
 type ExecuteTxWithLocalStatusesParams = {
-    errorMessage: string;
+    errorMessage?: string;
     callbackFunction: () => Promise<void>;
 };
 declare const useLastTxLocalStatus: <T extends BaseTx>({ state, activeAddress, type, payload, }: LastTxStatusesParams<T>) => {
-    error: string;
-    setError: react.Dispatch<react.SetStateAction<string>>;
+    error: string | Error;
+    setError: react.Dispatch<react.SetStateAction<string | Error>>;
     loading: boolean;
     setLoading: react.Dispatch<react.SetStateAction<boolean>>;
     isTxStart: boolean;
@@ -232,7 +232,7 @@ declare const initialChains: Record<number, Chain$1>;
 declare const initChainInformationConfig: (chains?: Record<number, Chain$1>) => {
     clientInstances: {
         [chainId: number]: {
-            instance: PublicClient;
+            instance: PublicClient$1;
         };
     };
     getChainParameters: (chainId: number) => Chain$1;
