@@ -1,5 +1,3 @@
-// TODO: need add logic for mock connector
-
 import {
   connect,
   disconnect,
@@ -10,7 +8,8 @@ import {
   getWalletClient,
 } from '@wagmi/core';
 import { produce } from 'immer';
-import { Chain, Hex, PublicClient, WalletClient } from 'viem';
+import { Account, Chain, Hex, PublicClient, WalletClient } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
 
 import { StoreSlice } from '../../types/store';
 import {
@@ -21,6 +20,7 @@ import {
   setLocalStorageWallet,
 } from '../../utils/localStorage';
 import { ConnectorType, getConnectorName, WalletType } from '../connectors';
+import { ImpersonatedConnector } from '../connectors/ImpersonatedConnector';
 import { TransactionsSliceBaseType } from './transactionsSlice';
 
 export interface Wallet {
@@ -42,7 +42,7 @@ export type IWalletSlice = {
     wallet: Omit<Wallet, 'walletClient' | 'client'>,
   ) => Promise<void>;
   isActiveWalletSetting: boolean;
-  connectWallet: (walletType: WalletType) => Promise<void>;
+  connectWallet: (walletType: WalletType, chainId?: number) => Promise<void>;
   disconnectActiveWallet: () => Promise<void>;
   walletActivating: boolean;
   walletConnectionError: string;
@@ -55,8 +55,8 @@ export type IWalletSlice = {
   checkAndSwitchNetwork: (chainId?: number) => Promise<void>;
   connectors: ConnectorType[];
   setConnectors: (connectors: ConnectorType[]) => void;
-  _impersonatedAddress?: string;
-  setImpersonatedAddress: (address: string) => void;
+  _impersonatedAccount?: Account;
+  setImpersonatedAccount: (privateKey: Hex) => void;
   checkIsContractWallet: (
     wallet: Omit<Wallet, 'walletClient'>,
   ) => Promise<boolean>;
@@ -118,7 +118,7 @@ export function createWalletSlice({
     },
     isActiveWalletSetting: false,
 
-    connectWallet: async (walletType) => {
+    connectWallet: async (walletType, chainId) => {
       clearWalletLinkLocalStorage();
       clearWalletConnectV2LocalStorage();
 
@@ -135,9 +135,15 @@ export function createWalletSlice({
 
       try {
         if (connector) {
-          await connect({ connector });
-          setLocalStorageWallet(walletType);
-          get().updateEthAdapter(walletType === 'GnosisSafe');
+          if (connector instanceof ImpersonatedConnector) {
+            connector.setAccount(get()._impersonatedAccount);
+            await connect({ connector, chainId });
+          } else {
+            await connect({ connector });
+
+            setLocalStorageWallet(walletType);
+            get().updateEthAdapter(walletType === 'GnosisSafe');
+          }
 
           const account = getAccount();
           const network = getNetwork();
@@ -263,8 +269,8 @@ export function createWalletSlice({
     },
     isActiveWalletChainChanging: false,
 
-    setImpersonatedAddress: (address) => {
-      set({ _impersonatedAddress: address });
+    setImpersonatedAccount: (privateKey) => {
+      set({ _impersonatedAccount: privateKeyToAccount(privateKey) });
     },
     resetWalletConnectionError: () => {
       set({ walletConnectionError: '' });
