@@ -548,7 +548,7 @@ var initChainInformationConfig = (chains) => {
               multicall: true
             },
             chain,
-            transport: (0, import_viem.http)()
+            transport: (0, import_viem.http)(chain.rpcUrls.default.http[0])
           });
           initalizedClients[numberChainId] = client;
           return client;
@@ -2285,6 +2285,7 @@ var ImpersonatedConnector = class extends Connector {
     chainId
   } = {}) {
     console.log("address", address);
+    const chain = this.chains.find((chain2) => chain2.id === chainId);
     if (!this.#provider || chainId)
       this.#provider = new MockProvider({
         ...this.options,
@@ -2292,8 +2293,8 @@ var ImpersonatedConnector = class extends Connector {
         walletClient: (0, import_viem16.createTestClient)({
           account: address || import_viem16.zeroAddress,
           mode: "anvil",
-          chain: this.chains.find((chain) => chain.id === chainId) || import_chains5.mainnet,
-          transport: (0, import_viem16.http)()
+          chain: chain || import_chains5.mainnet,
+          transport: (0, import_viem16.http)(chain?.rpcUrls.default.http[0])
         }).extend(import_viem16.walletActions)
       });
     return this.#provider;

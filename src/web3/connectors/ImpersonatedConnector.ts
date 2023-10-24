@@ -113,6 +113,7 @@ export class ImpersonatedConnector extends Connector<
     chainId,
   }: { address?: Hex; chainId?: number } = {}) {
     console.log('address', address);
+    const chain = this.chains.find((chain) => chain.id === chainId);
     if (!this.#provider || chainId)
       this.#provider = new MockProvider({
         ...this.options,
@@ -120,8 +121,8 @@ export class ImpersonatedConnector extends Connector<
         walletClient: createTestClient({
           account: address || zeroAddress,
           mode: 'anvil',
-          chain: this.chains.find((chain) => chain.id === chainId) || mainnet,
-          transport: http(),
+          chain: chain || mainnet,
+          transport: http(chain?.rpcUrls.default.http[0]),
         }).extend(walletActions),
       });
     return this.#provider;

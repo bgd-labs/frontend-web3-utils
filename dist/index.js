@@ -518,7 +518,7 @@ var initChainInformationConfig = (chains) => {
               multicall: true
             },
             chain,
-            transport: http()
+            transport: http(chain.rpcUrls.default.http[0])
           });
           initalizedClients[numberChainId] = client;
           return client;
@@ -2286,6 +2286,7 @@ var ImpersonatedConnector = class extends Connector {
     chainId
   } = {}) {
     console.log("address", address);
+    const chain = this.chains.find((chain2) => chain2.id === chainId);
     if (!this.#provider || chainId)
       this.#provider = new MockProvider({
         ...this.options,
@@ -2293,8 +2294,8 @@ var ImpersonatedConnector = class extends Connector {
         walletClient: createTestClient({
           account: address || zeroAddress,
           mode: "anvil",
-          chain: this.chains.find((chain) => chain.id === chainId) || mainnet5,
-          transport: http3()
+          chain: chain || mainnet5,
+          transport: http3(chain?.rpcUrls.default.http[0])
         }).extend(walletActions)
       });
     return this.#provider;
