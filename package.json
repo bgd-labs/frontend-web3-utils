@@ -1,6 +1,13 @@
 {
   "name": "@bgd-labs/frontend-web3-utils",
+  "description": "Frontend utilities common to multiple Web3 projects",
+  "version": "0.2.3",
   "author": "BGD labs",
+  "license": "MIT",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "contributors": [
     {
       "name": "Dmitriy Petrov",
@@ -19,29 +26,34 @@
       "url": "https://github.com/Tima0203"
     }
   ],
-  "version": "0.2.294",
-  "license": "MIT",
-  "files": [
-    "dist",
-    "src"
-  ],
-  "engines": {
-    "node": ">=18"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bgd-labs/fe-shared.git"
   },
+  "bugs": {
+    "url": "https://github.com/bgd-labs/fe-shared/issues"
+  },
+  "homepage": "https://github.com/bgd-labs/fe-shared#readme",
+  "scripts": {
+    "start": "tsup src/index.tsx --watch",
+    "build": "tsup",
+    "size": "size-limit",
+    "lint": "npx eslint --fix"
+  },
+  "files": ["dist"],
   "type": "module",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "module": "dist/index.js",
+  "sideEffects": false,
   "size-limit": [
     {
       "path": "dist/index.js",
       "limit": "100 KB"
     }
   ],
-  "scripts": {
-    "start": "tsup src/index.tsx --watch",
-    "build": "tsup",
-    "size": "size-limit"
+  "engines": {
+    "node": ">=18"
   },
   "peerDependencies": {
     "immer": "10.x.x",
@@ -71,14 +83,14 @@
     "react-dom": "^18.2.0",
     "size-limit": "^9.0.0",
     "tsup": "^7.2.0",
-    "typescript": "5.1.6",
-    "zustand": "^4.4.4"
+    "typescript": "5.1.6"
   },
   "dependencies": {
     "dayjs": "^1.11.10",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "viem": "^1.16.6",
-    "wagmi": "^1.4.5"
+    "wagmi": "^1.4.5",
+    "zustand": "^4.4.4"
   }
 }
