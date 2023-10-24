@@ -28,7 +28,6 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
   }): Promise<T & { status?: number; pending: boolean }> => {
     const { activeWallet, chainId, type } = params;
     const tx = params.tx as GetTransactionReturnType;
-
     // ethereum tx
     const transaction = {
       chainId,
@@ -73,20 +72,17 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
   ) => {
     const chainId = tx.chainId || this.get().transactionsPool[txHash].chainId;
     const client = this.get().clients[chainId] as PublicClient;
-
     try {
       // TODO: need added onReplaced logic
       const txn = await client.waitForTransactionReceipt({
         hash: tx.hash,
         onReplaced: (replacement) => {
-          console.log('onReplaced', replacement);
-          this.get().replaceTXinPool(txHash, replacement.transaction.hash);
-          return this.waitForTxReceipt(
-            replacement.transaction,
-            replacement.transaction.hash,
-          );
+          console.log(replacement);
+          this.updateTXStatus(txHash, 'replaced', replacement.transaction.hash);
+          return;
         },
       });
+
       this.updateTXStatus(txHash, txn.status);
 
       const updatedTX = this.get().transactionsPool[txHash];
@@ -101,16 +97,28 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     }
   };
 
-  private updateTXStatus = (hash: string, status?: 'success' | 'reverted') => {
+  private updateTXStatus = (
+    hash: string,
+    status?: 'success' | 'reverted' | 'replaced',
+    replacedHash?: string,
+  ) => {
+    console.log('updateTXStatus')
+    console.log({status})
+
     this.set((state) =>
       produce(state, (draft) => {
         draft.transactionsPool[hash].status =
           status === 'success'
             ? 1
+            : status === 'replaced'
+            ? 2
             : draft.transactionsPool[hash].pending
             ? undefined
             : 0;
         draft.transactionsPool[hash].pending = false;
+        if (replacedHash) {
+          draft.transactionsPool[hash].isReplaced = replacedHash;
+        }
       }),
     );
     setLocalStorageTxPool(this.get().transactionsPool);

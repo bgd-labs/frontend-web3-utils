@@ -62,6 +62,7 @@ type PoolTx<T extends BaseTx> = T & {
   status?: number;
   pending: boolean;
   walletType: WalletType;
+  isReplaced?: string;
 };
 
 export interface ITransactionsState<T extends BaseTx> {
@@ -97,7 +98,6 @@ export interface ITransactionsActions<T extends BaseTx> {
       | Omit<EthBaseTx, 'localTimestamp'>,
     activeWallet: WalletType,
   ) => TransactionPool<PoolTx<T>>;
-  replaceTXinPool: (oldTx: Hex, newTx: Hex) => void;
   isGelatoAvailable: boolean;
   checkIsGelatoAvailable: (chainId: number) => Promise<void>;
   updateEthAdapter: (gnosis: boolean) => void;
@@ -189,16 +189,6 @@ export function createTransactionsSlice<T extends BaseTx>({
       const txPool = get().transactionsPool;
       setLocalStorageTxPool(txPool);
       return txPool;
-    },
-    replaceTXinPool: (oldTx, newTx) => {
-      set((state) =>
-        produce(state, (draft) => {
-          draft.transactionsPool[newTx] = draft.transactionsPool[oldTx];
-          delete draft.transactionsPool[oldTx];
-        }),
-      );
-      const txPool = get().transactionsPool;
-      setLocalStorageTxPool(txPool);
     },
     initTxPool: () => {
       const localStorageTXPool = getLocalStorageTxPool();
