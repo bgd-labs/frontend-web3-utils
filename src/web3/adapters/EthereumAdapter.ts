@@ -87,7 +87,6 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
         onReplaced: (replacement) => {
           this.updateTXStatus(txHash, 'replaced', replacement.transaction.hash);
           txWasReplaced = true;
-          return;
         },
       });
       if (txWasReplaced) {

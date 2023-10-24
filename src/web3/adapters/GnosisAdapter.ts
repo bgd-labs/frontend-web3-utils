@@ -86,6 +86,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     );
     if (!response.ok) {
       // TODO: handle error if need, for now just skipping and do nothing with failed response
+      // maybe add retry logic and if it fails, remove from pool or update as failed
     } else {
       const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
       const gnosisStatusModified = dayjs(gnosisStatus.modified);

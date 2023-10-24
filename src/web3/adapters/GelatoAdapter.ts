@@ -101,7 +101,6 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
     const newGelatoInterval = setInterval(() => {
       this.fetchGelatoTXStatus(taskId);
-      // TODO: maybe change timeout for gelato
     }, 2000);
 
     this.transactionsIntervalsMap[taskId] = Number(newGelatoInterval);
@@ -119,6 +118,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
     );
     if (!response.ok) {
       // TODO: handle error if needed, for now just skipping
+      // maybe add retry mechanism and if it fails, remove from pool or update as failed
     } else {
       const gelatoStatus = (await response.json()) as GelatoTaskStatusResponse;
 
