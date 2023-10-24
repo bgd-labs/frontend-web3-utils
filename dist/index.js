@@ -2202,7 +2202,13 @@ function watchNetwork(callback, { selector = (x) => x } = {}) {
 }
 
 // src/web3/connectors/ImpersonatedConnector.ts
-import { createWalletClient as createWalletClient2, getAddress as getAddress5, http as http3, zeroAddress } from "viem";
+import {
+  createTestClient,
+  getAddress as getAddress5,
+  http as http3,
+  walletActions,
+  zeroAddress
+} from "viem";
 import { mainnet as mainnet5 } from "viem/chains";
 function normalizeChainId2(chainId) {
   if (typeof chainId === "string")
@@ -2284,11 +2290,12 @@ var ImpersonatedConnector = class extends Connector {
       this.#provider = new MockProvider({
         ...this.options,
         chainId: chainId ?? this.options.chainId ?? this.chains[0].id,
-        walletClient: createWalletClient2({
+        walletClient: createTestClient({
           account: address || zeroAddress,
+          mode: "anvil",
           chain: this.chains.find((chain) => chain.id === chainId) || mainnet5,
           transport: http3()
-        })
+        }).extend(walletActions)
       });
     return this.#provider;
   }
@@ -2788,9 +2795,9 @@ function createWalletSlice({
             await connect({ connector, chainId });
           } else {
             await connect({ connector });
+            setLocalStorageWallet(walletType);
+            get().updateEthAdapter(walletType === "GnosisSafe");
           }
-          setLocalStorageWallet(walletType);
-          get().updateEthAdapter(walletType === "GnosisSafe");
           const account = getAccount();
           const network = getNetwork();
           if (account && account.isConnected && account.address && network.chain) {

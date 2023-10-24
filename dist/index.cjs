@@ -2289,11 +2289,12 @@ var ImpersonatedConnector = class extends Connector {
       this.#provider = new MockProvider({
         ...this.options,
         chainId: chainId ?? this.options.chainId ?? this.chains[0].id,
-        walletClient: (0, import_viem16.createWalletClient)({
+        walletClient: (0, import_viem16.createTestClient)({
           account: address || import_viem16.zeroAddress,
+          mode: "anvil",
           chain: this.chains.find((chain) => chain.id === chainId) || import_chains5.mainnet,
           transport: (0, import_viem16.http)()
-        })
+        }).extend(import_viem16.walletActions)
       });
     return this.#provider;
   }
@@ -2793,9 +2794,9 @@ function createWalletSlice({
             await connect({ connector, chainId });
           } else {
             await connect({ connector });
+            setLocalStorageWallet(walletType);
+            get().updateEthAdapter(walletType === "GnosisSafe");
           }
-          setLocalStorageWallet(walletType);
-          get().updateEthAdapter(walletType === "GnosisSafe");
           const account = getAccount();
           const network = getNetwork();
           if (account && account.isConnected && account.address && network.chain) {

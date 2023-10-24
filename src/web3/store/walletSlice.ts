@@ -139,10 +139,10 @@ export function createWalletSlice({
             await connect({ connector, chainId });
           } else {
             await connect({ connector });
-          }
 
-          setLocalStorageWallet(walletType);
-          get().updateEthAdapter(walletType === 'GnosisSafe');
+            setLocalStorageWallet(walletType);
+            get().updateEthAdapter(walletType === 'GnosisSafe');
+          }
 
           const account = getAccount();
           const network = getNetwork();

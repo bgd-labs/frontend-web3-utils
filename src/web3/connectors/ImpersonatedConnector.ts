@@ -1,6 +1,13 @@
 import { MockProvider, MockProviderOptions } from '@wagmi/connectors/mock';
 import { Connector, ConnectorData, WalletClient } from '@wagmi/core';
-import { createWalletClient, getAddress, Hex, http, zeroAddress } from 'viem';
+import {
+  createTestClient,
+  getAddress,
+  Hex,
+  http,
+  walletActions,
+  zeroAddress,
+} from 'viem';
 import type { Chain } from 'viem/chains';
 import { mainnet } from 'viem/chains';
 
@@ -110,11 +117,12 @@ export class ImpersonatedConnector extends Connector<
       this.#provider = new MockProvider({
         ...this.options,
         chainId: chainId ?? this.options.chainId ?? this.chains[0]!.id,
-        walletClient: createWalletClient({
+        walletClient: createTestClient({
           account: address || zeroAddress,
+          mode: 'anvil',
           chain: this.chains.find((chain) => chain.id === chainId) || mainnet,
           transport: http(),
-        }),
+        }).extend(walletActions),
       });
     return this.#provider;
   }
