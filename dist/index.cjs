@@ -2237,7 +2237,9 @@ var ImpersonatedConnector = class extends Connector {
         chainId: options.chainId ?? chains?.[0]?.id
       }
     });
-    this.account = (0, import_accounts.privateKeyToAccount)(import_viem16.zeroAddress);
+    this.account = (0, import_accounts.privateKeyToAccount)(
+      "0x0000000000000000000000000000000000000000000000000000000000000000"
+    );
   }
   setAccount(account) {
     if (account) {

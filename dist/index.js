@@ -2202,12 +2202,7 @@ function watchNetwork(callback, { selector = (x) => x } = {}) {
 }
 
 // src/web3/connectors/ImpersonatedConnector.ts
-import {
-  createWalletClient as createWalletClient2,
-  getAddress as getAddress5,
-  http as http3,
-  zeroAddress
-} from "viem";
+import { createWalletClient as createWalletClient2, getAddress as getAddress5, http as http3 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { mainnet as mainnet5 } from "viem/chains";
 function normalizeChainId2(chainId) {
@@ -2237,7 +2232,9 @@ var ImpersonatedConnector = class extends Connector {
         chainId: options.chainId ?? chains?.[0]?.id
       }
     });
-    this.account = privateKeyToAccount(zeroAddress);
+    this.account = privateKeyToAccount(
+      "0x0000000000000000000000000000000000000000000000000000000000000000"
+    );
   }
   setAccount(account) {
     if (account) {
