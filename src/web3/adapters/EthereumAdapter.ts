@@ -45,24 +45,31 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
   startTxTracking = async (txKey: string) => {
     const retryCount = 5;
     const txData = this.get().transactionsPool[txKey];
+    // check if tx is in local storage
     if (txData) {
       const client = this.get().clients[txData.chainId] as PublicClient;
-
       if (txData.hash) {
         // Find the transaction in the waiting pool
         for (let i = 0; i < retryCount; i++) {
-          const tx = await client.getTransaction({ hash: txData.hash });
-          // If the transaction is found, wait for the receipt
-          if (tx) {
+          try {
+            const tx = await client.getTransaction({ hash: txData.hash });
+
+            // If the transaction is found, wait for the receipt
             await this.waitForTxReceipt(tx, txData.hash);
             return; // Exit the function if successful
+          } catch (e) {
+            if (i === retryCount - 1) {
+              // If the transaction is not found after the last retry, remove it from the pool
+              this.get().removeTXFromPool(txData.hash);
+              return; // Exit the function
+            }
           }
         }
         // Wait before the next retry
         await new Promise((resolve) => setTimeout(resolve, 3000));
       }
     } else {
-      // TODO: no transaction in waiting pool
+      return; // Exit the function if the transaction is not found
     }
   };
 
@@ -72,17 +79,20 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
   ) => {
     const chainId = tx.chainId || this.get().transactionsPool[txHash].chainId;
     const client = this.get().clients[chainId] as PublicClient;
+    let txWasReplaced = false;
     try {
-      // TODO: need added onReplaced logic
       const txn = await client.waitForTransactionReceipt({
+        // pollingInterval: 10000,
         hash: tx.hash,
         onReplaced: (replacement) => {
-          console.log(replacement);
           this.updateTXStatus(txHash, 'replaced', replacement.transaction.hash);
+          txWasReplaced = true;
           return;
         },
       });
-
+      if (txWasReplaced) {
+        return;
+      }
       this.updateTXStatus(txHash, txn.status);
 
       const updatedTX = this.get().transactionsPool[txHash];
@@ -93,6 +103,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
         timestamp,
       });
     } catch (e) {
+      this.updateTXStatus(txHash, 'replaced');
       console.error(e);
     }
   };
@@ -102,9 +113,6 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     status?: 'success' | 'reverted' | 'replaced',
     replacedHash?: string,
   ) => {
-    console.log('updateTXStatus')
-    console.log({status})
-
     this.set((state) =>
       produce(state, (draft) => {
         draft.transactionsPool[hash].status =
