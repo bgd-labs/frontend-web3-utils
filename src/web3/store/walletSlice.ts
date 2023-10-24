@@ -8,7 +8,8 @@ import {
   getWalletClient,
 } from '@wagmi/core';
 import { produce } from 'immer';
-import { Chain, Hex, PublicClient, WalletClient } from 'viem';
+import { Account, Chain, Hex, PublicClient, WalletClient } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
 
 import { StoreSlice } from '../../types/store';
 import {
@@ -54,8 +55,8 @@ export type IWalletSlice = {
   checkAndSwitchNetwork: (chainId?: number) => Promise<void>;
   connectors: ConnectorType[];
   setConnectors: (connectors: ConnectorType[]) => void;
-  _impersonatedAddress?: Hex;
-  setImpersonatedAddress: (address: Hex) => void;
+  _impersonatedAccount?: Account;
+  setImpersonatedAccount: (privateKey: Hex) => void;
   checkIsContractWallet: (
     wallet: Omit<Wallet, 'walletClient'>,
   ) => Promise<boolean>;
@@ -135,7 +136,7 @@ export function createWalletSlice({
       try {
         if (connector) {
           if (connector instanceof ImpersonatedConnector) {
-            connector.setAccountAddress(get()._impersonatedAddress);
+            connector.setAccount(get()._impersonatedAccount);
             await connect({ connector, chainId });
           } else {
             await connect({ connector });
@@ -268,8 +269,8 @@ export function createWalletSlice({
     },
     isActiveWalletChainChanging: false,
 
-    setImpersonatedAddress: (address) => {
-      set({ _impersonatedAddress: address });
+    setImpersonatedAccount: (privateKey) => {
+      set({ _impersonatedAccount: privateKeyToAccount(privateKey) });
     },
     resetWalletConnectionError: () => {
       set({ walletConnectionError: '' });

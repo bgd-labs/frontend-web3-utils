@@ -1,6 +1,6 @@
 import * as react from 'react';
 import react__default from 'react';
-import { Hex, Chain as Chain$1, PublicClient, WalletClient as WalletClient$1 } from 'viem';
+import { Account, Hex, Chain as Chain$1, PublicClient, WalletClient as WalletClient$1 } from 'viem';
 import { StoreApi, UseBoundStore } from 'zustand';
 import { Connector, ConnectorData, WalletClient, GetAccountResult } from '@wagmi/core';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
@@ -20,12 +20,12 @@ declare class ImpersonatedConnector extends Connector<MockProvider, MockConnecto
     readonly id = "impersonated";
     readonly name = "Impersonated";
     readonly ready = true;
-    private accountAddress;
+    private account;
     constructor({ chains, options, }: {
         chains?: Chain[];
         options: MockConnectorOptions;
     });
-    setAccountAddress(address: Hex | undefined): void;
+    setAccount(account: Account | undefined): void;
     connect({ chainId }?: {
         address?: Hex;
         chainId?: number;
@@ -33,8 +33,7 @@ declare class ImpersonatedConnector extends Connector<MockProvider, MockConnecto
     disconnect(): Promise<void>;
     getAccount(): Promise<`0x${string}`>;
     getChainId(): Promise<number>;
-    getProvider({ address, chainId, }?: {
-        address?: Hex;
+    getProvider({ chainId }?: {
         chainId?: number;
     }): Promise<MockProvider>;
     getWalletClient(): Promise<WalletClient>;
@@ -97,8 +96,8 @@ type IWalletSlice = {
     checkAndSwitchNetwork: (chainId?: number) => Promise<void>;
     connectors: ConnectorType[];
     setConnectors: (connectors: ConnectorType[]) => void;
-    _impersonatedAddress?: Hex;
-    setImpersonatedAddress: (address: Hex) => void;
+    _impersonatedAccount?: Account;
+    setImpersonatedAccount: (privateKey: Hex) => void;
     checkIsContractWallet: (wallet: Omit<Wallet, 'walletClient'>) => Promise<boolean>;
 };
 declare function createWalletSlice({ walletConnected, }: {

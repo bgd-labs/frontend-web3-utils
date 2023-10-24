@@ -1,13 +1,14 @@
 import { MockProvider, MockProviderOptions } from '@wagmi/connectors/mock';
 import { Connector, ConnectorData, WalletClient } from '@wagmi/core';
 import {
-  createTestClient,
+  Account,
+  createWalletClient,
   getAddress,
   Hex,
   http,
-  walletActions,
   zeroAddress,
 } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
 import type { Chain } from 'viem/chains';
 import { mainnet } from 'viem/chains';
 
@@ -35,7 +36,7 @@ export class ImpersonatedConnector extends Connector<
   readonly id = 'impersonated';
   readonly name = 'Impersonated';
   readonly ready = true;
-  private accountAddress: Hex;
+  private account: Account;
 
   #provider?: MockProvider;
 
@@ -53,16 +54,17 @@ export class ImpersonatedConnector extends Connector<
         chainId: options.chainId ?? chains?.[0]?.id,
       },
     });
-    this.accountAddress = zeroAddress;
+    this.account = privateKeyToAccount(zeroAddress);
   }
 
-  setAccountAddress(address: Hex | undefined) {
-    this.accountAddress = address || zeroAddress;
+  setAccount(account: Account | undefined) {
+    if (account) {
+      this.account = account;
+    }
   }
 
   async connect({ chainId }: { address?: Hex; chainId?: number } = {}) {
     const provider = await this.getProvider({
-      address: this.accountAddress,
       chainId,
     });
     provider.on('accountsChanged', this.onAccountsChanged);
@@ -108,22 +110,17 @@ export class ImpersonatedConnector extends Connector<
     return normalizeChainId(provider.chainId);
   }
 
-  async getProvider({
-    address,
-    chainId,
-  }: { address?: Hex; chainId?: number } = {}) {
-    console.log('address', address);
+  async getProvider({ chainId }: { chainId?: number } = {}) {
     const chain = this.chains.find((chain) => chain.id === chainId);
     if (!this.#provider || chainId)
       this.#provider = new MockProvider({
         ...this.options,
         chainId: chainId ?? this.options.chainId ?? this.chains[0]!.id,
-        walletClient: createTestClient({
-          account: address || zeroAddress,
-          mode: 'anvil',
+        walletClient: createWalletClient({
+          account: this.account,
           chain: chain || mainnet,
           transport: http(chain?.rpcUrls.default.http[0]),
-        }).extend(walletActions),
+        }),
       });
     return this.#provider;
   }

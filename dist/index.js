@@ -2203,12 +2203,12 @@ function watchNetwork(callback, { selector = (x) => x } = {}) {
 
 // src/web3/connectors/ImpersonatedConnector.ts
 import {
-  createTestClient,
+  createWalletClient as createWalletClient2,
   getAddress as getAddress5,
   http as http3,
-  walletActions,
   zeroAddress
 } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
 import { mainnet as mainnet5 } from "viem/chains";
 function normalizeChainId2(chainId) {
   if (typeof chainId === "string")
@@ -2224,7 +2224,7 @@ var ImpersonatedConnector = class extends Connector {
   id = "impersonated";
   name = "Impersonated";
   ready = true;
-  accountAddress;
+  account;
   #provider;
   constructor({
     chains,
@@ -2237,14 +2237,15 @@ var ImpersonatedConnector = class extends Connector {
         chainId: options.chainId ?? chains?.[0]?.id
       }
     });
-    this.accountAddress = zeroAddress;
+    this.account = privateKeyToAccount(zeroAddress);
   }
-  setAccountAddress(address) {
-    this.accountAddress = address || zeroAddress;
+  setAccount(account) {
+    if (account) {
+      this.account = account;
+    }
   }
   async connect({ chainId } = {}) {
     const provider = await this.getProvider({
-      address: this.accountAddress,
       chainId
     });
     provider.on("accountsChanged", this.onAccountsChanged);
@@ -2281,22 +2282,17 @@ var ImpersonatedConnector = class extends Connector {
     const provider = await this.getProvider();
     return normalizeChainId2(provider.chainId);
   }
-  async getProvider({
-    address,
-    chainId
-  } = {}) {
-    console.log("address", address);
+  async getProvider({ chainId } = {}) {
     const chain = this.chains.find((chain2) => chain2.id === chainId);
     if (!this.#provider || chainId)
       this.#provider = new MockProvider({
         ...this.options,
         chainId: chainId ?? this.options.chainId ?? this.chains[0].id,
-        walletClient: createTestClient({
-          account: address || zeroAddress,
-          mode: "anvil",
+        walletClient: createWalletClient2({
+          account: this.account,
           chain: chain || mainnet5,
           transport: http3(chain?.rpcUrls.default.http[0])
-        }).extend(walletActions)
+        })
       });
     return this.#provider;
   }
@@ -2731,6 +2727,7 @@ function createTransactionsSlice({
 
 // src/web3/store/walletSlice.ts
 import { produce as produce5 } from "immer";
+import { privateKeyToAccount as privateKeyToAccount2 } from "viem/accounts";
 function createWalletSlice({
   walletConnected
 }) {
@@ -2792,7 +2789,7 @@ function createWalletSlice({
       try {
         if (connector) {
           if (connector instanceof ImpersonatedConnector) {
-            connector.setAccountAddress(get()._impersonatedAddress);
+            connector.setAccount(get()._impersonatedAccount);
             await connect({ connector, chainId });
           } else {
             await connect({ connector });
@@ -2896,8 +2893,8 @@ function createWalletSlice({
       }
     },
     isActiveWalletChainChanging: false,
-    setImpersonatedAddress: (address) => {
-      set({ _impersonatedAddress: address });
+    setImpersonatedAccount: (privateKey) => {
+      set({ _impersonatedAccount: privateKeyToAccount2(privateKey) });
     },
     resetWalletConnectionError: () => {
       set({ walletConnectionError: "" });
