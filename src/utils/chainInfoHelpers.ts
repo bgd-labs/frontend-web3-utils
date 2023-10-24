@@ -1,4 +1,5 @@
-import { Chain, createPublicClient, http, PublicClient } from 'viem';
+import { PublicClient } from '@wagmi/core';
+import { Chain, createPublicClient, http } from 'viem';
 import {
   avalanche,
   avalancheFuji,
@@ -8,6 +9,8 @@ import {
   polygonMumbai,
   sepolia,
 } from 'viem/chains';
+
+import { ClientsRecord } from '../web3/store/transactionsSlice';
 
 export const initialChains: Record<number, Chain> = {
   [mainnet.id]: mainnet,
@@ -23,7 +26,7 @@ export const initChainInformationConfig = (chains?: Record<number, Chain>) => {
   const CHAINS = { ...initialChains, ...chains } || {};
 
   // init clients instances from chain config
-  const initalizedClients: Record<number, PublicClient> = {};
+  const initalizedClients: ClientsRecord = {};
   const clientInstances = Object.values(CHAINS).reduce<{
     [chainId: number]: {
       instance: PublicClient;

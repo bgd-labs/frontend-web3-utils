@@ -1,7 +1,7 @@
 import * as react from 'react';
 import react__default from 'react';
 import { Connector, ConnectorData, WalletClient, PublicClient, GetAccountResult } from '@wagmi/core';
-import { Account, Hex, Chain as Chain$1, PublicClient as PublicClient$1 } from 'viem';
+import { Account, Hex, Chain as Chain$1 } from 'viem';
 import { StoreApi, UseBoundStore } from 'zustand';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { InjectedConnector } from 'wagmi/connectors/injected';
@@ -232,7 +232,7 @@ declare const initialChains: Record<number, Chain$1>;
 declare const initChainInformationConfig: (chains?: Record<number, Chain$1>) => {
     clientInstances: {
         [chainId: number]: {
-            instance: PublicClient$1;
+            instance: PublicClient;
         };
     };
     getChainParameters: (chainId: number) => Chain$1;
