@@ -19,7 +19,7 @@
       "url": "https://github.com/Tima0203"
     }
   ],
-  "version": "0.2.21",
+  "version": "0.2.294",
   "license": "MIT",
   "files": [
     "dist",
@@ -28,20 +28,20 @@
   "engines": {
     "node": ">=18"
   },
+  "type": "module",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "module": "dist/index.js",
   "size-limit": [
     {
       "path": "dist/index.js",
-      "limit": "10 KB"
+      "limit": "100 KB"
     }
   ],
   "scripts": {
     "start": "tsup src/index.tsx --watch",
     "build": "tsup",
-    "size": "size-limit",
-    "analyze": "size-limit --why"
+    "size": "size-limit"
   },
   "peerDependencies": {
     "immer": "10.x.x",

@@ -71,7 +71,19 @@ export const initAllConnectors = (props: AllConnectorsInitProps) => {
     },
   });
 
-  const connectors: ConnectorType[] = [injected, coinbase, gnosisSafe];
+  const impersonated = new ImpersonatedConnector({
+    chains,
+    options: {
+      chainId: props.chains[props.defaultChainId || chainIds[0]].id,
+    },
+  });
+
+  const connectors: ConnectorType[] = [
+    injected,
+    coinbase,
+    gnosisSafe,
+    impersonated,
+  ];
   if (walletConnect !== null) {
     connectors.push(walletConnect);
   }

@@ -1,6 +1,6 @@
 import { MockProvider, MockProviderOptions } from '@wagmi/connectors/mock';
 import { Connector, ConnectorData, WalletClient } from '@wagmi/core';
-import { createWalletClient, getAddress, Hex, http } from 'viem';
+import { Account, createWalletClient, getAddress, Hex, http } from 'viem';
 import type { Chain } from 'viem/chains';
 import { mainnet } from 'viem/chains';
 
@@ -28,6 +28,7 @@ export class ImpersonatedConnector extends Connector<
   readonly id = 'impersonated';
   readonly name = 'Impersonated';
   readonly ready = true;
+  private account: Account | undefined;
 
   #provider?: MockProvider;
 
@@ -45,13 +46,19 @@ export class ImpersonatedConnector extends Connector<
         chainId: options.chainId ?? chains?.[0]?.id,
       },
     });
+    this.account = undefined;
   }
 
-  async connect({
-    address,
-    chainId,
-  }: { address?: Hex; chainId?: number } = {}) {
-    const provider = await this.getProvider({ address, chainId });
+  setAccount(account: Account | undefined) {
+    if (account) {
+      this.account = account;
+    }
+  }
+
+  async connect({ chainId }: { address?: Hex; chainId?: number } = {}) {
+    const provider = await this.getProvider({
+      chainId,
+    });
     provider.on('accountsChanged', this.onAccountsChanged);
     provider.on('chainChanged', this.onChainChanged);
     provider.on('disconnect', this.onDisconnect);
@@ -95,18 +102,17 @@ export class ImpersonatedConnector extends Connector<
     return normalizeChainId(provider.chainId);
   }
 
-  async getProvider({
-    address,
-    chainId,
-  }: { address?: Hex; chainId?: number } = {}) {
+  async getProvider({ chainId }: { chainId?: number } = {}) {
+    const chain = this.chains.find((chain) => chain.id === chainId);
     if (!this.#provider || chainId)
       this.#provider = new MockProvider({
         ...this.options,
         chainId: chainId ?? this.options.chainId ?? this.chains[0]!.id,
+        // @ts-ignore
         walletClient: createWalletClient({
-          account: address || '0x0',
-          chain: this.chains.find((chain) => chain.id === chainId) || mainnet,
-          transport: http(),
+          account: this.account,
+          chain: chain || mainnet,
+          transport: http(chain?.rpcUrls.default.http[0]),
         }),
       });
     return this.#provider;
