@@ -8,7 +8,14 @@ import {
   getWalletClient,
 } from '@wagmi/core';
 import { produce } from 'immer';
-import { Account, Chain, Hex, PublicClient, WalletClient } from 'viem';
+import {
+  Account,
+  Chain,
+  Hex,
+  isAddress,
+  PublicClient,
+  WalletClient,
+} from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
 import { StoreSlice } from '../../types/store';
@@ -55,8 +62,12 @@ export type IWalletSlice = {
   checkAndSwitchNetwork: (chainId?: number) => Promise<void>;
   connectors: ConnectorType[];
   setConnectors: (connectors: ConnectorType[]) => void;
-  _impersonatedAccount?: Account;
-  setImpersonatedAccount: (privateKey: Hex) => void;
+  impersonated?: {
+    account?: Account;
+    address?: Hex;
+    isViewOnly?: boolean;
+  };
+  setImpersonated: (privateKeyOrAddress: string) => void;
   checkIsContractWallet: (
     wallet: Omit<Wallet, 'walletClient'>,
   ) => Promise<boolean>;
@@ -136,7 +147,12 @@ export function createWalletSlice({
       try {
         if (connector) {
           if (connector instanceof ImpersonatedConnector) {
-            connector.setAccount(get()._impersonatedAccount);
+            const impersonated = get().impersonated;
+            if (impersonated?.isViewOnly) {
+              connector.setAccountAddress(impersonated.address);
+            } else if (impersonated?.account) {
+              connector.setAccount(impersonated.account);
+            }
             await connect({ connector, chainId });
           } else {
             await connect({ connector });
@@ -269,8 +285,22 @@ export function createWalletSlice({
     },
     isActiveWalletChainChanging: false,
 
-    setImpersonatedAccount: (privateKey) => {
-      set({ _impersonatedAccount: privateKeyToAccount(privateKey) });
+    setImpersonated: (privateKeyOrAddress) => {
+      if (isAddress(privateKeyOrAddress)) {
+        set({
+          impersonated: {
+            address: privateKeyOrAddress,
+            isViewOnly: true,
+          },
+        });
+      } else {
+        set({
+          impersonated: {
+            account: privateKeyToAccount(`0x${privateKeyOrAddress}`),
+            isViewOnly: false,
+          },
+        });
+      }
     },
     resetWalletConnectionError: () => {
       set({ walletConnectionError: '' });

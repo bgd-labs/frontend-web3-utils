@@ -29,6 +29,7 @@ export class ImpersonatedConnector extends Connector<
   readonly name = 'Impersonated';
   readonly ready = true;
   private account: Account | undefined;
+  private accountAddress: Hex | undefined;
 
   #provider?: MockProvider;
 
@@ -47,6 +48,7 @@ export class ImpersonatedConnector extends Connector<
       },
     });
     this.account = undefined;
+    this.accountAddress = undefined;
   }
 
   setAccount(account: Account | undefined) {
@@ -54,8 +56,13 @@ export class ImpersonatedConnector extends Connector<
       this.account = account;
     }
   }
+  setAccountAddress(address: Hex | undefined) {
+    if (address) {
+      this.accountAddress = address;
+    }
+  }
 
-  async connect({ chainId }: { address?: Hex; chainId?: number } = {}) {
+  async connect({ chainId }: { chainId?: number } = {}) {
     const provider = await this.getProvider({
       chainId,
     });
@@ -110,7 +117,7 @@ export class ImpersonatedConnector extends Connector<
         chainId: chainId ?? this.options.chainId ?? this.chains[0]!.id,
         // @ts-ignore
         walletClient: createWalletClient({
-          account: this.account,
+          account: this.account || this.accountAddress,
           chain: chain || mainnet,
           transport: http(chain?.rpcUrls.default.http[0]),
         }),
