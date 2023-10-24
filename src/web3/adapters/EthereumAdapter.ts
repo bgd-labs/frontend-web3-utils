@@ -82,7 +82,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     let txWasReplaced = false;
     try {
       const txn = await client.waitForTransactionReceipt({
-        // pollingInterval: 10000,
+        pollingInterval: 8_000,
         hash: tx.hash,
         onReplaced: (replacement) => {
           this.updateTXStatus(txHash, 'replaced', replacement.transaction.hash);
