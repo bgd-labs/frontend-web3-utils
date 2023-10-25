@@ -27,7 +27,7 @@ export type GnosisTxStatusResponse = {
 export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
   get: () => ITransactionsSlice<T>;
   set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void;
-  transactionsIntervalsMap: Record<string, number | undefined> = {};
+  // transactionsIntervalsMap: Record<string, number | undefined> = {};
 
   constructor(
     get: () => ITransactionsSlice<T>,
@@ -67,53 +67,58 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     if (!isPending) {
       return;
     }
-    this.stopPollingGnosisTXStatus(txKey);
+    // this.stopPollingGnosisTXStatus(txKey);
 
-    const newGnosisInterval = setInterval(() => {
-      this.fetchGnosisTxStatus(txKey);
+    this.fetchGnosisTxStatus(txKey);
       // TODO: maybe change timeout or even stop tracking after some time (day/week)
-    }, 10000);
 
-    this.transactionsIntervalsMap[txKey] = Number(newGnosisInterval);
+    // this.transactionsIntervalsMap[txKey] = Number(newGnosisInterval);
   };
 
-  private fetchGnosisTxStatus = async (txKey: string) => {
+  private fetchGnosisTxStatus = async (txKey: string, retryCount: number = 5) => {
     const tx = this.get().transactionsPool[txKey];
-    const response = await fetch(
-      `${
-        SafeTransactionServiceUrls[tx.chainId]
-      }/multisig-transactions/${txKey}/`,
-    );
-    if (!response.ok) {
-      // TODO: handle error if need, for now just skipping and do nothing with failed response
-      // maybe add retry logic and if it fails, remove from pool or update as failed
-    } else {
-      const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
-      const gnosisStatusModified = dayjs(gnosisStatus.modified);
-      const currentTime = dayjs();
-      // check if more than a day passed to stop polling
-      const daysPassed = currentTime.diff(gnosisStatusModified, 'day');
-      if (daysPassed >= 1) {
-        this.updateGnosisTxStatus(txKey, gnosisStatus, true);
-        this.stopPollingGnosisTXStatus(txKey);
-        this.get().txStatusChangedCallback(tx);
-        return;
+      const response = await fetch(
+        `${
+          SafeTransactionServiceUrls[tx.chainId]
+        }/multisig-transactions/${txKey}/`,
+      );
+      if (!response.ok) {
+        if (retryCount > 0) {
+          setTimeout(() => this.fetchGnosisTxStatus(txKey, retryCount - 1), 5000);
+          return
+        } else {
+          // Max retry count reached, stop polling until next initialization
+          return
+        }
+      } else {
+        const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
+        const gnosisStatusModified = dayjs(gnosisStatus.modified);
+        const currentTime = dayjs();
+        // check if more than a several day passed to remove the transaction from the pool
+        const daysPassed = currentTime.diff(gnosisStatusModified, 'day');
+        if (daysPassed >= 3) {
+          // this.updateGnosisTxStatus(txKey, gnosisStatus, true);
+          // this.stopPollingGnosisTXStatus(txKey);
+          // this.get().txStatusChangedCallback(tx);
+          this.get().removeTXFromPool(txKey);
+          return;
+        }
+  
+        const isPending = !gnosisStatus.isExecuted;
+        this.updateGnosisTxStatus(txKey, gnosisStatus);
+        if (!isPending) {
+          // this.stopPollingGnosisTXStatus(txKey);
+          this.get().txStatusChangedCallback(tx);
+        }
+        return
       }
-
-      const isPending = !gnosisStatus.isExecuted;
-      this.updateGnosisTxStatus(txKey, gnosisStatus);
-      if (!isPending) {
-        this.stopPollingGnosisTXStatus(txKey);
-        this.get().txStatusChangedCallback(tx);
-      }
-    }
   };
 
-  private stopPollingGnosisTXStatus = (txKey: string) => {
-    const currentInterval = this.transactionsIntervalsMap[txKey];
-    clearInterval(currentInterval);
-    this.transactionsIntervalsMap[txKey] = undefined;
-  };
+  // private stopPollingGnosisTXStatus = (txKey: string) => {
+  //   // const currentInterval = this.transactionsIntervalsMap[txKey];
+  //   // clearInterval(currentInterval);
+  //   // this.transactionsIntervalsMap[txKey] = undefined;
+  // };
 
   private updateGnosisTxStatus = (
     txKey: string,

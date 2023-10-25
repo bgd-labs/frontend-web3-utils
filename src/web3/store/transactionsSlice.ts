@@ -63,7 +63,7 @@ type PoolTx<T extends BaseTx> = T & {
   status?: number;
   pending: boolean;
   walletType: WalletType;
-  isReplaced?: string;
+  replacedTxHash?: string;
 };
 
 export interface ITransactionsState<T extends BaseTx> {

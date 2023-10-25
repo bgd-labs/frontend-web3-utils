@@ -1,5 +1,6 @@
 import { produce } from 'immer';
 import { Hex } from 'viem';
+import dayjs from 'dayjs';
 
 import { setLocalStorageTxPool } from '../../utils/localStorage';
 import { selectIsGelatoTXPending } from '../store/transactionsSelectors';
@@ -55,7 +56,7 @@ export function isGelatoBaseTxWithoutTimestamp(
 export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
   get: () => ITransactionsSlice<T>;
   set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void;
-  transactionsIntervalsMap: Record<string, number | undefined> = {};
+  // transactionsIntervalsMap: Record<string, number | undefined> = {};
 
   constructor(
     get: () => ITransactionsSlice<T>,
@@ -97,35 +98,48 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
       return;
     }
 
-    this.stopPollingGelatoTXStatus(taskId);
+    // this.stopPollingGelatoTXStatus(taskId);
 
-    const newGelatoInterval = setInterval(() => {
+    // const newGelatoInterval = setInterval(() => {
       this.fetchGelatoTXStatus(taskId);
-    }, 2000);
+    // }, 2000);
 
-    this.transactionsIntervalsMap[taskId] = Number(newGelatoInterval);
+    // this.transactionsIntervalsMap[taskId] = Number(newGelatoInterval);
   };
 
-  private stopPollingGelatoTXStatus = (taskId: string) => {
-    const currentInterval = this.transactionsIntervalsMap[taskId];
-    clearInterval(currentInterval);
-    this.transactionsIntervalsMap[taskId] = undefined;
-  };
+  // private stopPollingGelatoTXStatus = (taskId: string) => {
+    // const currentInterval = this.transactionsIntervalsMap[taskId];
+    // clearInterval(currentInterval);
+    // this.transactionsIntervalsMap[taskId] = undefined;
+  // };
 
-  private fetchGelatoTXStatus = async (taskId: string) => {
+  private fetchGelatoTXStatus = async (taskId: string, retryCount: number = 5) => {
     const response = await fetch(
       `https://api.gelato.digital/tasks/status/${taskId}/`,
     );
     if (!response.ok) {
-      // TODO: handle error if needed, for now just skipping
-      // maybe add retry mechanism and if it fails, remove from pool or update as failed
+      if (retryCount > 0) {
+        setTimeout(() => this.fetchGelatoTXStatus(taskId, retryCount - 1), 5000);
+        return
+      } else {
+        // Max retry count reached, stop polling until next initialization
+        return
+      }
     } else {
+      const gelatoTx = this.get().transactionsPool[taskId];
       const gelatoStatus = (await response.json()) as GelatoTaskStatusResponse;
-
+      const gelatoLastModified = dayjs(gelatoTx.timestamp);
+      const currentTime = dayjs();
+      const hoursPassed = currentTime.diff(gelatoLastModified, 'hour');
+      if (hoursPassed > 5) {
+        // remove the transaction from the pool if more than a 5 hours passed
+        this.get().removeTXFromPool(taskId);
+        return;
+      }
       const isPending = selectIsGelatoTXPending(gelatoStatus.task.taskState);
       this.updateGelatoTX(taskId, gelatoStatus);
       if (!isPending) {
-        this.stopPollingGelatoTXStatus(taskId);
+        // this.stopPollingGelatoTXStatus(taskId);
         const tx = this.get().transactionsPool[taskId];
         this.get().txStatusChangedCallback(tx);
       }

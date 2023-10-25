@@ -1,6 +1,6 @@
 import { produce } from 'immer';
-import { GetTransactionReturnType, Hex, PublicClient, Transaction } from 'viem';
-
+import { GetTransactionReturnType, Hex, Transaction } from 'viem';
+import { PublicClient } from '@wagmi/core';
 import { setLocalStorageTxPool } from '../../utils/localStorage';
 import { BaseTx, ITransactionsSlice, NewTx } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
@@ -66,7 +66,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
           }
         }
         // Wait before the next retry
-        await new Promise((resolve) => setTimeout(resolve, 3000));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       }
     } else {
       return; // Exit the function if the transaction is not found
@@ -124,7 +124,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
             : 0;
         draft.transactionsPool[hash].pending = false;
         if (replacedHash) {
-          draft.transactionsPool[hash].isReplaced = replacedHash;
+          draft.transactionsPool[hash].replacedTxHash = replacedHash;
         }
       }),
     );
