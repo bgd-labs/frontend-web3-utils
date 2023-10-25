@@ -1,6 +1,8 @@
 import {
   arbitrum,
   avalanche,
+  base,
+  bsc,
   goerli,
   mainnet,
   optimism,
@@ -14,4 +16,6 @@ export const SafeTransactionServiceUrls: { [key in number]: string } = {
   [polygon.id]: 'https://safe-transaction-polygon.safe.global/api/v1',
   [arbitrum.id]: 'https://safe-transaction-arbitrum.safe.global/api/v1',
   [avalanche.id]: 'https://safe-transaction-avalanche.safe.global/api/v1',
+  [bsc.id]: 'https://safe-transaction-bsc.safe.global/api/v1',
+  [base.id]: 'https://safe-transaction-base.safe.global/api/v1',
 };

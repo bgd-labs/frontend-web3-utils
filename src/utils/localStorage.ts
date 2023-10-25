@@ -52,4 +52,5 @@ export const clearWalletConnectV2LocalStorage = () => {
   localStorage.removeItem('wc@2:core:0.3//expirer');
   localStorage.removeItem('wc@2:core:0.3//pairing');
   localStorage.removeItem('wc@2:universal_provider:/optionalNamespaces');
+  localStorage.removeItem('wc@2:core:0.3//keychain');
 };

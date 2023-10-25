@@ -7,7 +7,7 @@ import {
 } from '@wagmi/core';
 import React, { useEffect, useState } from 'react';
 import { Chain } from 'viem';
-import { publicProvider } from 'wagmi/providers/public';
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { StoreApi, UseBoundStore } from 'zustand';
 
 import {
@@ -67,7 +67,13 @@ export function WagmiProvider({
 
   const { publicClient } = configureChains(
     Object.values(connectorsInitProps.chains),
-    [publicProvider()],
+    [
+      jsonRpcProvider({
+        rpc: (chain) => ({
+          http: connectorsInitProps.chains[chain.id].rpcUrls.default.http[0],
+        }),
+      }),
+    ],
   );
 
   createConfig({
