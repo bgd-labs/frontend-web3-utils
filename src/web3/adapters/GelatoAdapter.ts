@@ -1,6 +1,5 @@
 import { produce } from 'immer';
 import { Hex } from 'viem';
-import dayjs from 'dayjs';
 
 import { setLocalStorageTxPool } from '../../utils/localStorage';
 import { selectIsGelatoTXPending } from '../store/transactionsSelectors';
@@ -112,6 +111,8 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
         this.get().removeTXFromPool(taskId);
         return;
       }
+      // TODO: while testing 5 seconds is enough, but retryCount sometimes got to 1, 
+      // so maybe change timeout or increase retryCount for more busy networks
     }, 5000);
 
 
@@ -126,20 +127,12 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
   private fetchGelatoTXStatus = async (taskId: string, ) => {
     const response = await fetch(
-      `https://api.gelato.digital/tasks/status/${taskId}/`,
+      // `https://api.gelato.digital/tasks/status/${taskId}/`,
+      `https://api.gelato.digital/tasks/stats/${taskId}/`,
     );
     if (response.ok) {
       console.log('response ok')
-      const gelatoTx = this.get().transactionsPool[taskId];
       const gelatoStatus = (await response.json()) as GelatoTaskStatusResponse;
-      const gelatoLastModified = dayjs(gelatoTx.timestamp);
-      const currentTime = dayjs();
-      const hoursPassed = currentTime.diff(gelatoLastModified, 'hour');
-      if (hoursPassed > 5) {
-        // remove the transaction from the pool if more than a 5 hours passed
-        this.get().removeTXFromPool(taskId);
-        return;
-      }
       const isPending = selectIsGelatoTXPending(gelatoStatus.task.taskState);
       this.updateGelatoTX(taskId, gelatoStatus);
       if (!isPending) {

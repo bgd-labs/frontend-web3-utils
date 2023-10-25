@@ -27,7 +27,7 @@ export type GnosisTxStatusResponse = {
 export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
   get: () => ITransactionsSlice<T>;
   set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void;
-  // transactionsIntervalsMap: Record<string, number | undefined> = {};
+  transactionsIntervalsMap: Record<string, number | undefined> = {};
 
   constructor(
     get: () => ITransactionsSlice<T>,
@@ -67,39 +67,39 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     if (!isPending) {
       return;
     }
-    // this.stopPollingGnosisTXStatus(txKey);
-
-    this.fetchGnosisTxStatus(txKey);
-      // TODO: maybe change timeout or even stop tracking after some time (day/week)
-
-    // this.transactionsIntervalsMap[txKey] = Number(newGnosisInterval);
+    this.stopPollingGnosisTXStatus(txKey);
+    let retryCount = 5 
+    const newGnosisInterval = setInterval(() => {
+      if (retryCount > 0) {
+        console.log('fetching retry', retryCount)
+        this.fetchGnosisTxStatus(txKey);
+        retryCount--;
+      } else {
+        // just stopping interval, not removing tx from pool because multisig could take a while
+        this.stopPollingGnosisTXStatus(txKey);
+        return;
+      }
+    }, 5000);
+    this.transactionsIntervalsMap[txKey] = Number(newGnosisInterval);
   };
 
-  private fetchGnosisTxStatus = async (txKey: string, retryCount: number = 5) => {
+  private fetchGnosisTxStatus = async (txKey: string) => {
     const tx = this.get().transactionsPool[txKey];
       const response = await fetch(
         `${
           SafeTransactionServiceUrls[tx.chainId]
         }/multisig-transactions/${txKey}/`,
       );
-      if (!response.ok) {
-        if (retryCount > 0) {
-          setTimeout(() => this.fetchGnosisTxStatus(txKey, retryCount - 1), 5000);
-          return
-        } else {
-          // Max retry count reached, stop polling until next initialization
-          return
-        }
-      } else {
+      if (response.ok) {
         const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
         const gnosisStatusModified = dayjs(gnosisStatus.modified);
         const currentTime = dayjs();
-        // check if more than a several day passed to remove the transaction from the pool
+        // check if more than a day passed to remove the transaction from the pool
         const daysPassed = currentTime.diff(gnosisStatusModified, 'day');
-        if (daysPassed >= 3) {
-          // this.updateGnosisTxStatus(txKey, gnosisStatus, true);
-          // this.stopPollingGnosisTXStatus(txKey);
-          // this.get().txStatusChangedCallback(tx);
+        if (daysPassed >= 1) {
+          this.updateGnosisTxStatus(txKey, gnosisStatus, true);
+          this.stopPollingGnosisTXStatus(txKey);
+          this.get().txStatusChangedCallback(tx);
           this.get().removeTXFromPool(txKey);
           return;
         }
@@ -107,18 +107,18 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
         const isPending = !gnosisStatus.isExecuted;
         this.updateGnosisTxStatus(txKey, gnosisStatus);
         if (!isPending) {
-          // this.stopPollingGnosisTXStatus(txKey);
+          this.stopPollingGnosisTXStatus(txKey);
           this.get().txStatusChangedCallback(tx);
         }
         return
       }
   };
 
-  // private stopPollingGnosisTXStatus = (txKey: string) => {
-  //   // const currentInterval = this.transactionsIntervalsMap[txKey];
-  //   // clearInterval(currentInterval);
-  //   // this.transactionsIntervalsMap[txKey] = undefined;
-  // };
+  private stopPollingGnosisTXStatus = (txKey: string) => {
+    const currentInterval = this.transactionsIntervalsMap[txKey];
+    clearInterval(currentInterval);
+    this.transactionsIntervalsMap[txKey] = undefined;
+  };
 
   private updateGnosisTxStatus = (
     txKey: string,
