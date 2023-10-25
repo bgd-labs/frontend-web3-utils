@@ -555,7 +555,7 @@ var initChainInformationConfig = (chains) => {
               multicall: true
             },
             chain,
-            transport: (0, import_viem.http)(chain.rpcUrls.default.http[0])
+            transport: (0, import_viem.http)()
           });
           initalizedClients[numberChainId] = client;
           return client;

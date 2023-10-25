@@ -43,7 +43,7 @@ export const initChainInformationConfig = (chains?: Record<number, Chain>) => {
               multicall: true,
             },
             chain,
-            transport: http(chain.rpcUrls.default.http[0]),
+            transport: http(),
           }) as PublicClient;
           initalizedClients[numberChainId] = client;
           return client;

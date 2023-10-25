@@ -534,7 +534,7 @@ var initChainInformationConfig = (chains) => {
               multicall: true
             },
             chain,
-            transport: http(chain.rpcUrls.default.http[0])
+            transport: http()
           });
           initalizedClients[numberChainId] = client;
           return client;
