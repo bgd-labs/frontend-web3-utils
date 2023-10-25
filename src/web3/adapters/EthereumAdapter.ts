@@ -59,8 +59,8 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
             return; // Exit the function if successful
           } catch (e) {
             if (i === retryCount - 1) {
-              // If the transaction is not found after the last retry, remove it from the pool
-              this.get().removeTXFromPool(txData.hash);
+              // If the transaction is not found after the last retry, set the status to unknownError (it could be replace with completely new one or lost in mempool)
+              this.updateTXStatus(txData.hash, 'unknownError')
               return; // Exit the function
             }
           }
@@ -107,9 +107,10 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     }
   };
 
+  // statuses 0 - reverted, 1 - success, 2 - replaced, 3 - unknownError,
   private updateTXStatus = (
     hash: string,
-    status?: 'success' | 'reverted' | 'replaced',
+    status?: 'success' | 'reverted' | 'replaced' | 'unknownError',
     replacedHash?: string,
   ) => {
     this.set((state) =>
@@ -119,6 +120,8 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
             ? 1
             : status === 'replaced'
             ? 2
+            : status === 'unknownError'
+            ? 3
             : draft.transactionsPool[hash].pending
             ? undefined
             : 0;
