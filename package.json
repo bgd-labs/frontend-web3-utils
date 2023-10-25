@@ -38,7 +38,8 @@
     "start": "tsup src/index.tsx --watch",
     "build": "tsup",
     "size": "size-limit",
-    "lint": "npx eslint --fix"
+    "lint": "npx eslint --fix",
+    "ci:publish": "npm run build && npm publish --access=public"
   },
   "files": ["dist"],
   "type": "module",
