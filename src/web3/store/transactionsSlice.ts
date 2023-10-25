@@ -1,5 +1,6 @@
+import { PublicClient } from '@wagmi/core';
 import { Draft, produce } from 'immer';
-import { Hex, PublicClient } from 'viem';
+import { Hex } from 'viem';
 
 import { StoreSlice } from '../../types/store';
 import {

@@ -12,7 +12,7 @@ interface LastTxStatusesParams<T extends BaseTx> {
 }
 
 type ExecuteTxWithLocalStatusesParams = {
-  errorMessage: string;
+  errorMessage?: string;
   callbackFunction: () => Promise<void>;
 };
 
@@ -27,7 +27,7 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
   const [fullTxErrorMessage, setFullTxErrorMessage] = useState<string | Error>(
     '',
   );
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | Error>('');
   const [loading, setLoading] = useState(false);
   const [isTxStart, setIsTxStart] = useState(false);
 
@@ -72,7 +72,7 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
       if (e instanceof Error) {
         console.error('TX error: ', e);
         setFullTxErrorMessage(!!e?.message ? e.message : e);
-        setError(errorMessage);
+        setError(!!errorMessage ? errorMessage : !!e?.message ? e.message : e);
       }
     }
     setLoading(false);
