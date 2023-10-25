@@ -203,10 +203,8 @@ export function createTransactionsSlice<T extends BaseTx>({
     },
     initTxPool: () => {
       const localStorageTXPool = getLocalStorageTxPool();
-      console.log('init tx pool')
       if (localStorageTXPool) {
         const transactionsPool = JSON.parse(localStorageTXPool);
-        console.log({transactionsPool})
         // TODO: figure out type casting from string via ZOD or similar
         set(() => ({
           transactionsPool,
