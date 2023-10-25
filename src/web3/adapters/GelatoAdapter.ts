@@ -91,7 +91,9 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
   };
 
   startTxTracking = async (taskId: string) => {
+    console.log('starting tx tracking')
     const tx = this.get().transactionsPool[taskId] as GelatoBaseTx;
+    console.log({tx})
 
     const isPending = selectIsGelatoTXPending(tx.gelatoStatus);
     if (!isPending) {
@@ -118,6 +120,9 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
       `https://api.gelato.digital/tasks/status/${taskId}/`,
     );
     if (!response.ok) {
+      console.log('response not ok')
+      console.log({retryCount})
+  
       if (retryCount > 0) {
         setTimeout(() => this.fetchGelatoTXStatus(taskId, retryCount - 1), 5000);
         return
@@ -126,6 +131,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
         return
       }
     } else {
+      console.log('response ok')
       const gelatoTx = this.get().transactionsPool[taskId];
       const gelatoStatus = (await response.json()) as GelatoTaskStatusResponse;
       const gelatoLastModified = dayjs(gelatoTx.timestamp);
