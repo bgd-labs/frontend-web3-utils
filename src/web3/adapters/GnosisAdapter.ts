@@ -71,7 +71,6 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     let retryCount = 5 
     const newGnosisInterval = setInterval(() => {
       if (retryCount > 0) {
-        console.log('fetching retry', retryCount)
         this.fetchGnosisTxStatus(txKey);
         retryCount--;
       } else {
@@ -94,10 +93,9 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
         const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
         const gnosisStatusModified = dayjs(gnosisStatus.modified);
         const currentTime = dayjs();
-        // check if more than a day passed to remove the transaction from the pool
         const daysPassed = currentTime.diff(gnosisStatusModified, 'day');
-        if (daysPassed >= 1) {
-          this.updateGnosisTxStatus(txKey, gnosisStatus, true);
+        // check if more than a day passed and tx wasn't executed still,remove the transaction from the pool
+        if (daysPassed >= 1 && !gnosisStatus.isExecuted) {
           this.stopPollingGnosisTXStatus(txKey);
           this.get().txStatusChangedCallback(tx);
           this.get().removeTXFromPool(txKey);
@@ -123,7 +121,6 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
   private updateGnosisTxStatus = (
     txKey: string,
     statusResponse: GnosisTxStatusResponse,
-    forceStopped?: boolean,
   ) => {
     this.set((state) =>
       produce(state, (draft) => {
@@ -131,8 +128,8 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
           pending: boolean;
           status?: number;
         };
-        tx.status = forceStopped ? 0 : +!!statusResponse.isSuccessful; // turns boolean | null to 0 or 1
-        tx.pending = forceStopped ? false : !statusResponse.isExecuted;
+        tx.status = +!!statusResponse.isSuccessful; // turns boolean | null to 0 or 1
+        tx.pending = !statusResponse.isExecuted;
         tx.nonce = statusResponse.nonce;
       }),
     );
