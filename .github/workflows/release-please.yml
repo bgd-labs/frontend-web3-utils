@@ -18,7 +18,7 @@ jobs:
         id: release
         with:
           release-type: node
-          package-name: @bgd-labs/frontend-web3-utils
+          package-name: frontend-web3-utils
           pull-request-header: "I have created a release"
 
   release-node:
