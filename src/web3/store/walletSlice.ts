@@ -242,6 +242,7 @@ export function createWalletSlice({
     },
 
     changeActiveWalletAccount: async (account) => {
+      console.log('account in watch', account);
       const activeWallet = get().activeWallet;
       if (
         account &&
@@ -264,6 +265,7 @@ export function createWalletSlice({
     },
     isActiveWalletAccountChanging: false,
     changeActiveWalletChain: async (chain) => {
+      console.log('chain in watch', chain);
       const activeWallet = get().activeWallet;
       if (
         chain !== undefined &&
