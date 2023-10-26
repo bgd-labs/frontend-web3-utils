@@ -135,14 +135,14 @@ export function createWalletSlice({
       if (get().activeWallet?.walletType !== walletType) {
         await get().disconnectActiveWallet();
       }
-
+      console.log(walletType, chainId)
       set({ walletActivating: true });
       set({ walletConnectionError: '' });
 
       const connector = get().connectors.find(
         (connector) => getConnectorName(connector) === walletType,
       );
-
+      console.log({connector})
       try {
         if (connector) {
           if (connector instanceof ImpersonatedConnector) {
