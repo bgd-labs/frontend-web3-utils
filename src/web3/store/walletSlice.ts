@@ -96,7 +96,9 @@ export function createWalletSlice({
     },
 
     setActiveWallet: async (wallet) => {
+      console.log('active wallet first', wallet);
       if (wallet.isActive) {
+        console.log('active wallet isActive', wallet);
         if (wallet.chain) {
           set({ isActiveWalletSetting: true });
           const client = getPublicClient({ chainId: wallet.chain.id });
@@ -114,6 +116,8 @@ export function createWalletSlice({
             const isContractAddress =
               await get().checkIsContractWallet(walletWithClients);
             const activeWallet = { ...walletWithClients, isContractAddress };
+
+            console.log('active wallet inside', wallet);
 
             set({ activeWallet });
             walletConnected(activeWallet);
