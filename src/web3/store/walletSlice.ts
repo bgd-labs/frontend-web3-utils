@@ -161,7 +161,9 @@ export function createWalletSlice({
           }
 
           const account = getAccount();
+          console.log('account', account);
           const network = getNetwork();
+          console.log('network', network);
           if (
             account &&
             account.isConnected &&
