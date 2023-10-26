@@ -129,7 +129,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
           pending: boolean;
           status?: TransactionStatus;
         };
-        tx.status = statusResponse.isSuccessful ? TransactionStatus.Success : TransactionStatus.Reverted; // turns boolean | null to 0 or 1
+        tx.status = statusResponse.isSuccessful ? TransactionStatus.Success : TransactionStatus.Reverted;
         tx.pending = !statusResponse.isExecuted;
         tx.nonce = statusResponse.nonce;
       }),

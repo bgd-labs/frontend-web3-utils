@@ -119,16 +119,6 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
           : draft.transactionsPool[hash].pending 
           ? undefined 
           : TransactionStatus.Reverted;
-        // draft.transactionsPool[hash].status = 
-          // status === 'success'
-          //   ? 1
-          //   : status === 'replaced'
-          //   ? 2
-          //   : status === 'unknownError'
-          //   ? 3
-          //   : draft.transactionsPool[hash].pending
-          //   ? undefined
-          //   : 0;
         draft.transactionsPool[hash].pending = false;
         if (replacedHash) {
           draft.transactionsPool[hash].replacedTxHash = replacedHash;
