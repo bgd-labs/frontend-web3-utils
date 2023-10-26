@@ -9,6 +9,7 @@ import {
   EthBaseTx,
   ITransactionsSlice,
   NewTx,
+  TransactionStatus,
 } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
 import { AdapterInterface } from './interface';
@@ -43,7 +44,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     payload: object | undefined;
     chainId: number;
     type: T['type'];
-  }): Promise<T & { status?: number; pending: boolean }> => {
+  }): Promise<T & { status?: TransactionStatus; pending: boolean }> => {
     const { activeWallet, chainId, type } = params;
     const tx = params.tx as GetTransactionReturnType;
     // ethereum tx
@@ -126,9 +127,9 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
       produce(state, (draft) => {
         const tx = draft.transactionsPool[txKey] as EthBaseTx & {
           pending: boolean;
-          status?: number;
+          status?: TransactionStatus;
         };
-        tx.status = +!!statusResponse.isSuccessful; // turns boolean | null to 0 or 1
+        tx.status = statusResponse.isSuccessful ? TransactionStatus.Success : TransactionStatus.Reverted; // turns boolean | null to 0 or 1
         tx.pending = !statusResponse.isExecuted;
         tx.nonce = statusResponse.nonce;
       }),

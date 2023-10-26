@@ -59,8 +59,15 @@ export type TransactionsSliceBaseType = {
 
 export type TransactionPool<T extends BaseTx> = Record<string, T>;
 
+export enum TransactionStatus {
+  Reverted = 'Reverted',
+  Success = 'Success',
+  Replaced = 'Replaced',
+  Failed = 'Failed'
+}
+
 type PoolTx<T extends BaseTx> = T & {
-  status?: number;
+  status?: TransactionStatus;
   pending: boolean;
   walletType: WalletType;
   replacedTxHash?: string;
@@ -76,7 +83,7 @@ export interface ITransactionsActions<T extends BaseTx> {
   ethereumAdapter: AdapterInterface<T>;
   txStatusChangedCallback: (
     data: T & {
-      status?: number;
+      status?: TransactionStatus;
       timestamp?: number;
     },
   ) => void;
@@ -89,7 +96,7 @@ export interface ITransactionsActions<T extends BaseTx> {
     };
   }) => Promise<
     T & {
-      status?: number;
+      status?: TransactionStatus;
       pending: boolean;
     }
   >;
@@ -205,6 +212,7 @@ export function createTransactionsSlice<T extends BaseTx>({
       const localStorageTXPool = getLocalStorageTxPool();
       if (localStorageTXPool) {
         const transactionsPool = JSON.parse(localStorageTXPool);
+        console.log({transactionsPool})
         // TODO: figure out type casting from string via ZOD or similar
         set(() => ({
           transactionsPool,

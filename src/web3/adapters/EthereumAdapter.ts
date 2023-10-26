@@ -2,7 +2,7 @@ import { produce } from 'immer';
 import { GetTransactionReturnType, Hex, Transaction } from 'viem';
 import { PublicClient } from '@wagmi/core';
 import { setLocalStorageTxPool } from '../../utils/localStorage';
-import { BaseTx, ITransactionsSlice, NewTx } from '../store/transactionsSlice';
+import { BaseTx, ITransactionsSlice, NewTx, TransactionStatus } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
 import { AdapterInterface } from './interface';
 
@@ -25,7 +25,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     payload: object | undefined;
     chainId: number;
     type: T['type'];
-  }): Promise<T & { status?: number; pending: boolean }> => {
+  }): Promise<T & { status?: TransactionStatus; pending: boolean }> => {
     const { activeWallet, chainId, type } = params;
     const tx = params.tx as GetTransactionReturnType;
     // ethereum tx
@@ -60,7 +60,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
           } catch (e) {
             if (i === retryCount - 1) {
               // If the transaction is not found after the last retry, set the status to unknownError (it could be replace with completely new one or lost in mempool)
-              this.updateTXStatus(txData.hash, 'unknownError')
+              this.updateTXStatus(txData.hash, TransactionStatus.Failed);
               return; // Exit the function
             }
           }
@@ -85,14 +85,14 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
         pollingInterval: 8_000,
         hash: tx.hash,
         onReplaced: (replacement) => {
-          this.updateTXStatus(txHash, 'replaced', replacement.transaction.hash);
+          this.updateTXStatus(txHash, TransactionStatus.Replaced, replacement.transaction.hash);
           txWasReplaced = true;
         },
       });
       if (txWasReplaced) {
         return;
       }
-      this.updateTXStatus(txHash, txn.status);
+      this.updateTXStatus(txHash, txn.status === 'success' ? TransactionStatus.Success : TransactionStatus.Reverted);
 
       const updatedTX = this.get().transactionsPool[txHash];
       const txBlock = await client.getBlock({ blockNumber: txn.blockNumber });
@@ -102,29 +102,33 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
         timestamp,
       });
     } catch (e) {
-      this.updateTXStatus(txHash, 'replaced');
+      this.updateTXStatus(txHash, TransactionStatus.Failed);
       console.error(e);
     }
   };
 
-  // statuses 0 - reverted, 1 - success, 2 - replaced, 3 - unknownError,
   private updateTXStatus = (
     hash: string,
-    status?: 'success' | 'reverted' | 'replaced' | 'unknownError',
+    status?: TransactionStatus,
     replacedHash?: string,
   ) => {
     this.set((state) =>
       produce(state, (draft) => {
-        draft.transactionsPool[hash].status =
-          status === 'success'
-            ? 1
-            : status === 'replaced'
-            ? 2
-            : status === 'unknownError'
-            ? 3
-            : draft.transactionsPool[hash].pending
-            ? undefined
-            : 0;
+        draft.transactionsPool[hash].status = status !== TransactionStatus.Reverted 
+          ? status 
+          : draft.transactionsPool[hash].pending 
+          ? undefined 
+          : TransactionStatus.Reverted;
+        // draft.transactionsPool[hash].status = 
+          // status === 'success'
+          //   ? 1
+          //   : status === 'replaced'
+          //   ? 2
+          //   : status === 'unknownError'
+          //   ? 3
+          //   : draft.transactionsPool[hash].pending
+          //   ? undefined
+          //   : 0;
         draft.transactionsPool[hash].pending = false;
         if (replacedHash) {
           draft.transactionsPool[hash].replacedTxHash = replacedHash;

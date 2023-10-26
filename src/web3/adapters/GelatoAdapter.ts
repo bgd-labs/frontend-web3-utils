@@ -9,6 +9,7 @@ import {
   InitialTx,
   ITransactionsSlice,
   NewTx,
+  TransactionStatus,
 } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
 import { AdapterInterface } from './interface';
@@ -71,7 +72,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
     payload: object | undefined;
     chainId: number;
     type: T['type'];
-  }): Promise<T & { status?: number; pending: boolean }> => {
+  }): Promise<T & { status?: TransactionStatus; pending: boolean }> => {
     const { activeWallet, chainId, type } = params;
     const tx = params.tx as GelatoTx;
     const from = activeWallet.address;
@@ -145,17 +146,12 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
       produce(state, (draft) => {
         const tx = draft.transactionsPool[taskId] as GelatoBaseTx & {
           pending: boolean;
-          status?: number;
+          status?: TransactionStatus;
         };
         tx.gelatoStatus = statusResponse.task.taskState;
         tx.pending = selectIsGelatoTXPending(statusResponse.task.taskState);
         tx.hash = statusResponse.task.transactionHash;
-        tx.status =
-          statusResponse.task.taskState === 'ExecSuccess'
-            ? 1
-            : tx.pending
-            ? undefined
-            : 0;
+        tx.status = statusResponse.task.taskState === 'ExecSuccess' ? TransactionStatus.Success : tx.pending ? undefined : TransactionStatus.Reverted;
         if (statusResponse.task.executionDate) {
           tx.timestamp = new Date(statusResponse.task.executionDate).getTime();
         }
