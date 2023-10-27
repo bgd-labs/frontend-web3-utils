@@ -67,9 +67,11 @@ export const selectLastTxByTypeAndPayload = <T extends BaseTx>(
   payload: T['payload'],
 ) => {
   const allTransactions = selectAllTransactionsByWallet(state, from);
+
   const filteredTransactions = allTransactions.filter(
     (tx) => tx.type === type && isEqual(tx.payload, payload),
   );
+
   const lastFilteredTransaction =
     filteredTransactions[filteredTransactions.length - 1];
 
@@ -110,7 +112,8 @@ export const selectTxExplorerLink = <T extends BaseTx>(
   };
 
   if (tx.walletType !== 'GnosisSafe') {
-    return `${getChainParameters(tx.chainId).blockExplorers}/tx/${txHash}`;
+    return `${getChainParameters(tx.chainId).blockExplorers?.default
+      .url}/tx/${txHash}`;
   } else {
     return `${gnosisSafeLinksHelper[tx.chainId]}${
       tx.from
