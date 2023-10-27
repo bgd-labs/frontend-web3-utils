@@ -28,8 +28,6 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
 }: LastTxStatusesParams<T>) => {
   const tx = selectLastTxByTypeAndPayload(state, activeAddress, type, payload);
 
-  console.log('last tx', tx);
-
   const [fullTxErrorMessage, setFullTxErrorMessage] = useState<string | Error>(
     '',
   );

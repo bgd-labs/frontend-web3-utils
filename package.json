@@ -1,7 +1,7 @@
 {
   "name": "@bgd-labs/frontend-web3-utils",
   "description": "Frontend utilities common to multiple Web3 projects",
-  "version": "0.4.13",
+  "version": "0.4.2",
   "author": "BGD labs",
   "license": "MIT",
   "private": false,

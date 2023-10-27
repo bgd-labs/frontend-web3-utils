@@ -37,7 +37,6 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
   }): Promise<T & { status?: TransactionStatus; pending: boolean }> => {
     const { activeWallet, chainId, type } = params;
     const tx = params.tx as InitialEthTx;
-    console.log('init execute tx', tx);
     const from = activeWallet.address;
     const transaction = {
       chainId,
@@ -108,8 +107,6 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
       if (txWasReplaced) {
         return;
       }
-
-      console.log('waitForTransactionReceipt receipt', txn);
 
       this.updateTXStatus({
         hash: txHash,

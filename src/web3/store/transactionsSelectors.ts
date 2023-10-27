@@ -68,18 +68,12 @@ export const selectLastTxByTypeAndPayload = <T extends BaseTx>(
 ) => {
   const allTransactions = selectAllTransactionsByWallet(state, from);
 
-  console.log('allTransactions', allTransactions);
-
   const filteredTransactions = allTransactions.filter(
     (tx) => tx.type === type && isEqual(tx.payload, payload),
   );
 
-  console.log('filteredTransactions', filteredTransactions);
-
   const lastFilteredTransaction =
     filteredTransactions[filteredTransactions.length - 1];
-
-  console.log('lastFilteredTransaction', lastFilteredTransaction);
 
   if (lastFilteredTransaction) {
     if (isGelatoBaseTx(lastFilteredTransaction)) {
