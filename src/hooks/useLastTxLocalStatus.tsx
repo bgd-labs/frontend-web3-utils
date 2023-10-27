@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react';
 
 import { isGelatoBaseTx } from '../web3/adapters/GelatoAdapter';
 import { selectLastTxByTypeAndPayload } from '../web3/store/transactionsSelectors';
-import { BaseTx, ITransactionsState } from '../web3/store/transactionsSlice';
+import {
+  BaseTx,
+  ITransactionsState,
+  TransactionStatus,
+} from '../web3/store/transactionsSlice';
 
 interface LastTxStatusesParams<T extends BaseTx> {
   state: ITransactionsState<T>;
@@ -35,11 +39,17 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
   const txPending = tx && tx.pending;
   const isError =
     tx && isGelatoBaseTx(tx)
-      ? !tx.pending && (tx.status !== 1 || !!error)
-      : (tx && !tx.pending && tx.status !== 1) || !!error;
-  const txSuccess = tx && tx.status === 1 && !isError;
+      ? !tx.pending && (tx.status !== TransactionStatus.Success || !!error)
+      : (tx &&
+          !tx.pending &&
+          tx.status !== TransactionStatus.Success &&
+          tx.status !== TransactionStatus.Replaced) ||
+        !!error;
+  const txSuccess = tx && tx.status === TransactionStatus.Success && !isError;
   const txChainId = tx && tx.chainId;
   const txWalletType = tx && tx.walletType;
+  const isTxReplaced = tx && tx.status === TransactionStatus.Replaced;
+  const replacedTxHash = tx && tx.replacedTxHash;
 
   useEffect(() => {
     return () => {
@@ -94,5 +104,7 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
     executeTxWithLocalStatuses,
     fullTxErrorMessage,
     setFullTxErrorMessage,
+    isTxReplaced,
+    replacedTxHash,
   };
 };

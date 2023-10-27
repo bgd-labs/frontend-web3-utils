@@ -1,4 +1,9 @@
-import { BaseTx, ITransactionsSlice, NewTx } from '../store/transactionsSlice';
+import {
+  BaseTx,
+  ITransactionsSlice,
+  NewTx,
+  TransactionStatus,
+} from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
 
 export interface AdapterInterface<T extends BaseTx> {
@@ -12,7 +17,7 @@ export interface AdapterInterface<T extends BaseTx> {
     type: T['type'];
   }) => Promise<
     T & {
-      status?: number;
+      status?: TransactionStatus;
       pending: boolean;
     }
   >;

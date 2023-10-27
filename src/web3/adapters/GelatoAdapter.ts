@@ -9,6 +9,7 @@ import {
   InitialTx,
   ITransactionsSlice,
   NewTx,
+  TransactionStatus,
 } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
 import { AdapterInterface } from './interface';
@@ -71,7 +72,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
     payload: object | undefined;
     chainId: number;
     type: T['type'];
-  }): Promise<T & { status?: number; pending: boolean }> => {
+  }): Promise<T & { status?: TransactionStatus; pending: boolean }> => {
     const { activeWallet, chainId, type } = params;
     const tx = params.tx as GelatoTx;
     const from = activeWallet.address;
@@ -91,18 +92,25 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
   startTxTracking = async (taskId: string) => {
     const tx = this.get().transactionsPool[taskId] as GelatoBaseTx;
-
     const isPending = selectIsGelatoTXPending(tx.gelatoStatus);
     if (!isPending) {
       return;
     }
-
+    let retryCount = 5;
+    // cleaning up old interval
     this.stopPollingGelatoTXStatus(taskId);
-
     const newGelatoInterval = setInterval(() => {
-      this.fetchGelatoTXStatus(taskId);
-      // TODO: maybe change timeout for gelato
-    }, 2000);
+      if (retryCount > 0) {
+        this.fetchGelatoTXStatus(taskId);
+        retryCount--;
+      } else {
+        this.stopPollingGelatoTXStatus(taskId);
+        this.get().removeTXFromPool(taskId);
+        return;
+      }
+      // TODO: while testing 5 seconds is enough, but retryCount sometimes got to 1,
+      // so maybe change timeout or increase retryCount for more busy networks
+    }, 5000);
 
     this.transactionsIntervalsMap[taskId] = Number(newGelatoInterval);
   };
@@ -117,11 +125,8 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
     const response = await fetch(
       `https://api.gelato.digital/tasks/status/${taskId}/`,
     );
-    if (!response.ok) {
-      // TODO: handle error if needed, for now just skipping
-    } else {
+    if (response.ok) {
       const gelatoStatus = (await response.json()) as GelatoTaskStatusResponse;
-
       const isPending = selectIsGelatoTXPending(gelatoStatus.task.taskState);
       this.updateGelatoTX(taskId, gelatoStatus);
       if (!isPending) {
@@ -140,17 +145,17 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
       produce(state, (draft) => {
         const tx = draft.transactionsPool[taskId] as GelatoBaseTx & {
           pending: boolean;
-          status?: number;
+          status?: TransactionStatus;
         };
         tx.gelatoStatus = statusResponse.task.taskState;
         tx.pending = selectIsGelatoTXPending(statusResponse.task.taskState);
         tx.hash = statusResponse.task.transactionHash;
         tx.status =
           statusResponse.task.taskState === 'ExecSuccess'
-            ? 1
+            ? TransactionStatus.Success
             : tx.pending
             ? undefined
-            : 0;
+            : TransactionStatus.Reverted;
         if (statusResponse.task.executionDate) {
           tx.timestamp = new Date(statusResponse.task.executionDate).getTime();
         }

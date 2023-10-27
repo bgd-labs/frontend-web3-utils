@@ -59,10 +59,18 @@ export type TransactionsSliceBaseType = {
 
 export type TransactionPool<T extends BaseTx> = Record<string, T>;
 
+export enum TransactionStatus {
+  Reverted = 'Reverted',
+  Success = 'Success',
+  Replaced = 'Replaced',
+  Failed = 'Failed',
+}
+
 type PoolTx<T extends BaseTx> = T & {
-  status?: number;
+  status?: TransactionStatus;
   pending: boolean;
   walletType: WalletType;
+  replacedTxHash?: string;
 };
 
 export interface ITransactionsState<T extends BaseTx> {
@@ -75,7 +83,7 @@ export interface ITransactionsActions<T extends BaseTx> {
   ethereumAdapter: AdapterInterface<T>;
   txStatusChangedCallback: (
     data: T & {
-      status?: number;
+      status?: TransactionStatus;
       timestamp?: number;
     },
   ) => void;
@@ -88,7 +96,7 @@ export interface ITransactionsActions<T extends BaseTx> {
     };
   }) => Promise<
     T & {
-      status?: number;
+      status?: TransactionStatus;
       pending: boolean;
     }
   >;
@@ -98,6 +106,7 @@ export interface ITransactionsActions<T extends BaseTx> {
       | Omit<EthBaseTx, 'localTimestamp'>,
     activeWallet: WalletType,
   ) => TransactionPool<PoolTx<T>>;
+  removeTXFromPool: (txKey: string) => void;
   isGelatoAvailable: boolean;
   checkIsGelatoAvailable: (chainId: number) => Promise<void>;
   updateEthAdapter: (gnosis: boolean) => void;
@@ -190,7 +199,15 @@ export function createTransactionsSlice<T extends BaseTx>({
       setLocalStorageTxPool(txPool);
       return txPool;
     },
-
+    removeTXFromPool: (txKey) => {
+      set((state) =>
+        produce(state, (draft) => {
+          delete draft.transactionsPool[txKey];
+        }),
+      );
+      const txPool = get().transactionsPool;
+      setLocalStorageTxPool(txPool);
+    },
     initTxPool: () => {
       const localStorageTXPool = getLocalStorageTxPool();
       if (localStorageTXPool) {

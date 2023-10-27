@@ -9,6 +9,7 @@ import {
   EthBaseTx,
   ITransactionsSlice,
   NewTx,
+  TransactionStatus,
 } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
 import { AdapterInterface } from './interface';
@@ -43,7 +44,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     payload: object | undefined;
     chainId: number;
     type: T['type'];
-  }): Promise<T & { status?: number; pending: boolean }> => {
+  }): Promise<T & { status?: TransactionStatus; pending: boolean }> => {
     const { activeWallet, chainId, type } = params;
     const tx = params.tx as GetTransactionReturnType;
     // ethereum tx
@@ -68,12 +69,17 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
       return;
     }
     this.stopPollingGnosisTXStatus(txKey);
-
+    let retryCount = 5;
     const newGnosisInterval = setInterval(() => {
-      this.fetchGnosisTxStatus(txKey);
-      // TODO: maybe change timeout or even stop tracking after some time (day/week)
-    }, 10000);
-
+      if (retryCount > 0) {
+        this.fetchGnosisTxStatus(txKey);
+        retryCount--;
+      } else {
+        // just stopping interval, not removing tx from pool because multisig could take a while
+        this.stopPollingGnosisTXStatus(txKey);
+        return;
+      }
+    }, 5000);
     this.transactionsIntervalsMap[txKey] = Number(newGnosisInterval);
   };
 
@@ -84,18 +90,16 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
         SafeTransactionServiceUrls[tx.chainId]
       }/multisig-transactions/${txKey}/`,
     );
-    if (!response.ok) {
-      // TODO: handle error if need, for now just skipping and do nothing with failed response
-    } else {
+    if (response.ok) {
       const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
       const gnosisStatusModified = dayjs(gnosisStatus.modified);
       const currentTime = dayjs();
-      // check if more than a day passed to stop polling
       const daysPassed = currentTime.diff(gnosisStatusModified, 'day');
-      if (daysPassed >= 1) {
-        this.updateGnosisTxStatus(txKey, gnosisStatus, true);
+      // check if more than a day passed and tx wasn't executed still,remove the transaction from the pool
+      if (daysPassed >= 1 && !gnosisStatus.isExecuted) {
         this.stopPollingGnosisTXStatus(txKey);
         this.get().txStatusChangedCallback(tx);
+        this.get().removeTXFromPool(txKey);
         return;
       }
 
@@ -105,6 +109,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
         this.stopPollingGnosisTXStatus(txKey);
         this.get().txStatusChangedCallback(tx);
       }
+      return;
     }
   };
 
@@ -117,16 +122,17 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
   private updateGnosisTxStatus = (
     txKey: string,
     statusResponse: GnosisTxStatusResponse,
-    forceStopped?: boolean,
   ) => {
     this.set((state) =>
       produce(state, (draft) => {
         const tx = draft.transactionsPool[txKey] as EthBaseTx & {
           pending: boolean;
-          status?: number;
+          status?: TransactionStatus;
         };
-        tx.status = forceStopped ? 0 : +!!statusResponse.isSuccessful; // turns boolean | null to 0 or 1
-        tx.pending = forceStopped ? false : !statusResponse.isExecuted;
+        tx.status = statusResponse.isSuccessful
+          ? TransactionStatus.Success
+          : TransactionStatus.Reverted;
+        tx.pending = !statusResponse.isExecuted;
         tx.nonce = statusResponse.nonce;
       }),
     );
