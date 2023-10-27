@@ -69,7 +69,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
       return;
     }
     this.stopPollingGnosisTXStatus(txKey);
-    let retryCount = 5 
+    let retryCount = 5;
     const newGnosisInterval = setInterval(() => {
       if (retryCount > 0) {
         this.fetchGnosisTxStatus(txKey);
@@ -85,32 +85,32 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
   private fetchGnosisTxStatus = async (txKey: string) => {
     const tx = this.get().transactionsPool[txKey];
-      const response = await fetch(
-        `${
-          SafeTransactionServiceUrls[tx.chainId]
-        }/multisig-transactions/${txKey}/`,
-      );
-      if (response.ok) {
-        const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
-        const gnosisStatusModified = dayjs(gnosisStatus.modified);
-        const currentTime = dayjs();
-        const daysPassed = currentTime.diff(gnosisStatusModified, 'day');
-        // check if more than a day passed and tx wasn't executed still,remove the transaction from the pool
-        if (daysPassed >= 1 && !gnosisStatus.isExecuted) {
-          this.stopPollingGnosisTXStatus(txKey);
-          this.get().txStatusChangedCallback(tx);
-          this.get().removeTXFromPool(txKey);
-          return;
-        }
-  
-        const isPending = !gnosisStatus.isExecuted;
-        this.updateGnosisTxStatus(txKey, gnosisStatus);
-        if (!isPending) {
-          this.stopPollingGnosisTXStatus(txKey);
-          this.get().txStatusChangedCallback(tx);
-        }
-        return
+    const response = await fetch(
+      `${
+        SafeTransactionServiceUrls[tx.chainId]
+      }/multisig-transactions/${txKey}/`,
+    );
+    if (response.ok) {
+      const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
+      const gnosisStatusModified = dayjs(gnosisStatus.modified);
+      const currentTime = dayjs();
+      const daysPassed = currentTime.diff(gnosisStatusModified, 'day');
+      // check if more than a day passed and tx wasn't executed still,remove the transaction from the pool
+      if (daysPassed >= 1 && !gnosisStatus.isExecuted) {
+        this.stopPollingGnosisTXStatus(txKey);
+        this.get().txStatusChangedCallback(tx);
+        this.get().removeTXFromPool(txKey);
+        return;
       }
+
+      const isPending = !gnosisStatus.isExecuted;
+      this.updateGnosisTxStatus(txKey, gnosisStatus);
+      if (!isPending) {
+        this.stopPollingGnosisTXStatus(txKey);
+        this.get().txStatusChangedCallback(tx);
+      }
+      return;
+    }
   };
 
   private stopPollingGnosisTXStatus = (txKey: string) => {
@@ -129,7 +129,9 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
           pending: boolean;
           status?: TransactionStatus;
         };
-        tx.status = statusResponse.isSuccessful ? TransactionStatus.Success : TransactionStatus.Reverted;
+        tx.status = statusResponse.isSuccessful
+          ? TransactionStatus.Success
+          : TransactionStatus.Reverted;
         tx.pending = !statusResponse.isExecuted;
         tx.nonce = statusResponse.nonce;
       }),

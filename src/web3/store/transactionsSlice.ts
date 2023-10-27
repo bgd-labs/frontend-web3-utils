@@ -63,7 +63,7 @@ export enum TransactionStatus {
   Reverted = 'Reverted',
   Success = 'Success',
   Replaced = 'Replaced',
-  Failed = 'Failed'
+  Failed = 'Failed',
 }
 
 type PoolTx<T extends BaseTx> = T & {

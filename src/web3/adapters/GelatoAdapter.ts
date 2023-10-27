@@ -96,7 +96,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
     if (!isPending) {
       return;
     }
-    let retryCount = 5 
+    let retryCount = 5;
     // cleaning up old interval
     this.stopPollingGelatoTXStatus(taskId);
     const newGelatoInterval = setInterval(() => {
@@ -108,10 +108,9 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
         this.get().removeTXFromPool(taskId);
         return;
       }
-      // TODO: while testing 5 seconds is enough, but retryCount sometimes got to 1, 
+      // TODO: while testing 5 seconds is enough, but retryCount sometimes got to 1,
       // so maybe change timeout or increase retryCount for more busy networks
     }, 5000);
-
 
     this.transactionsIntervalsMap[taskId] = Number(newGelatoInterval);
   };
@@ -122,7 +121,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
     this.transactionsIntervalsMap[taskId] = undefined;
   };
 
-  private fetchGelatoTXStatus = async (taskId: string, ) => {
+  private fetchGelatoTXStatus = async (taskId: string) => {
     const response = await fetch(
       `https://api.gelato.digital/tasks/status/${taskId}/`,
     );
@@ -151,7 +150,12 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
         tx.gelatoStatus = statusResponse.task.taskState;
         tx.pending = selectIsGelatoTXPending(statusResponse.task.taskState);
         tx.hash = statusResponse.task.transactionHash;
-        tx.status = statusResponse.task.taskState === 'ExecSuccess' ? TransactionStatus.Success : tx.pending ? undefined : TransactionStatus.Reverted;
+        tx.status =
+          statusResponse.task.taskState === 'ExecSuccess'
+            ? TransactionStatus.Success
+            : tx.pending
+            ? undefined
+            : TransactionStatus.Reverted;
         if (statusResponse.task.executionDate) {
           tx.timestamp = new Date(statusResponse.task.executionDate).getTime();
         }

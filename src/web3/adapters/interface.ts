@@ -1,4 +1,9 @@
-import { BaseTx, ITransactionsSlice, NewTx, TransactionStatus } from '../store/transactionsSlice';
+import {
+  BaseTx,
+  ITransactionsSlice,
+  NewTx,
+  TransactionStatus,
+} from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
 
 export interface AdapterInterface<T extends BaseTx> {

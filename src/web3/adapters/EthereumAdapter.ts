@@ -1,8 +1,14 @@
+import { PublicClient } from '@wagmi/core';
 import { produce } from 'immer';
 import { GetTransactionReturnType, Hex, Transaction } from 'viem';
-import { PublicClient } from '@wagmi/core';
+
 import { setLocalStorageTxPool } from '../../utils/localStorage';
-import { BaseTx, ITransactionsSlice, NewTx, TransactionStatus } from '../store/transactionsSlice';
+import {
+  BaseTx,
+  ITransactionsSlice,
+  NewTx,
+  TransactionStatus,
+} from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
 import { AdapterInterface } from './interface';
 
@@ -85,14 +91,23 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
         pollingInterval: 8_000,
         hash: tx.hash,
         onReplaced: (replacement) => {
-          this.updateTXStatus(txHash, TransactionStatus.Replaced, replacement.transaction.hash);
+          this.updateTXStatus(
+            txHash,
+            TransactionStatus.Replaced,
+            replacement.transaction.hash,
+          );
           txWasReplaced = true;
         },
       });
       if (txWasReplaced) {
         return;
       }
-      this.updateTXStatus(txHash, txn.status === 'success' ? TransactionStatus.Success : TransactionStatus.Reverted);
+      this.updateTXStatus(
+        txHash,
+        txn.status === 'success'
+          ? TransactionStatus.Success
+          : TransactionStatus.Reverted,
+      );
 
       const updatedTX = this.get().transactionsPool[txHash];
       const txBlock = await client.getBlock({ blockNumber: txn.blockNumber });
@@ -114,11 +129,12 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
   ) => {
     this.set((state) =>
       produce(state, (draft) => {
-        draft.transactionsPool[hash].status = status !== TransactionStatus.Reverted 
-          ? status 
-          : draft.transactionsPool[hash].pending 
-          ? undefined 
-          : TransactionStatus.Reverted;
+        draft.transactionsPool[hash].status =
+          status !== TransactionStatus.Reverted
+            ? status
+            : draft.transactionsPool[hash].pending
+            ? undefined
+            : TransactionStatus.Reverted;
         draft.transactionsPool[hash].pending = false;
         if (replacedHash) {
           draft.transactionsPool[hash].replacedTxHash = replacedHash;
