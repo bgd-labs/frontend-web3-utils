@@ -87,8 +87,6 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     const client = this.get().clients[chainId] as PublicClient;
     let txWasReplaced = false;
 
-    console.log('wait for client', client);
-
     try {
       const txn = await client.waitForTransactionReceipt({
         pollingInterval: 8_000,
