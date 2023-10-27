@@ -231,9 +231,11 @@ export function createTransactionsSlice<T extends BaseTx>({
     },
 
     setClient: (chainId, client) => {
-      const stateClients = get().clients;
-      const updatedClients = (stateClients[chainId] = client);
-      set({ clients: updatedClients });
+      set((state) =>
+        produce(state, (draft) => {
+          draft.clients[chainId] = client as Draft<PublicClient>;
+        }),
+      );
     },
 
     isGelatoAvailable: true,
