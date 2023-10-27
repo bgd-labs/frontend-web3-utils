@@ -116,6 +116,7 @@ export function createWalletSlice({
             const activeWallet = { ...walletWithClients, isContractAddress };
 
             set({ activeWallet });
+            get().setClient(wallet.chain.id, client);
             walletConnected(activeWallet);
             set({ isActiveWalletSetting: false });
           }
