@@ -77,7 +77,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
     const tx = params.tx as GelatoTx;
     const from = activeWallet.address;
     const gelatoTX = {
-      from: from as Hex,
+      from,
       chainId,
       type: type,
       taskId: tx.taskId,

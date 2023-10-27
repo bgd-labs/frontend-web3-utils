@@ -1,14 +1,15 @@
 import dayjs from 'dayjs';
 import { produce } from 'immer';
-import { GetTransactionReturnType, Hex } from 'viem';
 
 import { SafeTransactionServiceUrls } from '../../utils/constants';
 import { setLocalStorageTxPool } from '../../utils/localStorage';
 import {
   BaseTx,
   EthBaseTx,
+  InitialEthTx,
   ITransactionsSlice,
   NewTx,
+  PoolEthTx,
   TransactionStatus,
 } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
@@ -46,17 +47,16 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     type: T['type'];
   }): Promise<T & { status?: TransactionStatus; pending: boolean }> => {
     const { activeWallet, chainId, type } = params;
-    const tx = params.tx as GetTransactionReturnType;
-    // ethereum tx
+    const tx = params.tx as InitialEthTx;
+
+    const from = activeWallet.address;
     const transaction = {
       chainId,
       hash: tx.hash,
       type,
       payload: params.payload,
-      from: tx.from,
-      to: tx.to as Hex,
-      nonce: tx.nonce,
-    };
+      from,
+    } as EthBaseTx;
     const txPool = this.get().addTXToPool(transaction, activeWallet.walletType);
     this.startTxTracking(tx.hash);
     return txPool[tx.hash];
@@ -125,10 +125,8 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
   ) => {
     this.set((state) =>
       produce(state, (draft) => {
-        const tx = draft.transactionsPool[txKey] as EthBaseTx & {
-          pending: boolean;
-          status?: TransactionStatus;
-        };
+        const tx = draft.transactionsPool[txKey] as PoolEthTx;
+
         tx.status = statusResponse.isSuccessful
           ? TransactionStatus.Success
           : TransactionStatus.Reverted;

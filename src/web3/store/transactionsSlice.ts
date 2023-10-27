@@ -21,25 +21,24 @@ import { AdapterInterface } from '../adapters/interface';
 import { WalletType } from '../connectors';
 import { IWalletSlice } from './walletSlice';
 
-export type BaseTx = EthBaseTx | GelatoBaseTx;
-
 export type InitialTx = Hex | GelatoTx;
-export type NewTx = { hash: Hex } | GelatoTx;
+export type InitialEthTx = { hash: Hex };
+export type NewTx = InitialEthTx | GelatoTx;
 
 type BasicTx = {
   chainId: number;
   type: string;
   from: Hex;
-  payload?: object;
   localTimestamp: number;
+  payload?: object;
   timestamp?: number;
   errorMessage?: string;
 };
 
 export type EthBaseTx = BasicTx & {
   hash: Hex;
-  to: Hex;
-  nonce: number;
+  to?: Hex;
+  nonce?: number;
 };
 
 export type GelatoBaseTx = BasicTx & {
@@ -47,6 +46,8 @@ export type GelatoBaseTx = BasicTx & {
   hash?: Hex;
   gelatoStatus?: GelatoTXState;
 };
+
+export type BaseTx = EthBaseTx | GelatoBaseTx;
 
 export type ClientsRecord = Record<number, PublicClient>;
 
@@ -66,12 +67,16 @@ export enum TransactionStatus {
   Failed = 'Failed',
 }
 
-type PoolTx<T extends BaseTx> = T & {
+export type PoolTxParams = {
   status?: TransactionStatus;
   pending: boolean;
   walletType: WalletType;
   replacedTxHash?: string;
 };
+
+export type PoolEthTx = EthBaseTx & PoolTxParams;
+
+type PoolTx<T extends BaseTx> = T & PoolTxParams;
 
 export interface ITransactionsState<T extends BaseTx> {
   transactionsPool: TransactionPool<PoolTx<T>>;
