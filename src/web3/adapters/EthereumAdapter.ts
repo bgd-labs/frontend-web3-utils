@@ -151,13 +151,11 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
       produce(state, (draft) => {
         const tx = draft.transactionsPool[hash] as PoolEthTx;
 
+        tx.pending = false;
         tx.status =
           status !== TransactionStatus.Reverted
             ? status
-            : draft.transactionsPool[hash].pending
-            ? undefined
             : TransactionStatus.Reverted;
-        tx.pending = false;
 
         if (to) {
           tx.to = to;
