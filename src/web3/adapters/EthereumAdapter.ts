@@ -66,7 +66,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
             return; // Exit the function if successful
           } catch (e) {
             if (i === retryCount - 1) {
-              // If the transaction is not found after the last retry, set the status to unknownError (it could be replace with completely new one or lost in mempool)
+              // If the transaction is not found after the last retry, set the status to unknownError (it could be replaced with completely new one or lost in mempool)
               this.updateTXStatus({
                 hash: txData.hash,
                 status: TransactionStatus.Failed,

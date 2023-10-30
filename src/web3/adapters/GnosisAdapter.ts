@@ -68,18 +68,23 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     if (!isPending) {
       return;
     }
+
     this.stopPollingGnosisTXStatus(txKey);
+
     let retryCount = 5;
-    const newGnosisInterval = setInterval(() => {
+    const newGnosisInterval = setInterval(async () => {
       if (retryCount > 0) {
-        this.fetchGnosisTxStatus(txKey);
-        retryCount--;
+        const response = await this.fetchGnosisTxStatus(txKey);
+        if (!response.ok) {
+          retryCount--;
+        }
       } else {
-        // just stopping interval, not removing tx from pool because multisig could take a while
         this.stopPollingGnosisTXStatus(txKey);
+        this.get().removeTXFromPool(txKey);
         return;
       }
     }, 5000);
+
     this.transactionsIntervalsMap[txKey] = Number(newGnosisInterval);
   };
 
@@ -92,24 +97,27 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     );
     if (response.ok) {
       const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
+      const isPending = !gnosisStatus.isExecuted;
+
+      // check if more than a day passed and tx wasn't executed still, remove the transaction from the pool
       const gnosisStatusModified = dayjs(gnosisStatus.modified);
       const currentTime = dayjs();
       const daysPassed = currentTime.diff(gnosisStatusModified, 'day');
-      // check if more than a day passed and tx wasn't executed still,remove the transaction from the pool
-      if (daysPassed >= 1 && !gnosisStatus.isExecuted) {
+      if (daysPassed >= 1 && isPending) {
         this.stopPollingGnosisTXStatus(txKey);
-        this.get().txStatusChangedCallback(tx);
         this.get().removeTXFromPool(txKey);
-        return;
+        return response;
       }
 
-      const isPending = !gnosisStatus.isExecuted;
       this.updateGnosisTxStatus(txKey, gnosisStatus);
+
       if (!isPending) {
         this.stopPollingGnosisTXStatus(txKey);
         this.get().txStatusChangedCallback(tx);
       }
-      return;
+      return response;
+    } else {
+      return response;
     }
   };
 
@@ -127,9 +135,12 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
       produce(state, (draft) => {
         const tx = draft.transactionsPool[txKey] as PoolEthTx;
 
-        tx.status = statusResponse.isSuccessful
-          ? TransactionStatus.Success
-          : TransactionStatus.Reverted;
+        if (statusResponse.isExecuted) {
+          tx.status = statusResponse.isSuccessful
+            ? TransactionStatus.Success
+            : TransactionStatus.Reverted;
+        }
+
         tx.pending = !statusResponse.isExecuted;
         tx.nonce = statusResponse.nonce;
       }),

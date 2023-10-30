@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { produce } from 'immer';
 import { Hex } from 'viem';
 
@@ -96,20 +97,21 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
     if (!isPending) {
       return;
     }
-    let retryCount = 5;
-    // cleaning up old interval
+
     this.stopPollingGelatoTXStatus(taskId);
-    const newGelatoInterval = setInterval(() => {
+
+    let retryCount = 5;
+    const newGelatoInterval = setInterval(async () => {
       if (retryCount > 0) {
-        this.fetchGelatoTXStatus(taskId);
-        retryCount--;
+        const response = await this.fetchGelatoTXStatus(taskId);
+        if (!response.ok) {
+          retryCount--;
+        }
       } else {
         this.stopPollingGelatoTXStatus(taskId);
         this.get().removeTXFromPool(taskId);
         return;
       }
-      // TODO: while testing 5 seconds is enough, but retryCount sometimes got to 1,
-      // so maybe change timeout or increase retryCount for more busy networks
     }, 5000);
 
     this.transactionsIntervalsMap[taskId] = Number(newGelatoInterval);
@@ -128,12 +130,29 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
     if (response.ok) {
       const gelatoStatus = (await response.json()) as GelatoTaskStatusResponse;
       const isPending = selectIsGelatoTXPending(gelatoStatus.task.taskState);
+
+      // check if more than a day passed and tx wasn't executed still, remove the transaction from the pool
+      if (gelatoStatus.task.creationDate) {
+        const gelatoCreatedData = dayjs(gelatoStatus.task.creationDate);
+        const currentTime = dayjs();
+        const daysPassed = currentTime.diff(gelatoCreatedData, 'day');
+        if (daysPassed >= 1 && isPending) {
+          this.stopPollingGelatoTXStatus(taskId);
+          this.get().removeTXFromPool(taskId);
+          return response;
+        }
+      }
+
       this.updateGelatoTX(taskId, gelatoStatus);
+
       if (!isPending) {
         this.stopPollingGelatoTXStatus(taskId);
         const tx = this.get().transactionsPool[taskId];
         this.get().txStatusChangedCallback(tx);
       }
+      return response;
+    } else {
+      return response;
     }
   };
 
