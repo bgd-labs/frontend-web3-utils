@@ -142,7 +142,6 @@ export function createWalletSlice({
 
       try {
         if (connector) {
-          console.log(connector)
           if (connector instanceof ImpersonatedConnector) {
             const impersonated = get().impersonated;
             if (impersonated?.isViewOnly) {
@@ -152,7 +151,7 @@ export function createWalletSlice({
             }
             await connect({ connector, chainId });
           } else {
-            await connect({ connector, chainId });
+            await connect({ connector, chainId: chainId || connector.chains[0].id });
 
             setLocalStorageWallet(walletType);
             get().updateEthAdapter(walletType === 'GnosisSafe');
