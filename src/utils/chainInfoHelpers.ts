@@ -57,12 +57,14 @@ export const initChainInformationConfig = (chains?: Record<number, Chain>) => {
 
   function getChainParameters(chainId: number): Chain {
     const chainInformation = CHAINS[chainId];
+    console.log(chainInformation)
     if (chainInformation) {
       return chainInformation;
     } else {
       // this case can only ever occure when a wallet is connected with an unknown chainId which will not allow interaction
       return {
-        ...mainnet,
+        ...polygon,
+        // ...mainnet,
         id: chainId,
         name: `unknown network: ${chainId}`,
       };

@@ -96,6 +96,7 @@ export function createWalletSlice({
     },
 
     setActiveWallet: async (wallet) => {
+      console.log('setting active wallet', wallet)
       if (wallet.isActive) {
         if (wallet.chain) {
           set({ isActiveWalletSetting: true });
@@ -142,6 +143,7 @@ export function createWalletSlice({
 
       try {
         if (connector) {
+          console.log({connector})
           if (connector instanceof ImpersonatedConnector) {
             const impersonated = get().impersonated;
             if (impersonated?.isViewOnly) {
@@ -151,6 +153,7 @@ export function createWalletSlice({
             }
             await connect({ connector, chainId });
           } else {
+            console.log('not impersonated')
             await connect({ connector });
 
             setLocalStorageWallet(walletType);
@@ -159,6 +162,9 @@ export function createWalletSlice({
 
           const account = getAccount();
           const network = getNetwork();
+          console.log({account})
+          console.log({network})
+
           if (
             account &&
             account.isConnected &&
