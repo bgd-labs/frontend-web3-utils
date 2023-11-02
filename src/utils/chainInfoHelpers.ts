@@ -62,8 +62,7 @@ export const initChainInformationConfig = (chains?: Record<number, Chain>) => {
     } else {
       // this case can only ever occure when a wallet is connected with an unknown chainId which will not allow interaction
       return {
-        ...polygon,
-        // ...mainnet,
+        ...mainnet,
         id: chainId,
         name: `unknown network: ${chainId}`,
       };

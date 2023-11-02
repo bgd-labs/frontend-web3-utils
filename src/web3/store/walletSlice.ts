@@ -142,6 +142,7 @@ export function createWalletSlice({
 
       try {
         if (connector) {
+          console.log(connector)
           if (connector instanceof ImpersonatedConnector) {
             const impersonated = get().impersonated;
             if (impersonated?.isViewOnly) {
