@@ -57,7 +57,6 @@ export const initChainInformationConfig = (chains?: Record<number, Chain>) => {
 
   function getChainParameters(chainId: number): Chain {
     const chainInformation = CHAINS[chainId];
-    console.log(chainInformation)
     if (chainInformation) {
       return chainInformation;
     } else {
