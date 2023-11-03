@@ -24,6 +24,7 @@ export type GnosisTxStatusResponse = {
   submissionDate: string | null;
   modified: string;
   nonce: number;
+  trusted: boolean;
 };
 
 export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
@@ -97,7 +98,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     );
     if (response.ok) {
       const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
-      const isPending = !gnosisStatus.isExecuted;
+      const isPending = !gnosisStatus.isExecuted && gnosisStatus.trusted;
 
       // check if more than a day passed and tx wasn't executed still, remove the transaction from the pool
       const gnosisStatusModified = dayjs(gnosisStatus.modified);
@@ -135,13 +136,13 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
       produce(state, (draft) => {
         const tx = draft.transactionsPool[txKey] as PoolEthTx;
 
-        if (statusResponse.isExecuted) {
+        if (statusResponse.isExecuted || !statusResponse.trusted) {
           tx.status = statusResponse.isSuccessful
             ? TransactionStatus.Success
             : TransactionStatus.Reverted;
         }
 
-        tx.pending = !statusResponse.isExecuted;
+        tx.pending = !statusResponse.isExecuted && statusResponse.trusted;
         tx.nonce = statusResponse.nonce;
       }),
     );
