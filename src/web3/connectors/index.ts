@@ -66,7 +66,11 @@ export const initAllConnectors = (props: AllConnectorsInitProps) => {
   const gnosisSafe = new SafeConnector({
     chains,
     options: {
-      allowedDomains: [/gnosis-safe.io$/, /app.safe.global$/],
+      allowedDomains: [
+        /gnosis-safe.io$/,
+        /app.safe.global$/,
+        /metissafe.tech$/,
+      ],
       debug: false,
     },
   });
