@@ -12,6 +12,8 @@ import {
 import { produce } from 'immer';
 import { Account, Chain, Hex, isAddress } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
+import { mainnet } from 'viem/chains';
+import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 
 import { StoreSlice } from '../../types/store';
 import {
@@ -68,8 +70,9 @@ export type IWalletSlice = {
   checkIsContractWallet: (
     wallet: Omit<Wallet, 'walletClient'>,
   ) => Promise<boolean>;
-  defaultChainId?: number;
-  setDefaultChainId: (chainId?: number) => void;
+
+  defaultChainId: number;
+  setDefaultChainId: (chainId: number) => void;
 };
 
 export function createWalletSlice({
@@ -157,13 +160,12 @@ export function createWalletSlice({
             }
             await connect({ connector, chainId });
           } else {
-            if (connector instanceof WalletConnectConnector || connector instanceof SafeConnector) {
-              console.log('if instance', get().defaultChainId)
-              await connect({ connector, chainId: get().defaultChainId })
+            if (connector instanceof WalletConnectConnector) {
+              await connect({ connector, chainId: get().defaultChainId });
             } else {
-              console.log('else instance', get().defaultChainId)
               await connect({ connector });
             }
+
             setLocalStorageWallet(walletType);
             get().updateEthAdapter(walletType === 'GnosisSafe');
           }
@@ -313,10 +315,10 @@ export function createWalletSlice({
     resetWalletConnectionError: () => {
       set({ walletConnectionError: '' });
     },
-    defaultChainId: undefined,
+
+    defaultChainId: mainnet.id,
     setDefaultChainId: (chainId) => {
-      console.log('setting default chainId ', chainId)
-      set({ defaultChainId: chainId })
-    }
+      set({ defaultChainId: chainId });
+    },
   });
 }

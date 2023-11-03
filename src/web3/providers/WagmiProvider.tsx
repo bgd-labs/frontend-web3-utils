@@ -22,7 +22,7 @@ interface WagmiProviderProps {
       changeActiveWalletAccount: (account?: GetAccountResult) => Promise<void>;
       changeActiveWalletChain: (chain?: Chain) => Promise<void>;
       setConnectors: (connectors: ConnectorType[]) => void;
-      setDefaultChainId: (chainId?: number) => void;
+      setDefaultChainId: (chainId: number) => void;
     }>
   >;
   connectorsInitProps: AllConnectorsInitProps;
@@ -31,11 +31,16 @@ interface WagmiProviderProps {
 function Child({
   useStore,
   connectors,
-}: Omit<WagmiProviderProps, 'connectorsInitProps'> & {
+  connectorsInitProps,
+}: WagmiProviderProps & {
   connectors: ConnectorType[];
 }) {
-  const { setConnectors, changeActiveWalletAccount, changeActiveWalletChain } =
-    useStore();
+  const {
+    setConnectors,
+    changeActiveWalletAccount,
+    changeActiveWalletChain,
+    setDefaultChainId,
+  } = useStore();
 
 
   watchAccount(async (data) => {
@@ -54,6 +59,12 @@ function Child({
       setConnectors(connectors);
     }
   }, [connectors]);
+
+  useEffect(() => {
+    if (connectorsInitProps.defaultChainId) {
+      setDefaultChainId(connectorsInitProps.defaultChainId);
+    }
+  }, [connectorsInitProps.defaultChainId]);
 
   return null;
 }
@@ -87,5 +98,11 @@ export function WagmiProvider({
     connectors,
   });
 
-  return <Child useStore={useStore} connectors={mappedConnectors} />;
+  return (
+    <Child
+      useStore={useStore}
+      connectors={mappedConnectors}
+      connectorsInitProps={connectorsInitProps}
+    />
+  );
 }
