@@ -59,7 +59,7 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
   }, []);
 
   useEffect(() => {
-    if (txPending || isError) {
+    if (txPending || isError || isTxReplaced) {
       setIsTxStart(true);
     }
   }, [txPending, isError, isTxReplaced]);
