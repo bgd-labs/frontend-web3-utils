@@ -24,6 +24,7 @@ export type GnosisTxStatusResponse = {
   submissionDate: string | null;
   modified: string;
   nonce: number;
+  trusted: boolean;
 };
 
 export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
@@ -136,13 +137,13 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
       produce(state, (draft) => {
         const tx = draft.transactionsPool[txKey] as PoolEthTx;
 
-        if (statusResponse.isExecuted) {
+        if (statusResponse.isExecuted || !statusResponse.trusted) {
           tx.status = statusResponse.isSuccessful
             ? TransactionStatus.Success
             : TransactionStatus.Reverted;
         }
 
-        tx.pending = !statusResponse.isExecuted;
+        tx.pending = !statusResponse.isExecuted && statusResponse.trusted;
         tx.nonce = statusResponse.nonce;
       }),
     );
