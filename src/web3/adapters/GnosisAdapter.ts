@@ -97,6 +97,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     );
     if (response.ok) {
       const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
+      console.log('gnosisStatus', gnosisStatus);
       const isPending = !gnosisStatus.isExecuted;
 
       // check if more than a day passed and tx wasn't executed still, remove the transaction from the pool
