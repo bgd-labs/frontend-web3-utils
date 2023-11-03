@@ -24,6 +24,8 @@ import {
 import { ConnectorType, getConnectorName, WalletType } from '../connectors';
 import { ImpersonatedConnector } from '../connectors/ImpersonatedConnector';
 import { TransactionsSliceBaseType } from './transactionsSlice';
+import { WalletConnectConnector } from 'wagmi/dist/connectors/walletConnect';
+import { SafeConnector } from 'wagmi/dist/connectors/safe';
 
 export interface Wallet {
   walletType: WalletType;
@@ -66,6 +68,8 @@ export type IWalletSlice = {
   checkIsContractWallet: (
     wallet: Omit<Wallet, 'walletClient'>,
   ) => Promise<boolean>;
+  defaultChainId?: number;
+  setDefaultChainId: (chainId?: number) => void;
 };
 
 export function createWalletSlice({
@@ -142,6 +146,8 @@ export function createWalletSlice({
 
       try {
         if (connector) {
+          console.log({connector})
+          console.log({chainId})
           if (connector instanceof ImpersonatedConnector) {
             const impersonated = get().impersonated;
             if (impersonated?.isViewOnly) {
@@ -151,8 +157,13 @@ export function createWalletSlice({
             }
             await connect({ connector, chainId });
           } else {
-            await connect({ connector, chainId: chainId || connector.chains[0].id });
-
+            if (connector instanceof WalletConnectConnector || connector instanceof SafeConnector) {
+              console.log('if instance', get().defaultChainId)
+              await connect({ connector, chainId: get().defaultChainId })
+            } else {
+              console.log('else instance', get().defaultChainId)
+              await connect({ connector });
+            }
             setLocalStorageWallet(walletType);
             get().updateEthAdapter(walletType === 'GnosisSafe');
           }
@@ -302,5 +313,10 @@ export function createWalletSlice({
     resetWalletConnectionError: () => {
       set({ walletConnectionError: '' });
     },
+    defaultChainId: undefined,
+    setDefaultChainId: (chainId) => {
+      console.log('setting default chainId ', chainId)
+      set({ defaultChainId: chainId })
+    }
   });
 }
