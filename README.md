@@ -16,20 +16,15 @@ Although it is possible to use `TransactionsSlice` separately from `WalletSlice`
 
 Each solution should provide a complete flow with clear boundaries and entry point for custom logic
 
----
-## Installation
+### Installation
 
-### npm
-<code>
-    npm i @bgd-labs/frontend-web3-utils
-</code>
+#### npm
+<code>npm i @bgd-labs/frontend-web3-utils</code>
 
-### yarn
-<code>
-    yarn add @bgd-labs/frontend-web3-utils
-</code>
+#### yarn
+<code>yarn add @bgd-labs/frontend-web3-utils</code>
 
----
+----
 
 ## TransactionsSlice
 
