@@ -1,7 +1,7 @@
 {
   "name": "@bgd-labs/frontend-web3-utils",
   "description": "Frontend utilities common to multiple Web3 projects",
-  "version": "0.4.31",
+  "version": "0.4.5",
   "author": "BGD labs",
   "license": "MIT",
   "private": false,
@@ -57,11 +57,11 @@
     "node": ">=18"
   },
   "peerDependencies": {
-    "immer": "10.x.x",
-    "react": "18.x.x",
-    "viem": "1.18.9",
-    "wagmi": "1.4.5",
-    "zustand": "4.x.x"
+    "immer": "^10.0.3",
+    "react": "^18.2.0",
+    "viem": "^1.18.9",
+    "wagmi": "^1.4.5",
+    "zustand": "^4.4.6"
   },
   "devDependencies": {
     "@size-limit/preset-small-lib": "^10.0.2",
