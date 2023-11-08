@@ -53,4 +53,7 @@ export const clearWalletConnectV2LocalStorage = () => {
   localStorage.removeItem('wc@2:core:0.3//pairing');
   localStorage.removeItem('wc@2:universal_provider:/optionalNamespaces');
   localStorage.removeItem('wc@2:core:0.3//keychain');
+  localStorage.removeItem('wc@2:client:0.3//session');
+  localStorage.removeItem('wc@2:universal_provider:/sessionProperties');
+  localStorage.removeItem('wc@2:ethereum_provider:/chainId');
 };
