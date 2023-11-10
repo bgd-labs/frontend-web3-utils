@@ -41,6 +41,18 @@ export const clearWalletLinkLocalStorage = () => {
   localStorage.removeItem(
     '-walletlink:https://www.walletlink.org:walletUsername',
   );
+  localStorage.removeItem(
+    '-walletlink:https://www.walletlink.org:DefaultChainId',
+  );
+  localStorage.removeItem(
+    '-walletlink:https://www.walletlink.org:DefaultJsonRpcUrl',
+  );
+  localStorage.removeItem(
+    '-walletlink:https://www.walletlink.org:EIP6963ProviderUUID',
+  );
+  localStorage.removeItem(
+    '-walletlink:https://www.walletlink.org:IsStandaloneSigning',
+  );
 };
 
 export const clearWalletConnectV2LocalStorage = () => {
