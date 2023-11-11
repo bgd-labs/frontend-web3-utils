@@ -14,6 +14,17 @@ export const safeSdkOptions = {
   debug: false,
 };
 
+export const gnosisSafeLinksHelper: Record<number, string> = {
+  [mainnet.id]: 'https://app.safe.global/eth:',
+  [goerli.id]: 'https://app.safe.global/gor:',
+  [optimism.id]: 'https://app.safe.global/oeth:',
+  [polygon.id]: 'https://app.safe.global/matic:',
+  [arbitrum.id]: 'https://app.safe.global/arb1:',
+  [avalanche.id]: 'https://app.safe.global/avax:',
+  [bsc.id]: 'https://app.safe.global/bnb:',
+  [base.id]: 'https://app.safe.global/base:',
+};
+
 export const SafeTransactionServiceUrls: { [key in number]: string } = {
   [mainnet.id]: 'https://safe-transaction-mainnet.safe.global/api/v1',
   [goerli.id]: 'https://safe-transaction-goerli.safe.global/api/v1',
