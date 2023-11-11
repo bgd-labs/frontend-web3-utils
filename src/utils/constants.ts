@@ -9,6 +9,11 @@ import {
   polygon,
 } from 'viem/chains';
 
+export const safeSdkOptions = {
+  allowedDomains: [/gnosis-safe.io$/, /app.safe.global$/, /metissafe.tech$/],
+  debug: false,
+};
+
 export const SafeTransactionServiceUrls: { [key in number]: string } = {
   [mainnet.id]: 'https://safe-transaction-mainnet.safe.global/api/v1',
   [goerli.id]: 'https://safe-transaction-goerli.safe.global/api/v1',

@@ -7,6 +7,7 @@ import {
   BaseTx,
   EthBaseTx,
   InitialEthTx,
+  InitialTx,
   ITransactionsSlice,
   NewTx,
   PoolEthTx,
@@ -26,6 +27,14 @@ export type GnosisTxStatusResponse = {
   nonce: number;
   trusted: boolean;
 };
+
+export type SafeTx = {
+  safeTxHash: string;
+};
+
+export function isSafeTx(tx: InitialTx): tx is SafeTx {
+  return (tx as SafeTx).safeTxHash !== undefined;
+}
 
 export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
   get: () => ITransactionsSlice<T>;
