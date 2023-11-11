@@ -125,7 +125,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
       if (allTxWithSameNonceResponse.ok) {
         const sameNonceResponse =
-          (await response.json()) as GnosisTxSameNonceResponse;
+          (await allTxWithSameNonceResponse.json()) as GnosisTxSameNonceResponse;
 
         const isPending =
           !gnosisStatus.isExecuted &&
