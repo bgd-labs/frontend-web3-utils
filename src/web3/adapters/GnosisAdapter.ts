@@ -182,6 +182,10 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     this.set((state) =>
       produce(state, (draft) => {
         const tx = draft.transactionsPool[txKey] as PoolEthTx;
+        if (!!replacedHash) {
+          tx.replacedTxHash = replacedHash;
+        }
+        tx.nonce = statusResponse.nonce;
 
         if (
           statusResponse.isExecuted ||
@@ -194,13 +198,8 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
             ? TransactionStatus.Replaced
             : TransactionStatus.Reverted;
         }
-
         tx.pending =
           !statusResponse.isExecuted && statusResponse.trusted && !replacedHash;
-        tx.nonce = statusResponse.nonce;
-        if (!!replacedHash) {
-          tx.replacedTxHash = replacedHash;
-        }
       }),
     );
     setLocalStorageTxPool(this.get().transactionsPool);
