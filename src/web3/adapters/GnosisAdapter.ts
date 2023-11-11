@@ -28,6 +28,12 @@ export type GnosisTxStatusResponse = {
   trusted: boolean;
 };
 
+export type GnosisTxSameNonceResponse = {
+  count: number;
+  countUniqueNonce: number;
+  results: GnosisTxStatusResponse[];
+};
+
 export type SafeTx = {
   safeTxHash: string;
 };
@@ -37,6 +43,8 @@ export function isSafeTx(tx: InitialTx): tx is SafeTx {
 }
 
 export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
+  private activeWallet: Wallet | undefined = undefined;
+
   get: () => ITransactionsSlice<T>;
   set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void;
   transactionsIntervalsMap: Record<string, number | undefined> = {};
@@ -44,9 +52,11 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
   constructor(
     get: () => ITransactionsSlice<T>,
     set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void,
+    activeWallet: Wallet | undefined,
   ) {
     this.get = get;
     this.set = set;
+    this.activeWallet = activeWallet;
   }
 
   executeTx = async (params: {
@@ -107,25 +117,52 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     );
     if (response.ok) {
       const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
-      const isPending = !gnosisStatus.isExecuted && gnosisStatus.trusted;
 
-      // check if more than a day passed and tx wasn't executed still, remove the transaction from the pool
-      const gnosisStatusModified = dayjs(gnosisStatus.modified);
-      const currentTime = dayjs();
-      const daysPassed = currentTime.diff(gnosisStatusModified, 'day');
-      if (daysPassed >= 1 && isPending) {
-        this.stopPollingGnosisTXStatus(txKey);
-        this.get().removeTXFromPool(txKey);
+      const allTxWithSameNonceResponse = await fetch(
+        `${SafeTransactionServiceUrls[tx.chainId]}/safes/${this.activeWallet
+          ?.address}/multisig-transactions/?nonce=${gnosisStatus.nonce}`,
+      );
+
+      if (allTxWithSameNonceResponse.ok) {
+        const sameNonceResponse =
+          (await response.json()) as GnosisTxSameNonceResponse;
+
+        const isPending =
+          !gnosisStatus.isExecuted &&
+          gnosisStatus.trusted &&
+          sameNonceResponse.count <= 1;
+        // check if more than a day passed and tx wasn't executed still, remove the transaction from the pool
+        const gnosisStatusModified = dayjs(gnosisStatus.modified);
+        const currentTime = dayjs();
+        const daysPassed = currentTime.diff(gnosisStatusModified, 'day');
+        if (daysPassed >= 1 && isPending) {
+          this.stopPollingGnosisTXStatus(txKey);
+          this.get().removeTXFromPool(txKey);
+          return response;
+        }
+
+        if (sameNonceResponse.count > 1) {
+          const replacedHash = sameNonceResponse.results.filter(
+            (safeTx) => safeTx.safeTxHash !== gnosisStatus.safeTxHash,
+          )[0].safeTxHash;
+
+          this.updateGnosisTxStatus(txKey, gnosisStatus, replacedHash);
+          this.stopPollingGnosisTXStatus(txKey);
+
+          return response;
+        }
+
+        this.updateGnosisTxStatus(txKey, gnosisStatus);
+
+        if (!isPending) {
+          this.stopPollingGnosisTXStatus(txKey);
+          this.get().txStatusChangedCallback(tx);
+        }
+
+        return response;
+      } else {
         return response;
       }
-
-      this.updateGnosisTxStatus(txKey, gnosisStatus);
-
-      if (!isPending) {
-        this.stopPollingGnosisTXStatus(txKey);
-        this.get().txStatusChangedCallback(tx);
-      }
-      return response;
     } else {
       return response;
     }
@@ -140,19 +177,30 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
   private updateGnosisTxStatus = (
     txKey: string,
     statusResponse: GnosisTxStatusResponse,
+    replacedHash?: string,
   ) => {
     this.set((state) =>
       produce(state, (draft) => {
         const tx = draft.transactionsPool[txKey] as PoolEthTx;
 
-        if (statusResponse.isExecuted || !statusResponse.trusted) {
+        if (
+          statusResponse.isExecuted ||
+          !statusResponse.trusted ||
+          !!replacedHash
+        ) {
           tx.status = statusResponse.isSuccessful
             ? TransactionStatus.Success
+            : !!replacedHash
+            ? TransactionStatus.Replaced
             : TransactionStatus.Reverted;
         }
 
-        tx.pending = !statusResponse.isExecuted && statusResponse.trusted;
+        tx.pending =
+          !statusResponse.isExecuted && statusResponse.trusted && !replacedHash;
         tx.nonce = statusResponse.nonce;
+        if (!!replacedHash) {
+          tx.replacedTxHash = replacedHash;
+        }
       }),
     );
     setLocalStorageTxPool(this.get().transactionsPool);

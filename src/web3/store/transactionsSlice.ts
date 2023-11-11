@@ -269,7 +269,7 @@ export function createTransactionsSlice<T extends BaseTx>({
       set((state) =>
         produce(state, (draft) => {
           draft.ethereumAdapter = gnosis
-            ? new GnosisAdapter(get, set)
+            ? new GnosisAdapter(get, set, get().activeWallet)
             : new EthereumAdapter(get, set);
         }),
       );
