@@ -25,7 +25,6 @@ export type GnosisTxStatusResponse = {
   submissionDate: string | null;
   modified: string;
   nonce: number;
-  trusted: boolean;
 };
 
 export type GnosisTxSameNonceResponse = {
@@ -128,9 +127,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
           (await allTxWithSameNonceResponse.json()) as GnosisTxSameNonceResponse;
 
         const isPending =
-          !gnosisStatus.isExecuted &&
-          gnosisStatus.trusted &&
-          sameNonceResponse.count <= 1;
+          !gnosisStatus.isExecuted && sameNonceResponse.count <= 1;
         // check if more than a day passed and tx wasn't executed still, remove the transaction from the pool
         const gnosisStatusModified = dayjs(gnosisStatus.modified);
         const currentTime = dayjs();
@@ -187,19 +184,14 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
         }
         tx.nonce = statusResponse.nonce;
 
-        if (
-          statusResponse.isExecuted ||
-          !statusResponse.trusted ||
-          !!replacedHash
-        ) {
+        if (statusResponse.isExecuted || !!replacedHash) {
           tx.status = statusResponse.isSuccessful
             ? TransactionStatus.Success
             : !!replacedHash
             ? TransactionStatus.Replaced
             : TransactionStatus.Reverted;
         }
-        tx.pending =
-          !statusResponse.isExecuted && statusResponse.trusted && !replacedHash;
+        tx.pending = !statusResponse.isExecuted && !replacedHash;
       }),
     );
     setLocalStorageTxPool(this.get().transactionsPool);
