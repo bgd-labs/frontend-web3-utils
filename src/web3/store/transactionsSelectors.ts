@@ -1,16 +1,7 @@
 import isEqual from 'lodash/isEqual.js';
 import { Chain } from 'viem';
-import {
-  arbitrum,
-  avalanche,
-  base,
-  bsc,
-  goerli,
-  mainnet,
-  optimism,
-  polygon,
-} from 'viem/chains';
 
+import { gnosisSafeLinksHelper } from '../../utils/constants';
 import { isGelatoBaseTx } from '../adapters/GelatoAdapter';
 import { BaseTx, GelatoBaseTx, ITransactionsState } from './transactionsSlice';
 
@@ -95,30 +86,28 @@ export const selectTxExplorerLink = <T extends BaseTx>(
   getChainParameters: (chainId: number) => Chain,
   txHash: string,
   isWalletContract?: boolean,
+  replacedTxHash?: string,
 ) => {
   const tx = selectTXByHash(state, txHash);
   if (!tx) {
     return '';
   }
 
-  const gnosisSafeLinksHelper: Record<number, string> = {
-    [mainnet.id]: 'https://app.safe.global/eth:',
-    [goerli.id]: 'https://app.safe.global/gor:',
-    [optimism.id]: 'https://app.safe.global/oeth:',
-    [polygon.id]: 'https://app.safe.global/matic:',
-    [arbitrum.id]: 'https://app.safe.global/arb1:',
-    [avalanche.id]: 'https://app.safe.global/avax:',
-    [bsc.id]: 'https://app.safe.global/bnb:',
-    [base.id]: 'https://app.safe.global/base:',
+  const returnValue = (hash: string) => {
+    if (tx.walletType !== 'GnosisSafe' && !isWalletContract) {
+      return `${getChainParameters(tx.chainId).blockExplorers?.default
+        .url}/tx/${hash}`;
+    } else {
+      return `${gnosisSafeLinksHelper[tx.chainId]}${
+        tx.from
+      }/transactions/tx?id=multisig_${tx.from}_${hash}`;
+    }
   };
 
-  if (tx.walletType !== 'GnosisSafe' && !isWalletContract) {
-    return `${getChainParameters(tx.chainId).blockExplorers?.default
-      .url}/tx/${txHash}`;
+  if (!!replacedTxHash) {
+    return returnValue(replacedTxHash);
   } else {
-    return `${gnosisSafeLinksHelper[tx.chainId]}${
-      tx.from
-    }/transactions/tx?id=multisig_${tx.from}_${txHash}`;
+    return returnValue(txHash);
   }
 };
 

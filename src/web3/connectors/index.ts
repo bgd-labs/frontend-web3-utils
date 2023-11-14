@@ -4,6 +4,7 @@ import { InjectedConnector } from 'wagmi/connectors/injected';
 import { SafeConnector } from 'wagmi/connectors/safe';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 
+import { safeSdkOptions } from '../../utils/constants';
 import { ImpersonatedConnector } from './ImpersonatedConnector';
 
 export type ConnectorType =
@@ -65,14 +66,7 @@ export const initAllConnectors = (props: AllConnectorsInitProps) => {
   });
   const gnosisSafe = new SafeConnector({
     chains,
-    options: {
-      allowedDomains: [
-        /gnosis-safe.io$/,
-        /app.safe.global$/,
-        /metissafe.tech$/,
-      ],
-      debug: false,
-    },
+    options: safeSdkOptions,
   });
 
   const impersonated = new ImpersonatedConnector({

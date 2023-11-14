@@ -16,12 +16,12 @@ import {
   isGelatoBaseTxWithoutTimestamp,
   isGelatoTx,
 } from '../adapters/GelatoAdapter';
-import { GnosisAdapter } from '../adapters/GnosisAdapter';
+import { GnosisAdapter, isSafeTx, SafeTx } from '../adapters/GnosisAdapter';
 import { AdapterInterface } from '../adapters/interface';
 import { WalletType } from '../connectors';
 import { IWalletSlice } from './walletSlice';
 
-export type InitialTx = Hex | GelatoTx;
+export type InitialTx = Hex | GelatoTx | SafeTx;
 export type InitialEthTx = { hash: Hex };
 export type NewTx = InitialEthTx | GelatoTx;
 
@@ -149,7 +149,11 @@ export function createTransactionsSlice<T extends BaseTx>({
 
       const tx: InitialTx = await body();
       const args = {
-        tx: isGelatoTx(tx) ? tx : { hash: tx },
+        tx: isGelatoTx(tx)
+          ? tx
+          : isSafeTx(tx)
+          ? { hash: tx.safeTxHash as Hex }
+          : { hash: tx },
         payload: params.payload,
         activeWallet,
         chainId,
@@ -265,7 +269,7 @@ export function createTransactionsSlice<T extends BaseTx>({
       set((state) =>
         produce(state, (draft) => {
           draft.ethereumAdapter = gnosis
-            ? new GnosisAdapter(get, set)
+            ? new GnosisAdapter(get, set, get().activeWallet)
             : new EthereumAdapter(get, set);
         }),
       );
