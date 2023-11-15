@@ -103,28 +103,31 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
   startTxTracking = async (txKey: string) => {
     const tx = this.get().transactionsPool[txKey];
-    const isPending = tx.pending;
-    if (!isPending) {
-      return;
-    }
-
-    this.stopPollingGnosisTXStatus(txKey);
-
-    let retryCount = 5;
-    const newGnosisInterval = setInterval(async () => {
-      if (retryCount > 0) {
-        const response = await this.fetchGnosisTxStatus(txKey);
-        if (!response.ok) {
-          retryCount--;
-        }
-      } else {
-        this.stopPollingGnosisTXStatus(txKey);
-        this.get().removeTXFromPool(txKey);
+    if (isEthPoolTx(tx)) {
+      console.log('start tx', tx);
+      const isPending = tx.pending;
+      if (!isPending) {
         return;
       }
-    }, 5000);
 
-    this.transactionsIntervalsMap[txKey] = Number(newGnosisInterval);
+      this.stopPollingGnosisTXStatus(txKey);
+
+      let retryCount = 5;
+      const newGnosisInterval = setInterval(async () => {
+        if (retryCount > 0) {
+          const response = await this.fetchGnosisTxStatus(txKey);
+          if (!response.ok) {
+            retryCount--;
+          }
+        } else {
+          this.stopPollingGnosisTXStatus(txKey);
+          this.get().removeTXFromPool(txKey);
+          return;
+        }
+      }, 5000);
+
+      this.transactionsIntervalsMap[txKey] = Number(newGnosisInterval);
+    }
   };
 
   private fetchGnosisTxStatus = async (txKey: string) => {
@@ -137,7 +140,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     if (response.ok) {
       const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
 
-      console.log('', this.get().activeWallet?.address);
+      console.log('fetch address', this.get().activeWallet?.address);
 
       if (gnosisStatus.nonce) {
         const allTxWithSameNonceResponse = await fetch(
