@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Hex } from 'viem';
 
 import { isGelatoBaseTx } from '../web3/adapters/GelatoAdapter';
 import { selectLastTxByTypeAndPayload } from '../web3/store/transactionsSelectors';
@@ -10,7 +11,7 @@ import {
 
 interface LastTxStatusesParams<T extends BaseTx> {
   state: ITransactionsState<T>;
-  activeAddress: string;
+  activeAddress: Hex;
   type: T['type'];
   payload: T['payload'];
 }
@@ -28,28 +29,35 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
 }: LastTxStatusesParams<T>) => {
   const tx = selectLastTxByTypeAndPayload(state, activeAddress, type, payload);
 
-  const [fullTxErrorMessage, setFullTxErrorMessage] = useState<string | Error>(
-    '',
-  );
-  const [error, setError] = useState<string | Error>('');
+  const [fullTxErrorMessage, setFullTxErrorMessage] = useState<string>('');
+  const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [isTxStart, setIsTxStart] = useState(false);
 
-  const txHash = tx && tx.hash;
-  const txPending = tx && tx.pending;
-  const isError =
-    tx && isGelatoBaseTx(tx)
-      ? !tx.pending && (tx.status !== TransactionStatus.Success || !!error)
-      : (tx &&
-          !tx.pending &&
-          tx.status !== TransactionStatus.Success &&
-          tx.status !== TransactionStatus.Replaced) ||
-        !!error;
-  const txSuccess = tx && tx.status === TransactionStatus.Success && !isError;
-  const txChainId = tx && tx.chainId;
-  const txWalletType = tx && tx.walletType;
-  const isTxReplaced = tx && tx.status === TransactionStatus.Replaced;
-  const replacedTxHash = tx && tx.replacedTxHash;
+  const txHash = tx?.hash;
+  let txPending = tx?.pending;
+
+  let isError: boolean = false;
+  if (tx) {
+    if (isGelatoBaseTx(tx)) {
+      isError =
+        !tx.pending && (tx.status !== TransactionStatus.Success || !!error);
+    } else if (
+      !tx.pending &&
+      tx.status !== TransactionStatus.Success &&
+      tx.status !== TransactionStatus.Replaced
+    ) {
+      isError = true;
+    } else {
+      isError = !!error;
+    }
+  }
+
+  const txSuccess = tx?.status === TransactionStatus.Success && !isError;
+  const txChainId = tx?.chainId;
+  const txWalletType = tx?.walletType;
+  const isTxReplaced = tx?.status === TransactionStatus.Replaced;
+  const replacedTxHash = tx?.replacedTxHash;
 
   useEffect(() => {
     return () => {
@@ -80,10 +88,13 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
       await callbackFunction();
     } catch (e) {
       if (e instanceof Error) {
-        console.error('TX error: ', e);
-        setFullTxErrorMessage(!!e?.message ? e.message : e);
-        setError(!!errorMessage ? errorMessage : !!e?.message ? e.message : e);
+        setFullTxErrorMessage(e.message);
+        setError(!!errorMessage ? errorMessage : e.message);
+      } else if (typeof e === 'string') {
+        setFullTxErrorMessage(e);
+        setError(!!errorMessage ? errorMessage : e);
       }
+      console.error('TX error: ', e);
     }
     setLoading(false);
   }

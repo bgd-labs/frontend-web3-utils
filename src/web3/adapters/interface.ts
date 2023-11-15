@@ -1,25 +1,30 @@
 import {
   BaseTx,
-  ITransactionsSlice,
-  NewTx,
+  InitialTx,
+  ITransactionsSliceWithWallet,
   TransactionStatus,
 } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
 
 export interface AdapterInterface<T extends BaseTx> {
-  get: () => ITransactionsSlice<T>;
-  set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void;
+  get: () => ITransactionsSliceWithWallet<T>;
+  set: (
+    fn: (
+      state: ITransactionsSliceWithWallet<T>,
+    ) => ITransactionsSliceWithWallet<T>,
+  ) => void;
   executeTx: (params: {
-    tx: NewTx;
+    tx: InitialTx;
     activeWallet: Wallet;
     payload: object | undefined;
     chainId: number;
     type: T['type'];
   }) => Promise<
-    T & {
-      status?: TransactionStatus;
-      pending: boolean;
-    }
+    | (T & {
+        status?: TransactionStatus;
+        pending: boolean;
+      })
+    | undefined
   >;
   startTxTracking: (txId: string) => Promise<void>;
 }

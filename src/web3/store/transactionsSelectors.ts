@@ -1,5 +1,5 @@
 import isEqual from 'lodash/isEqual.js';
-import { Chain } from 'viem';
+import { Chain, Hex } from 'viem';
 
 import { gnosisSafeLinksHelper } from '../../utils/constants';
 import { isGelatoBaseTx } from '../adapters/GelatoAdapter';
@@ -28,7 +28,7 @@ export const selectTXByKey = <T extends BaseTx>(
 
 export const selectTXByHash = <T extends BaseTx>(
   state: ITransactionsState<T>,
-  hash: string,
+  hash: Hex,
 ) => {
   const txByKey = selectTXByKey<T>(state, hash);
   if (txByKey) {
@@ -39,21 +39,21 @@ export const selectTXByHash = <T extends BaseTx>(
 
 export const selectAllTransactionsByWallet = <T extends BaseTx>(
   state: ITransactionsState<T>,
-  from: string,
+  from: Hex,
 ) => {
   return selectAllTransactions(state).filter((tx) => tx.from === from);
 };
 
 export const selectPendingTransactionByWallet = <T extends BaseTx>(
   state: ITransactionsState<T>,
-  from: string,
+  from: Hex,
 ) => {
   return selectPendingTransactions(state).filter((tx) => tx.from === from);
 };
 
 export const selectLastTxByTypeAndPayload = <T extends BaseTx>(
   state: ITransactionsState<T>,
-  from: string,
+  from: Hex,
   type: T['type'],
   payload: T['payload'],
 ) => {
@@ -84,9 +84,9 @@ export const selectLastTxByTypeAndPayload = <T extends BaseTx>(
 export const selectTxExplorerLink = <T extends BaseTx>(
   state: ITransactionsState<T>,
   getChainParameters: (chainId: number) => Chain,
-  txHash: string,
+  txHash: Hex,
   isWalletContract?: boolean,
-  replacedTxHash?: string,
+  replacedTxHash?: Hex,
 ) => {
   const tx = selectTXByHash(state, txHash);
   if (!tx) {

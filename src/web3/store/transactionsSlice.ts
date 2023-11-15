@@ -16,16 +16,14 @@ import {
   isGelatoBaseTxWithoutTimestamp,
   isGelatoTx,
 } from '../adapters/GelatoAdapter';
-import { GnosisAdapter, isSafeTx, SafeTx } from '../adapters/GnosisAdapter';
+import { GnosisAdapter, SafeTx } from '../adapters/GnosisAdapter';
 import { AdapterInterface } from '../adapters/interface';
 import { WalletType } from '../connectors';
 import { IWalletSlice } from './walletSlice';
 
 export type InitialTx = Hex | GelatoTx | SafeTx;
-export type InitialEthTx = { hash: Hex };
-export type NewTx = InitialEthTx | GelatoTx;
 
-type BasicTx = {
+export type BasicTx = {
   chainId: number;
   type: string;
   from: Hex;
@@ -71,12 +69,17 @@ export type PoolTxParams = {
   status?: TransactionStatus;
   pending: boolean;
   walletType: WalletType;
-  replacedTxHash?: string;
+  replacedTxHash?: Hex;
 };
 
-export type PoolEthTx = EthBaseTx & PoolTxParams;
+export type EthPoolTx = EthBaseTx & PoolTxParams;
+export type GelatoPoolTx = GelatoBaseTx & PoolTxParams;
 
 type PoolTx<T extends BaseTx> = T & PoolTxParams;
+
+export function isEthPoolTx(tx: EthPoolTx | GelatoPoolTx): tx is EthPoolTx {
+  return (tx as EthPoolTx).hash !== undefined;
+}
 
 export interface ITransactionsState<T extends BaseTx> {
   transactionsPool: TransactionPool<PoolTx<T>>;
@@ -100,10 +103,11 @@ export interface ITransactionsActions<T extends BaseTx> {
       desiredChainID: number;
     };
   }) => Promise<
-    T & {
-      status?: TransactionStatus;
-      pending: boolean;
-    }
+    | (T & {
+        status?: TransactionStatus;
+        pending: boolean;
+      })
+    | undefined
   >;
   addTXToPool: (
     tx:
@@ -120,6 +124,10 @@ export interface ITransactionsActions<T extends BaseTx> {
 export type ITransactionsSlice<T extends BaseTx> = ITransactionsActions<T> &
   ITransactionsState<T> &
   TransactionsSliceBaseType;
+
+export type ITransactionsSliceWithWallet<T extends BaseTx> =
+  ITransactionsSlice<T> &
+    Pick<IWalletSlice, 'checkAndSwitchNetwork' | 'activeWallet'>;
 
 export function createTransactionsSlice<T extends BaseTx>({
   txStatusChangedCallback,
@@ -147,13 +155,9 @@ export function createTransactionsSlice<T extends BaseTx>({
 
       const chainId = Number(params.desiredChainID);
 
-      const tx: InitialTx = await body();
+      const tx = await body();
       const args = {
-        tx: isGelatoTx(tx)
-          ? tx
-          : isSafeTx(tx)
-          ? { hash: tx.safeTxHash as Hex }
-          : { hash: tx },
+        tx,
         payload: params.payload,
         activeWallet,
         chainId,
@@ -165,13 +169,13 @@ export function createTransactionsSlice<T extends BaseTx>({
         : get().ethereumAdapter.executeTx(args);
     },
 
-    addTXToPool: (transaction, walletType) => {
+    addTXToPool: (tx, walletType) => {
       const localTimestamp = new Date().getTime();
-      if (isGelatoBaseTxWithoutTimestamp(transaction)) {
+      if (isGelatoBaseTxWithoutTimestamp(tx)) {
         set((state) =>
           produce(state, (draft) => {
-            draft.transactionsPool[transaction.taskId] = {
-              ...transaction,
+            draft.transactionsPool[tx.taskId] = {
+              ...tx,
               pending: true,
               walletType,
               localTimestamp,
@@ -190,8 +194,8 @@ export function createTransactionsSlice<T extends BaseTx>({
       } else {
         set((state) =>
           produce(state, (draft) => {
-            draft.transactionsPool[transaction.hash] = {
-              ...transaction,
+            draft.transactionsPool[tx.hash] = {
+              ...tx,
               pending: true,
               walletType,
               localTimestamp,
@@ -262,14 +266,14 @@ export function createTransactionsSlice<T extends BaseTx>({
         }
       } catch (e) {
         set({ isGelatoAvailable: false });
-        console.error(e);
+        console.error('Check gelato available error', e);
       }
     },
     updateEthAdapter: (gnosis: boolean) => {
       set((state) =>
         produce(state, (draft) => {
           draft.ethereumAdapter = gnosis
-            ? new GnosisAdapter(get, set, get().activeWallet)
+            ? new GnosisAdapter(get, set)
             : new EthereumAdapter(get, set);
         }),
       );

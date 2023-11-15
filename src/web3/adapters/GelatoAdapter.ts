@@ -8,8 +8,7 @@ import {
   BaseTx,
   GelatoBaseTx,
   InitialTx,
-  ITransactionsSlice,
-  NewTx,
+  ITransactionsSliceWithWallet,
   TransactionStatus,
 } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
@@ -55,66 +54,79 @@ export function isGelatoBaseTxWithoutTimestamp(
 }
 
 export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
-  get: () => ITransactionsSlice<T>;
-  set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void;
+  get: () => ITransactionsSliceWithWallet<T>;
+  set: (
+    fn: (
+      state: ITransactionsSliceWithWallet<T>,
+    ) => ITransactionsSliceWithWallet<T>,
+  ) => void;
   transactionsIntervalsMap: Record<string, number | undefined> = {};
 
   constructor(
-    get: () => ITransactionsSlice<T>,
-    set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void,
+    get: () => ITransactionsSliceWithWallet<T>,
+    set: (
+      fn: (
+        state: ITransactionsSliceWithWallet<T>,
+      ) => ITransactionsSliceWithWallet<T>,
+    ) => void,
   ) {
     this.get = get;
     this.set = set;
   }
 
   executeTx = async (params: {
-    tx: NewTx;
+    tx: InitialTx;
     activeWallet: Wallet;
     payload: object | undefined;
     chainId: number;
     type: T['type'];
-  }): Promise<T & { status?: TransactionStatus; pending: boolean }> => {
-    const { activeWallet, chainId, type } = params;
-    const tx = params.tx as GelatoTx;
-    const from = activeWallet.address;
-    const gelatoTX = {
-      from,
-      chainId,
-      type: type,
-      taskId: tx.taskId,
-      payload: params.payload,
-    };
+  }) => {
+    const { tx, activeWallet, chainId, type, payload } = params;
+    if (isGelatoTx(tx)) {
+      const from = activeWallet.address;
+      const gelatoTX = {
+        from,
+        chainId,
+        type: type,
+        taskId: tx.taskId,
+        payload,
+      };
 
-    const txPool = this.get().addTXToPool(gelatoTX, activeWallet.walletType);
-    this.startTxTracking(tx.taskId);
+      const txPool = this.get().addTXToPool(gelatoTX, activeWallet.walletType);
+      this.startTxTracking(tx.taskId);
 
-    return txPool[tx.taskId];
+      return txPool[tx.taskId];
+    } else {
+      return undefined;
+    }
   };
 
   startTxTracking = async (taskId: string) => {
-    const tx = this.get().transactionsPool[taskId] as GelatoBaseTx;
-    const isPending = selectIsGelatoTXPending(tx.gelatoStatus);
-    if (!isPending) {
-      return;
-    }
-
-    this.stopPollingGelatoTXStatus(taskId);
-
-    let retryCount = 5;
-    const newGelatoInterval = setInterval(async () => {
-      if (retryCount > 0) {
-        const response = await this.fetchGelatoTXStatus(taskId);
-        if (!response.ok) {
-          retryCount--;
-        }
-      } else {
-        this.stopPollingGelatoTXStatus(taskId);
-        this.get().removeTXFromPool(taskId);
+    const tx = this.get().transactionsPool[taskId];
+    if (isGelatoBaseTx(tx)) {
+      const isPending = selectIsGelatoTXPending(tx.gelatoStatus);
+      if (!isPending) {
         return;
       }
-    }, 5000);
 
-    this.transactionsIntervalsMap[taskId] = Number(newGelatoInterval);
+      this.stopPollingGelatoTXStatus(taskId);
+
+      let retryCount = 5;
+      const newGelatoInterval = setInterval(async () => {
+        if (retryCount > 0) {
+          const response = await this.fetchGelatoTXStatus(taskId);
+          if (!response.ok) {
+            retryCount--;
+          }
+        } else {
+          this.stopPollingGelatoTXStatus(taskId);
+          this.get().removeTXFromPool(taskId);
+          return;
+        }
+      }, 5000);
+
+      this.transactionsIntervalsMap[taskId] = Number(newGelatoInterval);
+    }
   };
 
   private stopPollingGelatoTXStatus = (taskId: string) => {
@@ -162,24 +174,27 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
   ) => {
     this.set((state) =>
       produce(state, (draft) => {
-        const tx = draft.transactionsPool[taskId] as GelatoBaseTx & {
-          pending: boolean;
-          status?: TransactionStatus;
-        };
-        tx.gelatoStatus = statusResponse.task.taskState;
-        tx.pending = selectIsGelatoTXPending(statusResponse.task.taskState);
-        tx.hash = statusResponse.task.transactionHash;
-        tx.status =
-          statusResponse.task.taskState === 'ExecSuccess'
-            ? TransactionStatus.Success
-            : tx.pending
-            ? undefined
-            : TransactionStatus.Reverted;
-        if (statusResponse.task.executionDate) {
-          tx.timestamp = new Date(statusResponse.task.executionDate).getTime();
-        }
-        if (statusResponse.task.lastCheckMessage) {
-          tx.errorMessage = statusResponse.task.lastCheckMessage;
+        const tx = draft.transactionsPool[taskId];
+        if (isGelatoBaseTx(tx)) {
+          tx.gelatoStatus = statusResponse.task.taskState;
+          tx.pending = selectIsGelatoTXPending(statusResponse.task.taskState);
+          tx.hash = statusResponse.task.transactionHash;
+
+          tx.status =
+            statusResponse.task.taskState === 'ExecSuccess'
+              ? TransactionStatus.Success
+              : tx.pending
+              ? undefined
+              : TransactionStatus.Reverted;
+
+          if (statusResponse.task.executionDate) {
+            tx.timestamp = new Date(
+              statusResponse.task.executionDate,
+            ).getTime();
+          }
+          if (statusResponse.task.lastCheckMessage) {
+            tx.errorMessage = statusResponse.task.lastCheckMessage;
+          }
         }
       }),
     );

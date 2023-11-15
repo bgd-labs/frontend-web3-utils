@@ -57,7 +57,7 @@ function Child({
     if (connectors) {
       setConnectors(connectors);
     }
-  }, [connectors]);
+  }, [connectors.length]);
 
   useEffect(() => {
     if (connectorsInitProps.defaultChainId) {

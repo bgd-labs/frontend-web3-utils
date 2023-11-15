@@ -171,12 +171,7 @@ export function createWalletSlice({
 
           const account = getAccount();
           const network = getNetwork();
-          if (
-            account &&
-            account.isConnected &&
-            account.address &&
-            network.chain
-          ) {
+          if (account?.isConnected && account?.address && network?.chain) {
             await get().setActiveWallet({
               walletType,
               address: account.address,
@@ -188,23 +183,18 @@ export function createWalletSlice({
         }
       } catch (e) {
         if (e instanceof Error) {
-          let errorMessage = e.message ? e.message.toString() : e.toString();
+          const errorMessage = e.message ? e.message.toString() : e.toString();
           set({
             walletConnectionError: errorMessage,
           });
         }
-        console.error(e);
+        console.error('wallet connect error', e);
       }
       set({ walletActivating: false });
     },
     checkAndSwitchNetwork: async (chainId) => {
       const activeWallet = get().activeWallet;
-      if (
-        chainId &&
-        activeWallet &&
-        activeWallet.chain?.id &&
-        activeWallet.chain.id !== chainId
-      ) {
+      if (chainId && activeWallet && activeWallet?.chain?.id !== chainId) {
         set({ isActiveWalletSetting: true });
         await activeWallet.walletClient.switchChain({
           id: chainId,
@@ -251,10 +241,8 @@ export function createWalletSlice({
     changeActiveWalletAccount: async (account) => {
       const activeWallet = get().activeWallet;
       if (
-        account &&
-        account.address &&
+        account?.address &&
         activeWallet &&
-        activeWallet.isActive &&
         activeWallet.address !== account.address &&
         !get().isActiveWalletAccountChanging
       ) {
@@ -273,11 +261,10 @@ export function createWalletSlice({
     changeActiveWalletChain: async (chain) => {
       const activeWallet = get().activeWallet;
       if (
-        chain !== undefined &&
+        !!chain &&
         activeWallet &&
         activeWallet.isActive &&
-        activeWallet.chain &&
-        activeWallet.chain.id !== chain.id &&
+        activeWallet?.chain?.id !== chain.id &&
         !get().isActiveWalletChainChanging
       ) {
         set({ isActiveWalletChainChanging: true });

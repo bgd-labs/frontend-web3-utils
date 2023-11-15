@@ -1,16 +1,14 @@
 import dayjs from 'dayjs';
 import { produce } from 'immer';
+import { Hex, isHex, toHex } from 'viem';
 
 import { SafeTransactionServiceUrls } from '../../utils/constants';
 import { setLocalStorageTxPool } from '../../utils/localStorage';
 import {
   BaseTx,
-  EthBaseTx,
-  InitialEthTx,
   InitialTx,
-  ITransactionsSlice,
-  NewTx,
-  PoolEthTx,
+  isEthPoolTx,
+  ITransactionsSliceWithWallet,
   TransactionStatus,
 } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
@@ -42,43 +40,62 @@ export function isSafeTx(tx: InitialTx): tx is SafeTx {
 }
 
 export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
-  private activeWallet: Wallet | undefined = undefined;
-
-  get: () => ITransactionsSlice<T>;
-  set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void;
+  get: () => ITransactionsSliceWithWallet<T>;
+  set: (
+    fn: (
+      state: ITransactionsSliceWithWallet<T>,
+    ) => ITransactionsSliceWithWallet<T>,
+  ) => void;
   transactionsIntervalsMap: Record<string, number | undefined> = {};
 
   constructor(
-    get: () => ITransactionsSlice<T>,
-    set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void,
-    activeWallet: Wallet | undefined,
+    get: () => ITransactionsSliceWithWallet<T>,
+    set: (
+      fn: (
+        state: ITransactionsSliceWithWallet<T>,
+      ) => ITransactionsSliceWithWallet<T>,
+    ) => void,
   ) {
     this.get = get;
     this.set = set;
-    this.activeWallet = activeWallet;
   }
 
   executeTx = async (params: {
-    tx: NewTx;
+    tx: InitialTx;
     activeWallet: Wallet;
     payload: object | undefined;
     chainId: number;
     type: T['type'];
-  }): Promise<T & { status?: TransactionStatus; pending: boolean }> => {
-    const { activeWallet, chainId, type } = params;
-    const tx = params.tx as InitialEthTx;
-
+  }) => {
+    const { tx, activeWallet, chainId, type, payload } = params;
     const from = activeWallet.address;
-    const transaction = {
+
+    const initialParams = {
       chainId,
-      hash: tx.hash,
       type,
-      payload: params.payload,
+      payload: payload,
       from,
-    } as EthBaseTx;
-    const txPool = this.get().addTXToPool(transaction, activeWallet.walletType);
-    this.startTxTracking(tx.hash);
-    return txPool[tx.hash];
+    };
+
+    if (isSafeTx(tx)) {
+      const txParams = {
+        ...initialParams,
+        hash: toHex(tx.safeTxHash),
+      };
+      this.startTxTracking(txParams.hash);
+      const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
+      return txPool[txParams.hash];
+    } else if (isHex(tx)) {
+      const txParams = {
+        ...initialParams,
+        hash: tx,
+      };
+      this.startTxTracking(txParams.hash);
+      const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
+      return txPool[txParams.hash];
+    } else {
+      return undefined;
+    }
   };
 
   startTxTracking = async (txKey: string) => {
@@ -118,8 +135,10 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
       const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
 
       const allTxWithSameNonceResponse = await fetch(
-        `${SafeTransactionServiceUrls[tx.chainId]}/safes/${this.activeWallet
-          ?.address}/multisig-transactions/?nonce=${gnosisStatus.nonce}`,
+        `${SafeTransactionServiceUrls[tx.chainId]}/safes/${this.get()
+          .activeWallet?.address}/multisig-transactions/?nonce=${
+          gnosisStatus.nonce
+        }`,
       );
 
       if (allTxWithSameNonceResponse.ok) {
@@ -143,7 +162,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
             (safeTx) => safeTx.safeTxHash !== gnosisStatus.safeTxHash,
           )[0].safeTxHash;
 
-          this.updateGnosisTxStatus(txKey, gnosisStatus, replacedHash);
+          this.updateGnosisTxStatus(txKey, gnosisStatus, toHex(replacedHash));
           this.stopPollingGnosisTXStatus(txKey);
 
           return response;
@@ -174,24 +193,30 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
   private updateGnosisTxStatus = (
     txKey: string,
     statusResponse: GnosisTxStatusResponse,
-    replacedHash?: string,
+    replacedHash?: Hex,
   ) => {
     this.set((state) =>
       produce(state, (draft) => {
-        const tx = draft.transactionsPool[txKey] as PoolEthTx;
-        if (!!replacedHash) {
-          tx.replacedTxHash = replacedHash;
-        }
-        tx.nonce = statusResponse.nonce;
+        const tx = draft.transactionsPool[txKey];
+        if (isEthPoolTx(tx)) {
+          if (!!replacedHash) {
+            tx.replacedTxHash = replacedHash;
+          }
 
-        if (statusResponse.isExecuted || !!replacedHash) {
-          tx.status = statusResponse.isSuccessful
-            ? TransactionStatus.Success
-            : !!replacedHash
-            ? TransactionStatus.Replaced
-            : TransactionStatus.Reverted;
+          tx.nonce = statusResponse.nonce;
+
+          if (statusResponse.isExecuted || !!replacedHash) {
+            if (statusResponse.isSuccessful) {
+              tx.status = TransactionStatus.Success;
+            } else if (!!replacedHash) {
+              tx.status = TransactionStatus.Replaced;
+            } else {
+              tx.status = TransactionStatus.Reverted;
+            }
+          }
+
+          tx.pending = !statusResponse.isExecuted && !replacedHash;
         }
-        tx.pending = !statusResponse.isExecuted && !replacedHash;
       }),
     );
     setLocalStorageTxPool(this.get().transactionsPool);

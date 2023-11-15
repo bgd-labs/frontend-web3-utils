@@ -1,60 +1,70 @@
-import { PublicClient } from '@wagmi/core';
 import { produce } from 'immer';
-import { GetTransactionReturnType, Hex } from 'viem';
+import { Hex, isHex } from 'viem';
 
 import { setLocalStorageTxPool } from '../../utils/localStorage';
 import {
   BaseTx,
-  EthBaseTx,
-  InitialEthTx,
-  ITransactionsSlice,
-  NewTx,
-  PoolEthTx,
+  InitialTx,
+  isEthPoolTx,
+  ITransactionsSliceWithWallet,
   TransactionStatus,
 } from '../store/transactionsSlice';
 import { Wallet } from '../store/walletSlice';
 import { AdapterInterface } from './interface';
 
 export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
-  get: () => ITransactionsSlice<T>;
-  set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void;
+  get: () => ITransactionsSliceWithWallet<T>;
+  set: (
+    fn: (
+      state: ITransactionsSliceWithWallet<T>,
+    ) => ITransactionsSliceWithWallet<T>,
+  ) => void;
   transactionsIntervalsMap: Record<string, number | undefined> = {};
 
   constructor(
-    get: () => ITransactionsSlice<T>,
-    set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void,
+    get: () => ITransactionsSliceWithWallet<T>,
+    set: (
+      fn: (
+        state: ITransactionsSliceWithWallet<T>,
+      ) => ITransactionsSliceWithWallet<T>,
+    ) => void,
   ) {
     this.get = get;
     this.set = set;
   }
 
   executeTx = async (params: {
-    tx: NewTx;
+    tx: InitialTx;
     activeWallet: Wallet;
     payload: object | undefined;
     chainId: number;
     type: T['type'];
-  }): Promise<T & { status?: TransactionStatus; pending: boolean }> => {
-    const { activeWallet, chainId, type } = params;
-    const tx = params.tx as InitialEthTx;
+  }) => {
+    const { tx, activeWallet, chainId, type, payload } = params;
+
     const from = activeWallet.address;
-    const transaction = {
-      chainId,
-      hash: tx.hash,
-      type,
-      payload: params.payload,
-      from,
-    } as EthBaseTx;
-    const txPool = this.get().addTXToPool(transaction, activeWallet.walletType);
-    this.waitForTxReceipt(transaction, tx.hash);
-    return txPool[tx.hash];
+    if (isHex(tx)) {
+      const txParams = {
+        chainId,
+        hash: tx,
+        type,
+        payload: payload,
+        from,
+      };
+      const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
+
+      this.waitForTxReceipt(txParams.hash);
+      return txPool[txParams.hash];
+    } else {
+      return undefined;
+    }
   };
   startTxTracking = async (txKey: string) => {
     const retryCount = 5;
     const txData = this.get().transactionsPool[txKey];
     // check if tx is in local storage
     if (txData) {
-      const client = this.get().clients[txData.chainId] as PublicClient;
+      const client = this.get().clients[txData.chainId];
       if (txData.hash) {
         // Find the transaction in the waiting pool
         for (let i = 0; i < retryCount; i++) {
@@ -62,7 +72,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
             const tx = await client.getTransaction({ hash: txData.hash });
 
             // If the transaction is found, wait for the receipt
-            await this.waitForTxReceipt(tx, txData.hash);
+            await this.waitForTxReceipt(txData.hash, tx.nonce);
             return; // Exit the function if successful
           } catch (e) {
             if (i === retryCount - 1) {
@@ -83,18 +93,15 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     }
   };
 
-  private waitForTxReceipt = async (
-    tx: GetTransactionReturnType | EthBaseTx,
-    txHash: Hex,
-  ) => {
-    const chainId = tx.chainId || this.get().transactionsPool[txHash].chainId;
+  private waitForTxReceipt = async (txHash: Hex, txNonce?: number) => {
+    const chainId = this.get().transactionsPool[txHash].chainId;
     const client = this.get().clients[chainId];
     let txWasReplaced = false;
 
     try {
       const txn = await client.waitForTransactionReceipt({
         pollingInterval: 8_000,
-        hash: tx.hash,
+        hash: txHash,
         onReplaced: (replacement) => {
           this.updateTXStatus({
             hash: txHash,
@@ -115,7 +122,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
             ? TransactionStatus.Success
             : TransactionStatus.Reverted,
         to: txn.to as Hex,
-        nonce: tx.nonce,
+        nonce: txNonce,
       });
 
       const updatedTX = this.get().transactionsPool[txHash];
@@ -130,7 +137,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
         hash: txHash,
         status: TransactionStatus.Failed,
       });
-      console.error(e);
+      console.error('Error when check tx receipt', e);
     }
   };
 
@@ -141,30 +148,34 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     to,
     nonce,
   }: {
-    hash: string;
+    hash: Hex;
     status?: TransactionStatus;
-    replacedHash?: string;
+    replacedHash?: Hex;
     to?: Hex;
     nonce?: number;
   }) => {
     this.set((state) =>
       produce(state, (draft) => {
-        const tx = draft.transactionsPool[hash] as PoolEthTx;
+        const tx = draft.transactionsPool[hash];
 
-        tx.pending = false;
-        tx.status =
-          status !== TransactionStatus.Reverted
-            ? status
-            : TransactionStatus.Reverted;
+        if (isEthPoolTx(tx)) {
+          tx.pending = false;
+          tx.status =
+            status !== TransactionStatus.Reverted
+              ? status
+              : TransactionStatus.Reverted;
 
-        if (to) {
-          tx.to = to;
-        }
-        if (nonce) {
-          tx.nonce = nonce;
-        }
-        if (replacedHash) {
-          tx.replacedTxHash = replacedHash;
+          if (to) {
+            tx.to = to;
+          }
+
+          if (nonce) {
+            tx.nonce = nonce;
+          }
+
+          if (replacedHash) {
+            tx.replacedTxHash = replacedHash;
+          }
         }
       }),
     );
