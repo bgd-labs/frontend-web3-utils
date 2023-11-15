@@ -134,47 +134,52 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     if (response.ok) {
       const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
 
-      const allTxWithSameNonceResponse = await fetch(
-        `${SafeTransactionServiceUrls[tx.chainId]}/safes/${this.get()
-          .activeWallet?.address}/multisig-transactions/?nonce=${
-          gnosisStatus.nonce
-        }`,
-      );
+      console.log('', this.get().activeWallet?.address);
 
-      if (allTxWithSameNonceResponse.ok) {
-        const sameNonceResponse =
-          (await allTxWithSameNonceResponse.json()) as GnosisTxSameNonceResponse;
+      if (gnosisStatus.nonce) {
+        const allTxWithSameNonceResponse = await fetch(
+          `${SafeTransactionServiceUrls[tx.chainId]}/safes/${this.get()
+            .activeWallet?.address}/multisig-transactions/?nonce=${
+            gnosisStatus.nonce
+          }`,
+        );
 
-        const isPending =
-          !gnosisStatus.isExecuted && sameNonceResponse.count <= 1;
-        // check if more than a day passed and tx wasn't executed still, remove the transaction from the pool
-        const gnosisStatusModified = dayjs(gnosisStatus.modified);
-        const currentTime = dayjs();
-        const daysPassed = currentTime.diff(gnosisStatusModified, 'day');
-        if (daysPassed >= 1 && isPending) {
-          this.stopPollingGnosisTXStatus(txKey);
-          this.get().removeTXFromPool(txKey);
+        if (allTxWithSameNonceResponse.ok) {
+          const sameNonceResponse =
+            (await allTxWithSameNonceResponse.json()) as GnosisTxSameNonceResponse;
+
+          const isPending =
+            !gnosisStatus.isExecuted && sameNonceResponse.count <= 1;
+          // check if more than a day passed and tx wasn't executed still, remove the transaction from the pool
+          const gnosisStatusModified = dayjs(gnosisStatus.modified);
+          const currentTime = dayjs();
+          const daysPassed = currentTime.diff(gnosisStatusModified, 'day');
+          if (daysPassed >= 1 && isPending) {
+            this.stopPollingGnosisTXStatus(txKey);
+            this.get().removeTXFromPool(txKey);
+            return response;
+          }
+
+          if (sameNonceResponse.count > 1) {
+            const replacedHash = sameNonceResponse.results.filter(
+              (safeTx) => safeTx.safeTxHash !== gnosisStatus.safeTxHash,
+            )[0].safeTxHash;
+
+            this.updateGnosisTxStatus(txKey, gnosisStatus, toHex(replacedHash));
+            this.stopPollingGnosisTXStatus(txKey);
+
+            return response;
+          }
+
+          this.updateGnosisTxStatus(txKey, gnosisStatus);
+
+          if (!isPending) {
+            this.stopPollingGnosisTXStatus(txKey);
+            this.get().txStatusChangedCallback(tx);
+          }
+
           return response;
         }
-
-        if (sameNonceResponse.count > 1) {
-          const replacedHash = sameNonceResponse.results.filter(
-            (safeTx) => safeTx.safeTxHash !== gnosisStatus.safeTxHash,
-          )[0].safeTxHash;
-
-          this.updateGnosisTxStatus(txKey, gnosisStatus, toHex(replacedHash));
-          this.stopPollingGnosisTXStatus(txKey);
-
-          return response;
-        }
-
-        this.updateGnosisTxStatus(txKey, gnosisStatus);
-
-        if (!isPending) {
-          this.stopPollingGnosisTXStatus(txKey);
-          this.get().txStatusChangedCallback(tx);
-        }
-
         return response;
       } else {
         return response;

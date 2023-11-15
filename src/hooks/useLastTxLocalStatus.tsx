@@ -35,7 +35,7 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
   const [isTxStart, setIsTxStart] = useState(false);
 
   const txHash = tx?.hash;
-  let txPending = tx?.pending;
+  const txPending = tx?.pending;
 
   let isError: boolean = false;
   if (tx) {
