@@ -78,6 +78,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     };
 
     if (isSafeTx(tx)) {
+      console.log('isSafeTx', tx);
       const txParams = {
         ...initialParams,
         hash: toHex(tx.safeTxHash),
@@ -86,6 +87,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
       const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
       return txPool[txParams.hash];
     } else if (isHex(tx)) {
+      console.log('isHex', tx);
       const txParams = {
         ...initialParams,
         hash: tx,
@@ -94,6 +96,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
       const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
       return txPool[txParams.hash];
     } else {
+      console.log('undefined', tx);
       return undefined;
     }
   };
