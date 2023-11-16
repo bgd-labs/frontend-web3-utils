@@ -80,8 +80,9 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     if (isSafeTx(tx)) {
       const txParams = {
         ...initialParams,
-        hash: toHex(tx.safeTxHash),
+        hash: tx.safeTxHash,
       };
+      // @ts-ignore
       const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
       this.startTxTracking(txParams.hash);
       return txPool[txParams.hash];
@@ -90,9 +91,32 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
         ...initialParams,
         hash: tx,
       };
-      const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
-      this.startTxTracking(txParams.hash);
-      return txPool[txParams.hash];
+
+      // check if tx real on safe (need for safe + wallet connect)
+      const response = await fetch(
+        `${
+          SafeTransactionServiceUrls[initialParams.chainId]
+        }/multisig-transactions/${tx}/`,
+      );
+
+      if (response.ok) {
+        const txPool = this.get().addTXToPool(
+          txParams,
+          activeWallet.walletType,
+        );
+        this.startTxTracking(txParams.hash);
+        return txPool[txParams.hash];
+      } else {
+        const args = {
+          tx,
+          payload,
+          activeWallet,
+          chainId,
+          type,
+        };
+        this.get().updateEthAdapter(false);
+        return this.get().ethereumAdapter.executeTx(args);
+      }
     } else {
       return undefined;
     }
@@ -100,7 +124,6 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
   startTxTracking = async (txKey: string) => {
     const tx = this.get().transactionsPool[txKey];
-    console.log('start tx', tx);
     if (isEthPoolTx(tx)) {
       const isPending = tx.pending;
       if (!isPending) {
@@ -136,8 +159,6 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     );
     if (response.ok) {
       const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
-
-      console.log('fetch address', this.get().activeWallet?.address);
 
       if (gnosisStatus.nonce) {
         const allTxWithSameNonceResponse = await fetch(
