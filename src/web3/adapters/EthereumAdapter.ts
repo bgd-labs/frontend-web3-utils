@@ -5,88 +5,49 @@ import { SafeTransactionServiceUrls } from '../../utils/constants';
 import { setLocalStorageTxPool } from '../../utils/localStorage';
 import {
   BaseTx,
-  InitialTx,
   isEthPoolTx,
-  ITransactionsSliceWithWallet,
   TransactionStatus,
 } from '../store/transactionsSlice';
-import { Wallet } from '../store/walletSlice';
-import { AdapterInterface } from './interface';
+import { BaseAdapter } from './BaseAdapter';
+import { AdapterInterface, ExecuteTxParams } from './interface';
 
-export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
-  get: () => ITransactionsSliceWithWallet<T>;
-  set: (
-    fn: (
-      state: ITransactionsSliceWithWallet<T>,
-    ) => ITransactionsSliceWithWallet<T>,
-  ) => void;
-  transactionsIntervalsMap: Record<string, number | undefined> = {};
+export class EthereumAdapter<T extends BaseTx>
+  extends BaseAdapter<T>
+  implements AdapterInterface<T>
+{
+  executeTx = async (params: ExecuteTxParams<T>) => {
+    const { txKey, activeWallet, argsForExecute, txParams } =
+      this.preExecuteTx(params);
 
-  constructor(
-    get: () => ITransactionsSliceWithWallet<T>,
-    set: (
-      fn: (
-        state: ITransactionsSliceWithWallet<T>,
-      ) => ITransactionsSliceWithWallet<T>,
-    ) => void,
-  ) {
-    this.get = get;
-    this.set = set;
-  }
-
-  executeTx = async (params: {
-    tx: InitialTx;
-    activeWallet: Wallet;
-    payload: object | undefined;
-    chainId: number;
-    type: T['type'];
-  }) => {
-    const { tx, activeWallet, chainId, type, payload } = params;
-
-    const from = activeWallet.address;
-    if (isHex(tx)) {
-      const txParams = {
-        chainId,
-        hash: tx,
-        type,
-        payload: payload,
-        from,
-      };
-
-      if (activeWallet.walletType === 'WalletConnect') {
-        // check if tx real on safe (need for safe + wallet connect)
-        const response = await fetch(
-          `${
-            SafeTransactionServiceUrls[txParams.chainId]
-          }/multisig-transactions/${tx}/`,
-        );
-
-        if (response.ok) {
-          const args = {
-            tx,
-            payload,
-            activeWallet,
-            chainId,
-            type,
-          };
-
-          this.get().updateEthAdapter(true);
-          return this.get().ethereumAdapter.executeTx(args);
-        } else {
-          const txPool = this.get().addTXToPool(
-            txParams,
-            activeWallet.walletType,
-          );
-          this.waitForTxReceipt(txParams.hash);
-          return txPool[txParams.hash];
-        }
-      } else {
+    if (txParams && isHex(txKey)) {
+      const addToPool = (hash: Hex) => {
         const txPool = this.get().addTXToPool(
           txParams,
           activeWallet.walletType,
         );
-        this.waitForTxReceipt(txParams.hash);
-        return txPool[txParams.hash];
+        this.waitForTxReceipt(hash);
+        return txPool[hash];
+      };
+
+      // check if tx real on safe (only for safe + wallet connect)
+      if (
+        activeWallet.walletType === 'WalletConnect' &&
+        activeWallet.isContractAddress
+      ) {
+        const response = await fetch(
+          `${
+            SafeTransactionServiceUrls[txParams.chainId]
+          }/multisig-transactions/${txKey}/`,
+        );
+
+        if (response.ok) {
+          this.get().updateEthAdapter(true);
+          return this.get().ethereumAdapter.executeTx(argsForExecute);
+        } else {
+          return addToPool(txKey);
+        }
+      } else {
+        return addToPool(txKey);
       }
     } else {
       return undefined;
@@ -110,8 +71,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
           } catch (e) {
             if (i === retryCount - 1) {
               // If the transaction is not found after the last retry, set the status to unknownError (it could be replaced with completely new one or lost in mempool)
-              this.updateTXStatus({
-                hash: txData.hash,
+              this.updateTXStatus(txData.hash, {
                 status: TransactionStatus.Failed,
               });
               return; // Exit the function
@@ -136,8 +96,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
         pollingInterval: 8_000,
         hash: txHash,
         onReplaced: (replacement) => {
-          this.updateTXStatus({
-            hash: txHash,
+          this.updateTXStatus(txHash, {
             status: TransactionStatus.Replaced,
             replacedHash: replacement.transaction.hash,
           });
@@ -148,8 +107,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
         return;
       }
 
-      this.updateTXStatus({
-        hash: txHash,
+      this.updateTXStatus(txHash, {
         status:
           txn.status === 'success'
             ? TransactionStatus.Success
@@ -166,49 +124,35 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
         timestamp,
       });
     } catch (e) {
-      this.updateTXStatus({
-        hash: txHash,
+      this.updateTXStatus(txHash, {
         status: TransactionStatus.Failed,
       });
       console.error('Error when check tx receipt', e);
     }
   };
 
-  private updateTXStatus = ({
-    hash,
-    status,
-    replacedHash,
-    to,
-    nonce,
-  }: {
-    hash: Hex;
-    status?: TransactionStatus;
-    replacedHash?: Hex;
-    to?: Hex;
-    nonce?: number;
-  }) => {
+  private updateTXStatus = (
+    txKey: Hex,
+    params: {
+      status?: TransactionStatus;
+      replacedHash?: Hex;
+      to?: Hex;
+      nonce?: number;
+    },
+  ) => {
     this.set((state) =>
       produce(state, (draft) => {
-        const tx = draft.transactionsPool[hash];
-
-        if (isEthPoolTx(tx)) {
-          tx.pending = false;
-          tx.status =
-            status !== TransactionStatus.Reverted
-              ? status
-              : TransactionStatus.Reverted;
-
-          if (to) {
-            tx.to = to;
-          }
-
-          if (nonce) {
-            tx.nonce = nonce;
-          }
-
-          if (replacedHash) {
-            tx.replacedTxHash = replacedHash;
-          }
+        if (isEthPoolTx(draft.transactionsPool[txKey])) {
+          draft.transactionsPool[txKey] = {
+            ...draft.transactionsPool[txKey],
+            ...params,
+            isError:
+              !draft.transactionsPool[txKey].pending &&
+              draft.transactionsPool[txKey].status !==
+                TransactionStatus.Success &&
+              draft.transactionsPool[txKey].status !==
+                TransactionStatus.Replaced,
+          };
         }
       }),
     );

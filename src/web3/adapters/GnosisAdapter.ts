@@ -6,13 +6,12 @@ import { SafeTransactionServiceUrls } from '../../utils/constants';
 import { setLocalStorageTxPool } from '../../utils/localStorage';
 import {
   BaseTx,
-  InitialTx,
   isEthPoolTx,
-  ITransactionsSliceWithWallet,
   TransactionStatus,
+  TxKey,
 } from '../store/transactionsSlice';
-import { Wallet } from '../store/walletSlice';
-import { AdapterInterface } from './interface';
+import { BaseAdapter } from './BaseAdapter';
+import { AdapterInterface, ExecuteTxParams } from './interface';
 
 export type GnosisTxStatusResponse = {
   transactionHash: string;
@@ -35,96 +34,54 @@ export type SafeTx = {
   safeTxHash: string;
 };
 
-export function isSafeTx(tx: InitialTx): tx is SafeTx {
-  return (tx as SafeTx).safeTxHash !== undefined;
+export function isSafeTx(txKey: TxKey): txKey is SafeTx {
+  return (txKey as SafeTx).safeTxHash !== undefined;
 }
 
-export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
-  get: () => ITransactionsSliceWithWallet<T>;
-  set: (
-    fn: (
-      state: ITransactionsSliceWithWallet<T>,
-    ) => ITransactionsSliceWithWallet<T>,
-  ) => void;
-  transactionsIntervalsMap: Record<string, number | undefined> = {};
+export class GnosisAdapter<T extends BaseTx>
+  extends BaseAdapter<T>
+  implements AdapterInterface<T>
+{
+  executeTx = async (params: ExecuteTxParams<T>) => {
+    const { txKey, activeWallet, txParams, argsForExecute } =
+      this.preExecuteTx(params);
 
-  constructor(
-    get: () => ITransactionsSliceWithWallet<T>,
-    set: (
-      fn: (
-        state: ITransactionsSliceWithWallet<T>,
-      ) => ITransactionsSliceWithWallet<T>,
-    ) => void,
-  ) {
-    this.get = get;
-    this.set = set;
-  }
-
-  executeTx = async (params: {
-    tx: InitialTx;
-    activeWallet: Wallet;
-    payload: object | undefined;
-    chainId: number;
-    type: T['type'];
-  }) => {
-    const { tx, activeWallet, chainId, type, payload } = params;
-    const from = activeWallet.address;
-
-    const initialParams = {
-      chainId,
-      type,
-      payload: payload,
-      from,
-      isSafeTx: true,
-    };
-
-    if (isSafeTx(tx) && isHex(tx.safeTxHash)) {
-      const txParams = {
-        ...initialParams,
-        hash: tx.safeTxHash,
-      };
-      const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
-      this.startTxTracking(txParams.hash);
-      return txPool[txParams.hash];
-    } else if (isHex(tx)) {
-      const txParams = {
-        ...initialParams,
-        hash: tx,
-      };
-
-      if (activeWallet.walletType === 'WalletConnect') {
-        // check if tx real on safe (need for safe + wallet connect)
-        const response = await fetch(
-          `${
-            SafeTransactionServiceUrls[initialParams.chainId]
-          }/multisig-transactions/${tx}/`,
-        );
-
-        if (response.ok) {
-          const txPool = this.get().addTXToPool(
-            txParams,
-            activeWallet.walletType,
-          );
-          this.startTxTracking(txParams.hash);
-          return txPool[txParams.hash];
-        } else {
-          const args = {
-            tx,
-            payload,
-            activeWallet,
-            chainId,
-            type,
-          };
-          this.get().updateEthAdapter(false);
-          return this.get().ethereumAdapter.executeTx(args);
-        }
-      } else {
+    if (txParams) {
+      const safeTxParams = { ...txParams, isSafeTx: true };
+      const addToPool = (key: Hex) => {
         const txPool = this.get().addTXToPool(
-          txParams,
+          safeTxParams,
           activeWallet.walletType,
         );
-        this.startTxTracking(txParams.hash);
-        return txPool[txParams.hash];
+        this.startTxTracking(key);
+        return txPool[key];
+      };
+
+      if (isSafeTx(txKey) && isHex(txKey.safeTxHash)) {
+        return addToPool(txKey.safeTxHash);
+      } else if (isHex(txKey)) {
+        // check if tx real on safe (need for safe + wallet connect)
+        if (
+          activeWallet.walletType === 'WalletConnect' &&
+          activeWallet.isContractAddress
+        ) {
+          const response = await fetch(
+            `${
+              SafeTransactionServiceUrls[txParams.chainId]
+            }/multisig-transactions/${txKey}/`,
+          );
+
+          if (response.ok) {
+            return addToPool(txKey);
+          } else {
+            this.get().updateEthAdapter(false);
+            return this.get().ethereumAdapter.executeTx(argsForExecute);
+          }
+        } else {
+          return addToPool(txKey);
+        }
+      } else {
+        return undefined;
       }
     } else {
       return undefined;
@@ -133,6 +90,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
   startTxTracking = async (txKey: string) => {
     const tx = this.get().transactionsPool[txKey];
+
     if (isEthPoolTx(tx)) {
       const isPending = tx.pending;
       if (!isPending) {
@@ -166,6 +124,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
         SafeTransactionServiceUrls[tx.chainId]
       }/multisig-transactions/${txKey}/`,
     );
+
     if (response.ok) {
       const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
 
@@ -183,6 +142,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
           const isPending =
             !gnosisStatus.isExecuted && sameNonceResponse.count <= 1;
+
           // check if more than a day passed and tx wasn't executed still, remove the transaction from the pool
           const gnosisStatusModified = dayjs(gnosisStatus.modified);
           const currentTime = dayjs();
@@ -190,7 +150,6 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
           if (daysPassed >= 1 && isPending) {
             this.stopPollingGnosisTXStatus(txKey);
             this.get().removeTXFromPool(txKey);
-            return response;
           }
 
           if (sameNonceResponse.count > 1) {
@@ -202,8 +161,6 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
               this.updateGnosisTxStatus(txKey, gnosisStatus, replacedHash);
               this.stopPollingGnosisTXStatus(txKey);
             }
-
-            return response;
           }
 
           this.updateGnosisTxStatus(txKey, gnosisStatus);
@@ -212,16 +169,11 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
             this.stopPollingGnosisTXStatus(txKey);
             this.get().txStatusChangedCallback(tx);
           }
-
-          return response;
         }
-        return response;
-      } else {
-        return response;
       }
-    } else {
-      return response;
     }
+
+    return response;
   };
 
   private stopPollingGnosisTXStatus = (txKey: string) => {
@@ -237,25 +189,30 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
   ) => {
     this.set((state) =>
       produce(state, (draft) => {
-        const tx = draft.transactionsPool[txKey];
-        if (isEthPoolTx(tx)) {
-          if (!!replacedHash) {
-            tx.replacedTxHash = replacedHash;
+        let status = undefined;
+        if (statusResponse.isExecuted || !!replacedHash) {
+          if (statusResponse.isSuccessful) {
+            status = TransactionStatus.Success;
+          } else if (!!replacedHash) {
+            status = TransactionStatus.Replaced;
+          } else {
+            status = TransactionStatus.Reverted;
           }
+        }
 
-          tx.nonce = statusResponse.nonce;
+        const pending = !statusResponse.isExecuted && !replacedHash;
 
-          if (statusResponse.isExecuted || !!replacedHash) {
-            if (statusResponse.isSuccessful) {
-              tx.status = TransactionStatus.Success;
-            } else if (!!replacedHash) {
-              tx.status = TransactionStatus.Replaced;
-            } else {
-              tx.status = TransactionStatus.Reverted;
-            }
-          }
-
-          tx.pending = !statusResponse.isExecuted && !replacedHash;
+        if (isEthPoolTx(draft.transactionsPool[txKey])) {
+          draft.transactionsPool[txKey] = {
+            ...draft.transactionsPool[txKey],
+            status,
+            nonce: statusResponse.nonce,
+            replacedTxHash: replacedHash,
+            isError:
+              !pending &&
+              status !== TransactionStatus.Success &&
+              status !== TransactionStatus.Replaced,
+          };
         }
       }),
     );

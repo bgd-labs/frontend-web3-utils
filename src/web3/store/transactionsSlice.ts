@@ -1,4 +1,5 @@
 import { PublicClient } from '@wagmi/core';
+import dayjs from 'dayjs';
 import { Draft, produce } from 'immer';
 import { Hex } from 'viem';
 
@@ -21,17 +22,18 @@ import { AdapterInterface } from '../adapters/interface';
 import { WalletType } from '../connectors';
 import { IWalletSlice } from './walletSlice';
 
-export type InitialTx = Hex | GelatoTx | SafeTx;
+export type TxKey = Hex | GelatoTx | SafeTx;
 
 export type BasicTx = {
   chainId: number;
   type: string;
   from: Hex;
-  localTimestamp: number;
   payload?: object;
-  timestamp?: number;
-  errorMessage?: string;
   isSafeTx?: boolean;
+  localTimestamp: number;
+  timestamp?: number;
+  isError?: boolean;
+  errorMessage?: string;
 };
 
 export type EthBaseTx = BasicTx & {
@@ -97,7 +99,7 @@ export interface ITransactionsActions<T extends BaseTx> {
     },
   ) => void;
   executeTx: (params: {
-    body: () => Promise<InitialTx>;
+    body: () => Promise<TxKey>;
     params: {
       type: T['type'];
       payload: T['payload'];
@@ -148,30 +150,32 @@ export function createTransactionsSlice<T extends BaseTx>({
     gelatoAdapter: new GelatoAdapter(get, set), // TODO: think when to init, maybe only when working with gelato or it's available
     ethereumAdapter: new EthereumAdapter(get, set), // This might be a Gnosis Safe adapter, re-inits when wallet.type === GnosisSafe
     executeTx: async ({ body, params }) => {
-      await get().checkAndSwitchNetwork(params.desiredChainID);
+      const { desiredChainID, payload, type } = params;
+
+      await get().checkAndSwitchNetwork(desiredChainID);
       const activeWallet = get().activeWallet;
       if (!activeWallet) {
         throw new Error('No wallet connected');
       }
 
-      const chainId = Number(params.desiredChainID);
+      const chainId = Number(desiredChainID);
 
-      const tx = await body();
+      const txKey = await body();
       const args = {
-        tx,
-        payload: params.payload,
+        txKey,
+        payload,
         activeWallet,
         chainId,
-        type: params.type,
+        type,
       };
 
-      return isGelatoTx(tx) // in case of gnosis safe it works in a same way
+      return isGelatoTx(txKey) // in case of gnosis safe it works in a same way
         ? get().gelatoAdapter.executeTx(args)
         : get().ethereumAdapter.executeTx(args);
     },
 
     addTXToPool: (tx, walletType) => {
-      const localTimestamp = new Date().getTime();
+      const localTimestamp = dayjs().unix();
       if (isGelatoBaseTxWithoutTimestamp(tx)) {
         set((state) =>
           produce(state, (draft) => {

@@ -7,12 +7,11 @@ import { selectIsGelatoTXPending } from '../store/transactionsSelectors';
 import {
   BaseTx,
   GelatoBaseTx,
-  InitialTx,
-  ITransactionsSliceWithWallet,
   TransactionStatus,
+  TxKey,
 } from '../store/transactionsSlice';
-import { Wallet } from '../store/walletSlice';
-import { AdapterInterface } from './interface';
+import { BaseAdapter } from './BaseAdapter';
+import { AdapterInterface, ExecuteTxParams } from './interface';
 
 export type GelatoTXState =
   | 'WaitingForConfirmation'
@@ -39,7 +38,7 @@ export type GelatoTx = {
   taskId: string;
 };
 
-export function isGelatoTx(tx: InitialTx): tx is GelatoTx {
+export function isGelatoTx(tx: TxKey): tx is GelatoTx {
   return (tx as GelatoTx).taskId !== undefined;
 }
 
@@ -53,49 +52,17 @@ export function isGelatoBaseTxWithoutTimestamp(
   return (tx as GelatoBaseTx).taskId !== undefined;
 }
 
-export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
-  get: () => ITransactionsSliceWithWallet<T>;
-  set: (
-    fn: (
-      state: ITransactionsSliceWithWallet<T>,
-    ) => ITransactionsSliceWithWallet<T>,
-  ) => void;
-  transactionsIntervalsMap: Record<string, number | undefined> = {};
+export class GelatoAdapter<T extends BaseTx>
+  extends BaseAdapter<T>
+  implements AdapterInterface<T>
+{
+  executeTx = async (params: ExecuteTxParams<T>) => {
+    const { txKey, activeWallet, txParams } = this.preExecuteTx(params);
 
-  constructor(
-    get: () => ITransactionsSliceWithWallet<T>,
-    set: (
-      fn: (
-        state: ITransactionsSliceWithWallet<T>,
-      ) => ITransactionsSliceWithWallet<T>,
-    ) => void,
-  ) {
-    this.get = get;
-    this.set = set;
-  }
-
-  executeTx = async (params: {
-    tx: InitialTx;
-    activeWallet: Wallet;
-    payload: object | undefined;
-    chainId: number;
-    type: T['type'];
-  }) => {
-    const { tx, activeWallet, chainId, type, payload } = params;
-    if (isGelatoTx(tx)) {
-      const from = activeWallet.address;
-      const gelatoTX = {
-        from,
-        chainId,
-        type: type,
-        taskId: tx.taskId,
-        payload,
-      };
-
-      const txPool = this.get().addTXToPool(gelatoTX, activeWallet.walletType);
-      this.startTxTracking(tx.taskId);
-
-      return txPool[tx.taskId];
+    if (txParams && isGelatoTx(txKey)) {
+      const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
+      this.startTxTracking(txKey.taskId);
+      return txPool[txKey.taskId];
     } else {
       return undefined;
     }
@@ -103,6 +70,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
   startTxTracking = async (taskId: string) => {
     const tx = this.get().transactionsPool[taskId];
+
     if (isGelatoBaseTx(tx)) {
       const isPending = selectIsGelatoTXPending(tx.gelatoStatus);
       if (!isPending) {
@@ -129,16 +97,11 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
     }
   };
 
-  private stopPollingGelatoTXStatus = (taskId: string) => {
-    const currentInterval = this.transactionsIntervalsMap[taskId];
-    clearInterval(currentInterval);
-    this.transactionsIntervalsMap[taskId] = undefined;
-  };
-
   private fetchGelatoTXStatus = async (taskId: string) => {
     const response = await fetch(
       `https://api.gelato.digital/tasks/status/${taskId}/`,
     );
+
     if (response.ok) {
       const gelatoStatus = (await response.json()) as GelatoTaskStatusResponse;
       const isPending = selectIsGelatoTXPending(gelatoStatus.task.taskState);
@@ -151,7 +114,6 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
         if (daysPassed >= 1 && isPending) {
           this.stopPollingGelatoTXStatus(taskId);
           this.get().removeTXFromPool(taskId);
-          return response;
         }
       }
 
@@ -162,10 +124,15 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
         const tx = this.get().transactionsPool[taskId];
         this.get().txStatusChangedCallback(tx);
       }
-      return response;
-    } else {
-      return response;
     }
+
+    return response;
+  };
+
+  private stopPollingGelatoTXStatus = (taskId: string) => {
+    const currentInterval = this.transactionsIntervalsMap[taskId];
+    clearInterval(currentInterval);
+    this.transactionsIntervalsMap[taskId] = undefined;
   };
 
   private updateGelatoTX = (
@@ -174,27 +141,29 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
   ) => {
     this.set((state) =>
       produce(state, (draft) => {
-        const tx = draft.transactionsPool[taskId];
-        if (isGelatoBaseTx(tx)) {
-          tx.gelatoStatus = statusResponse.task.taskState;
-          tx.pending = selectIsGelatoTXPending(statusResponse.task.taskState);
-          tx.hash = statusResponse.task.transactionHash;
-
-          tx.status =
+        if (isGelatoBaseTx(draft.transactionsPool[taskId])) {
+          const pending = selectIsGelatoTXPending(
+            statusResponse.task.taskState,
+          );
+          const status =
             statusResponse.task.taskState === 'ExecSuccess'
               ? TransactionStatus.Success
-              : tx.pending
+              : pending
               ? undefined
               : TransactionStatus.Reverted;
 
-          if (statusResponse.task.executionDate) {
-            tx.timestamp = new Date(
-              statusResponse.task.executionDate,
-            ).getTime();
-          }
-          if (statusResponse.task.lastCheckMessage) {
-            tx.errorMessage = statusResponse.task.lastCheckMessage;
-          }
+          draft.transactionsPool[taskId] = {
+            ...draft.transactionsPool[taskId],
+            pending,
+            status,
+            gelatoStatus: statusResponse.task.taskState,
+            hash: statusResponse.task.transactionHash,
+            timestamp: statusResponse.task.executionDate
+              ? dayjs(statusResponse.task.executionDate).unix()
+              : undefined,
+            errorMessage: statusResponse.task.lastCheckMessage,
+            isError: pending && status !== TransactionStatus.Success,
+          };
         }
       }),
     );
