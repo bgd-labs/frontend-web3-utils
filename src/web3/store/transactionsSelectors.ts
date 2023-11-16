@@ -85,7 +85,6 @@ export const selectTxExplorerLink = <T extends BaseTx>(
   state: ITransactionsState<T>,
   getChainParameters: (chainId: number) => Chain,
   txHash: Hex,
-  isWalletContract?: boolean,
   replacedTxHash?: Hex,
 ) => {
   const tx = selectTXByHash(state, txHash);
@@ -94,7 +93,7 @@ export const selectTxExplorerLink = <T extends BaseTx>(
   }
 
   const returnValue = (hash: string) => {
-    if (tx.walletType !== 'GnosisSafe' && !isWalletContract) {
+    if (!tx.isSafeTx) {
       return `${getChainParameters(tx.chainId).blockExplorers?.default
         .url}/tx/${hash}`;
     } else {
