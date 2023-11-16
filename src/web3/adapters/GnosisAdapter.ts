@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { produce } from 'immer';
-import { Hex, isHex, toHex } from 'viem';
+import { Hex, isHex } from 'viem';
 
 import { SafeTransactionServiceUrls } from '../../utils/constants';
 import { setLocalStorageTxPool } from '../../utils/localStorage';
@@ -82,10 +82,9 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
       console.log('safe tx', tx);
       const txParams = {
         ...initialParams,
-        hash: tx.safeTxHash,
+        hash: tx.safeTxHash as Hex,
       };
       console.log('safe txParams', txParams);
-      // @ts-ignore
       const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
       this.startTxTracking(txParams.hash);
       return txPool[txParams.hash];
@@ -203,9 +202,9 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
           if (sameNonceResponse.count > 1) {
             const replacedHash = sameNonceResponse.results.filter(
               (safeTx) => safeTx.safeTxHash !== gnosisStatus.safeTxHash,
-            )[0].safeTxHash;
+            )[0].safeTxHash as Hex;
 
-            this.updateGnosisTxStatus(txKey, gnosisStatus, toHex(replacedHash));
+            this.updateGnosisTxStatus(txKey, gnosisStatus, replacedHash);
             this.stopPollingGnosisTXStatus(txKey);
 
             return response;

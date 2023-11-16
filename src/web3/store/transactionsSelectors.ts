@@ -93,7 +93,7 @@ export const selectTxExplorerLink = <T extends BaseTx>(
   }
 
   const returnValue = (hash: string) => {
-    if (tx.walletType !== 'GnosisSafe' && tx.isSafeTx) {
+    if (!tx.isSafeTx) {
       return `${getChainParameters(tx.chainId).blockExplorers?.default
         .url}/tx/${hash}`;
     } else {
