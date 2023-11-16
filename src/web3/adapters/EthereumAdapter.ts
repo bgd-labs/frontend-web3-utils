@@ -6,18 +6,36 @@ import { setLocalStorageTxPool } from '../../utils/localStorage';
 import {
   BaseTx,
   isEthPoolTx,
+  ITransactionsSliceWithWallet,
   TransactionStatus,
 } from '../store/transactionsSlice';
-import { BaseAdapter } from './BaseAdapter';
+import { preExecuteTx } from './helpers';
 import { AdapterInterface, ExecuteTxParams } from './interface';
 
-export class EthereumAdapter<T extends BaseTx>
-  extends BaseAdapter<T>
-  implements AdapterInterface<T>
-{
+export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
+  get: () => ITransactionsSliceWithWallet<T>;
+  set: (
+    fn: (
+      state: ITransactionsSliceWithWallet<T>,
+    ) => ITransactionsSliceWithWallet<T>,
+  ) => void;
+  transactionsIntervalsMap: Record<string, number | undefined> = {};
+
+  constructor(
+    get: () => ITransactionsSliceWithWallet<T>,
+    set: (
+      fn: (
+        state: ITransactionsSliceWithWallet<T>,
+      ) => ITransactionsSliceWithWallet<T>,
+    ) => void,
+  ) {
+    this.get = get;
+    this.set = set;
+  }
+
   executeTx = async (params: ExecuteTxParams<T>) => {
     const { txKey, activeWallet, argsForExecute, txParams } =
-      this.preExecuteTx(params);
+      preExecuteTx(params);
 
     if (txParams && isHex(txKey)) {
       const addToPool = (hash: Hex) => {

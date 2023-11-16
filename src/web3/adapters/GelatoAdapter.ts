@@ -7,10 +7,11 @@ import { selectIsGelatoTXPending } from '../store/transactionsSelectors';
 import {
   BaseTx,
   GelatoBaseTx,
+  ITransactionsSliceWithWallet,
   TransactionStatus,
   TxKey,
 } from '../store/transactionsSlice';
-import { BaseAdapter } from './BaseAdapter';
+import { preExecuteTx } from './helpers';
 import { AdapterInterface, ExecuteTxParams } from './interface';
 
 export type GelatoTXState =
@@ -52,12 +53,29 @@ export function isGelatoBaseTxWithoutTimestamp(
   return (tx as GelatoBaseTx).taskId !== undefined;
 }
 
-export class GelatoAdapter<T extends BaseTx>
-  extends BaseAdapter<T>
-  implements AdapterInterface<T>
-{
+export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
+  get: () => ITransactionsSliceWithWallet<T>;
+  set: (
+    fn: (
+      state: ITransactionsSliceWithWallet<T>,
+    ) => ITransactionsSliceWithWallet<T>,
+  ) => void;
+  transactionsIntervalsMap: Record<string, number | undefined> = {};
+
+  constructor(
+    get: () => ITransactionsSliceWithWallet<T>,
+    set: (
+      fn: (
+        state: ITransactionsSliceWithWallet<T>,
+      ) => ITransactionsSliceWithWallet<T>,
+    ) => void,
+  ) {
+    this.get = get;
+    this.set = set;
+  }
+
   executeTx = async (params: ExecuteTxParams<T>) => {
-    const { txKey, activeWallet, txParams } = this.preExecuteTx(params);
+    const { txKey, activeWallet, txParams } = preExecuteTx(params);
 
     if (txParams && isGelatoTx(txKey)) {
       const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
