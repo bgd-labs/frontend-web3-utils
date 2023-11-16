@@ -78,25 +78,19 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
       isSafeTx: true,
     };
 
-    if (isSafeTx(tx)) {
-      console.log('safe tx', tx);
+    if (isSafeTx(tx) && isHex(tx.safeTxHash)) {
       const txParams = {
         ...initialParams,
-        hash: tx.safeTxHash as Hex,
+        hash: tx.safeTxHash,
       };
-      console.log('safe txParams', txParams);
       const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
       this.startTxTracking(txParams.hash);
       return txPool[txParams.hash];
     } else if (isHex(tx)) {
-      console.log('hex tx', tx);
-
       const txParams = {
         ...initialParams,
         hash: tx,
       };
-
-      console.log('hex txParams', txParams);
 
       if (activeWallet.walletType === 'WalletConnect') {
         // check if tx real on safe (need for safe + wallet connect)
@@ -202,10 +196,12 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
           if (sameNonceResponse.count > 1) {
             const replacedHash = sameNonceResponse.results.filter(
               (safeTx) => safeTx.safeTxHash !== gnosisStatus.safeTxHash,
-            )[0].safeTxHash as Hex;
+            )[0].safeTxHash;
 
-            this.updateGnosisTxStatus(txKey, gnosisStatus, replacedHash);
-            this.stopPollingGnosisTXStatus(txKey);
+            if (isHex(replacedHash)) {
+              this.updateGnosisTxStatus(txKey, gnosisStatus, replacedHash);
+              this.stopPollingGnosisTXStatus(txKey);
+            }
 
             return response;
           }

@@ -154,7 +154,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
           txn.status === 'success'
             ? TransactionStatus.Success
             : TransactionStatus.Reverted,
-        to: txn.to as Hex,
+        to: isHex(txn.to) ? txn.to : undefined,
         nonce: txNonce,
       });
 

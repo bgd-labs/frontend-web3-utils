@@ -44,13 +44,11 @@ export const initChainInformationConfig = (chains?: Record<number, Chain>) => {
             },
             chain,
             transport: http(),
-          }) as PublicClient;
+          });
           initalizedClients[numberChainId] = client;
           return client;
         }
       },
-    } as {
-      instance: PublicClient;
     };
     return accumulator;
   }, {});
