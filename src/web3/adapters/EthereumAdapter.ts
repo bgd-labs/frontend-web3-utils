@@ -1,6 +1,7 @@
 import { produce } from 'immer';
 import { Hex, isHex } from 'viem';
 
+import { SafeTransactionServiceUrls } from '../../utils/constants';
 import { setLocalStorageTxPool } from '../../utils/localStorage';
 import {
   BaseTx,
@@ -51,10 +52,42 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
         payload: payload,
         from,
       };
-      const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
 
-      this.waitForTxReceipt(txParams.hash);
-      return txPool[txParams.hash];
+      if (activeWallet.walletType === 'WalletConnect') {
+        // check if tx real on safe (need for safe + wallet connect)
+        const response = await fetch(
+          `${
+            SafeTransactionServiceUrls[txParams.chainId]
+          }/multisig-transactions/${tx}/`,
+        );
+
+        if (response.ok) {
+          const args = {
+            tx,
+            payload,
+            activeWallet,
+            chainId,
+            type,
+          };
+
+          this.get().updateEthAdapter(true);
+          return this.get().ethereumAdapter.executeTx(args);
+        } else {
+          const txPool = this.get().addTXToPool(
+            txParams,
+            activeWallet.walletType,
+          );
+          this.waitForTxReceipt(txParams.hash);
+          return txPool[txParams.hash];
+        }
+      } else {
+        const txPool = this.get().addTXToPool(
+          txParams,
+          activeWallet.walletType,
+        );
+        this.waitForTxReceipt(txParams.hash);
+        return txPool[txParams.hash];
+      }
     } else {
       return undefined;
     }

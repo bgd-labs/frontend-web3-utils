@@ -75,47 +75,63 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
       type,
       payload: payload,
       from,
+      isSafeTx: true,
     };
 
     if (isSafeTx(tx)) {
+      console.log('safe tx', tx);
       const txParams = {
         ...initialParams,
         hash: tx.safeTxHash,
       };
+      console.log('safe txParams', txParams);
       // @ts-ignore
       const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
       this.startTxTracking(txParams.hash);
       return txPool[txParams.hash];
     } else if (isHex(tx)) {
+      console.log('hex tx', tx);
+
       const txParams = {
         ...initialParams,
         hash: tx,
       };
 
-      // check if tx real on safe (need for safe + wallet connect)
-      const response = await fetch(
-        `${
-          SafeTransactionServiceUrls[initialParams.chainId]
-        }/multisig-transactions/${tx}/`,
-      );
+      console.log('hex txParams', txParams);
 
-      if (response.ok) {
+      if (activeWallet.walletType === 'WalletConnect') {
+        // check if tx real on safe (need for safe + wallet connect)
+        const response = await fetch(
+          `${
+            SafeTransactionServiceUrls[initialParams.chainId]
+          }/multisig-transactions/${tx}/`,
+        );
+
+        if (response.ok) {
+          const txPool = this.get().addTXToPool(
+            txParams,
+            activeWallet.walletType,
+          );
+          this.startTxTracking(txParams.hash);
+          return txPool[txParams.hash];
+        } else {
+          const args = {
+            tx,
+            payload,
+            activeWallet,
+            chainId,
+            type,
+          };
+          this.get().updateEthAdapter(false);
+          return this.get().ethereumAdapter.executeTx(args);
+        }
+      } else {
         const txPool = this.get().addTXToPool(
           txParams,
           activeWallet.walletType,
         );
         this.startTxTracking(txParams.hash);
         return txPool[txParams.hash];
-      } else {
-        const args = {
-          tx,
-          payload,
-          activeWallet,
-          chainId,
-          type,
-        };
-        this.get().updateEthAdapter(false);
-        return this.get().ethereumAdapter.executeTx(args);
       }
     } else {
       return undefined;

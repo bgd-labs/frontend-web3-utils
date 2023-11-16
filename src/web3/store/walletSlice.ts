@@ -124,9 +124,6 @@ export function createWalletSlice({
             get().setClient(wallet.chain.id, client);
             walletConnected(activeWallet);
             set({ isActiveWalletSetting: false });
-            if (isContractAddress) {
-              get().updateEthAdapter(true);
-            }
           }
         }
       }

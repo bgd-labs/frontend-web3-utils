@@ -31,6 +31,7 @@ export type BasicTx = {
   payload?: object;
   timestamp?: number;
   errorMessage?: string;
+  isSafeTx?: boolean;
 };
 
 export type EthBaseTx = BasicTx & {
