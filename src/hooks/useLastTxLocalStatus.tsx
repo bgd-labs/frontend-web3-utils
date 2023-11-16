@@ -5,6 +5,7 @@ import { selectLastTxByTypeAndPayload } from '../web3/store/transactionsSelector
 import {
   BaseTx,
   ITransactionsState,
+  PoolTx,
   TransactionStatus,
 } from '../web3/store/transactionsSlice';
 
@@ -20,6 +21,27 @@ type ExecuteTxWithLocalStatusesParams = {
   callbackFunction: () => Promise<void>;
 };
 
+export type TxLocalStatusTxParams<T extends BaseTx> = PoolTx<T> & {
+  isError: boolean;
+  isSuccess: boolean;
+  isReplaced: boolean;
+};
+
+export interface TxLocalStatus<T extends BaseTx> {
+  isTxStart: boolean;
+  setIsTxStart: (value: boolean) => void;
+  loading: boolean;
+  setLoading: (value: boolean) => void;
+  fullTxErrorMessage: string;
+  setFullTxErrorMessage: (value: string) => void;
+  error: string;
+  setError: (value: string) => void;
+  executeTxWithLocalStatuses: (
+    params: ExecuteTxWithLocalStatusesParams,
+  ) => Promise<void>;
+  tx: TxLocalStatusTxParams<T>;
+}
+
 export const useLastTxLocalStatus = <T extends BaseTx>({
   state,
   activeAddress,
@@ -30,8 +52,8 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
 
   const [isTxStart, setIsTxStart] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [fullTxErrorMessage, setFullTxErrorMessage] = useState<string>('');
-  const [error, setError] = useState<string>('');
+  const [fullTxErrorMessage, setFullTxErrorMessage] = useState('');
+  const [error, setError] = useState('');
 
   const isError = tx?.isError || !!error;
   const isSuccess = tx?.status === TransactionStatus.Success && !isError;
@@ -89,5 +111,5 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
       isSuccess,
       isReplaced,
     },
-  };
+  } as TxLocalStatus<T>;
 };

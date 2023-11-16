@@ -78,7 +78,7 @@ export type PoolTxParams = {
 export type EthPoolTx = EthBaseTx & PoolTxParams;
 export type GelatoPoolTx = GelatoBaseTx & PoolTxParams;
 
-type PoolTx<T extends BaseTx> = T & PoolTxParams;
+export type PoolTx<T extends BaseTx> = T & PoolTxParams;
 
 export function isEthPoolTx(tx: EthPoolTx | GelatoPoolTx): tx is EthPoolTx {
   return (tx as EthPoolTx).hash !== undefined;
