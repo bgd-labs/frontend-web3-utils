@@ -78,33 +78,30 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     };
 
     if (isSafeTx(tx)) {
-      console.log('isSafeTx', tx);
       const txParams = {
         ...initialParams,
         hash: toHex(tx.safeTxHash),
       };
-      this.startTxTracking(txParams.hash);
       const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
+      this.startTxTracking(txParams.hash);
       return txPool[txParams.hash];
     } else if (isHex(tx)) {
-      console.log('isHex', tx);
       const txParams = {
         ...initialParams,
         hash: tx,
       };
-      this.startTxTracking(txParams.hash);
       const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
+      this.startTxTracking(txParams.hash);
       return txPool[txParams.hash];
     } else {
-      console.log('undefined', tx);
       return undefined;
     }
   };
 
   startTxTracking = async (txKey: string) => {
     const tx = this.get().transactionsPool[txKey];
+    console.log('start tx', tx);
     if (isEthPoolTx(tx)) {
-      console.log('start tx', tx);
       const isPending = tx.pending;
       if (!isPending) {
         return;
