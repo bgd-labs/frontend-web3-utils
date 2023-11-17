@@ -1,9 +1,31 @@
 import { isHex } from 'viem';
 
-import { BaseTx } from '../store/transactionsSlice';
-import { isGelatoTx } from './GelatoAdapter';
-import { isSafeTx } from './GnosisAdapter';
-import { ExecuteTxParams } from './interface';
+import { EthPoolTx, GelatoPoolTx } from '../store/transactionsSlice';
+import { GelatoBaseTx, GelatoTx } from './GelatoAdapter';
+import { SafeTx } from './SafeAdapter';
+import { BaseTx, ExecuteTxParams, TxKey } from './types';
+
+export function isSafeTx(txKey: TxKey): txKey is SafeTx {
+  return (txKey as SafeTx).safeTxHash !== undefined;
+}
+
+export function isGelatoTx(tx: TxKey): tx is GelatoTx {
+  return (tx as GelatoTx).taskId !== undefined;
+}
+
+export function isGelatoBaseTx(tx: BaseTx): tx is GelatoBaseTx {
+  return (tx as GelatoBaseTx).taskId !== undefined;
+}
+
+export function isGelatoBaseTxWithoutTimestamp(
+  tx: Omit<BaseTx, 'localTimestamp'>,
+): tx is Omit<GelatoBaseTx, 'localTimestamp'> {
+  return (tx as GelatoBaseTx).taskId !== undefined;
+}
+
+export function isEthPoolTx(tx: EthPoolTx | GelatoPoolTx): tx is EthPoolTx {
+  return (tx as EthPoolTx).hash !== undefined;
+}
 
 export function preExecuteTx<T extends BaseTx>(params: ExecuteTxParams<T>) {
   const { txKey, activeWallet, chainId, type, payload } = params;
@@ -13,46 +35,34 @@ export function preExecuteTx<T extends BaseTx>(params: ExecuteTxParams<T>) {
     type,
     payload,
     chainId,
-  };
-
-  const argsForExecute = {
-    txKey,
-    activeWallet,
-    ...initialParams,
-  };
-
-  const initialParamsForAddTxToPool = {
-    ...initialParams,
     from,
   };
 
   if (isGelatoTx(txKey)) {
     const txParams = {
-      ...initialParamsForAddTxToPool,
+      ...initialParams,
       taskId: txKey.taskId,
     };
 
     return {
-      txKey,
+      txKey: txKey.taskId,
       activeWallet,
       txParams,
-      argsForExecute,
     };
   } else if (isSafeTx(txKey) && isHex(txKey.safeTxHash)) {
     const txParams = {
-      ...initialParamsForAddTxToPool,
+      ...initialParams,
       hash: txKey.safeTxHash,
     };
 
     return {
-      txKey,
+      txKey: txKey.safeTxHash,
       activeWallet,
       txParams,
-      argsForExecute,
     };
   } else if (isHex(txKey)) {
     const txParams = {
-      ...initialParamsForAddTxToPool,
+      ...initialParams,
       hash: txKey,
     };
 
@@ -60,13 +70,11 @@ export function preExecuteTx<T extends BaseTx>(params: ExecuteTxParams<T>) {
       txKey,
       activeWallet,
       txParams,
-      argsForExecute,
     };
   } else {
     return {
       txKey,
       activeWallet,
-      argsForExecute,
     };
   }
 }

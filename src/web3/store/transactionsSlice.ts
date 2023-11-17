@@ -3,70 +3,24 @@ import dayjs from 'dayjs';
 import { Draft, produce } from 'immer';
 import { Hex } from 'viem';
 
+import { ClientsRecord } from '../../types/base';
 import { StoreSlice } from '../../types/store';
 import {
   getLocalStorageTxPool,
   setLocalStorageTxPool,
 } from '../../utils/localStorage';
-import { EthereumAdapter } from '../adapters/EthereumAdapter';
+import { BaseAdapter } from '../adapters/BaseAdapter';
+import { EthBaseTx } from '../adapters/EthereumAdapter';
+import { GelatoBaseTx } from '../adapters/GelatoAdapter';
 import {
-  GelatoAdapter,
-  GelatoTx,
-  GelatoTXState,
-  isGelatoBaseTx,
-  isGelatoBaseTxWithoutTimestamp,
-  isGelatoTx,
-} from '../adapters/GelatoAdapter';
-import { GnosisAdapter, SafeTx } from '../adapters/GnosisAdapter';
-import { AdapterInterface } from '../adapters/interface';
+  BaseAdapterInterface,
+  BaseTx,
+  BaseTxWithoutTime,
+  TransactionStatus,
+  TxKey,
+} from '../adapters/types';
 import { WalletType } from '../connectors';
 import { IWalletSlice } from './walletSlice';
-
-export type TxKey = Hex | GelatoTx | SafeTx;
-
-export type BasicTx = {
-  chainId: number;
-  type: string;
-  from: Hex;
-  payload?: object;
-  isSafeTx?: boolean;
-  localTimestamp: number;
-  timestamp?: number;
-  isError?: boolean;
-  errorMessage?: string;
-};
-
-export type EthBaseTx = BasicTx & {
-  hash: Hex;
-  to?: Hex;
-  nonce?: number;
-};
-
-export type GelatoBaseTx = BasicTx & {
-  taskId: string;
-  hash?: Hex;
-  gelatoStatus?: GelatoTXState;
-};
-
-export type BaseTx = EthBaseTx | GelatoBaseTx;
-
-export type ClientsRecord = Record<number, PublicClient>;
-
-export type TransactionsSliceBaseType = {
-  clients: ClientsRecord;
-  setClient: (chainId: number, client: PublicClient) => void;
-  initTxPool: () => void;
-  updateEthAdapter: (gnosis: boolean) => void;
-};
-
-export type TransactionPool<T extends BaseTx> = Record<string, T>;
-
-export enum TransactionStatus {
-  Reverted = 'Reverted',
-  Success = 'Success',
-  Replaced = 'Replaced',
-  Failed = 'Failed',
-}
 
 export type PoolTxParams = {
   status?: TransactionStatus;
@@ -80,9 +34,13 @@ export type GelatoPoolTx = GelatoBaseTx & PoolTxParams;
 
 export type PoolTx<T extends BaseTx> = T & PoolTxParams;
 
-export function isEthPoolTx(tx: EthPoolTx | GelatoPoolTx): tx is EthPoolTx {
-  return (tx as EthPoolTx).hash !== undefined;
-}
+export type TransactionsSliceBaseType = {
+  clients: ClientsRecord;
+  setClient: (chainId: number, client: PublicClient) => void;
+  initTxPool: () => void;
+};
+
+export type TransactionPool<T extends BaseTx> = Record<string, T>;
 
 export interface ITransactionsState<T extends BaseTx> {
   transactionsPool: TransactionPool<PoolTx<T>>;
@@ -90,8 +48,8 @@ export interface ITransactionsState<T extends BaseTx> {
 }
 
 export interface ITransactionsActions<T extends BaseTx> {
-  gelatoAdapter: AdapterInterface<T>;
-  ethereumAdapter: AdapterInterface<T>;
+  adapter: BaseAdapterInterface<T>;
+
   txStatusChangedCallback: (
     data: T & {
       status?: TransactionStatus;
@@ -105,23 +63,15 @@ export interface ITransactionsActions<T extends BaseTx> {
       payload: T['payload'];
       desiredChainID: number;
     };
-  }) => Promise<
-    | (T & {
-        status?: TransactionStatus;
-        pending: boolean;
-      })
-    | undefined
-  >;
+  }) => Promise<TransactionPool<T & PoolTxParams>[string] | undefined>;
   addTXToPool: (
-    tx:
-      | Omit<GelatoBaseTx, 'localTimestamp'>
-      | Omit<EthBaseTx, 'localTimestamp'>,
+    tx: BaseTxWithoutTime,
     activeWallet: WalletType,
   ) => TransactionPool<PoolTx<T>>;
   removeTXFromPool: (txKey: string) => void;
+
   isGelatoAvailable: boolean;
   checkIsGelatoAvailable: (chainId: number) => Promise<void>;
-  updateEthAdapter: (gnosis: boolean) => void;
 }
 
 export type ITransactionsSlice<T extends BaseTx> = ITransactionsActions<T> &
@@ -143,111 +93,7 @@ export function createTransactionsSlice<T extends BaseTx>({
   Pick<IWalletSlice, 'checkAndSwitchNetwork' | 'activeWallet'>
 > {
   return (set, get) => ({
-    transactionsPool: {},
-    transactionsIntervalsMap: {},
     clients: defaultClients,
-    txStatusChangedCallback,
-    gelatoAdapter: new GelatoAdapter(get, set), // TODO: think when to init, maybe only when working with gelato or it's available
-    ethereumAdapter: new EthereumAdapter(get, set), // This might be a Gnosis Safe adapter, re-inits when wallet.type === GnosisSafe
-    executeTx: async ({ body, params }) => {
-      const { desiredChainID, payload, type } = params;
-
-      await get().checkAndSwitchNetwork(desiredChainID);
-      const activeWallet = get().activeWallet;
-      if (!activeWallet) {
-        throw new Error('No wallet connected');
-      }
-
-      const chainId = Number(desiredChainID);
-
-      const txKey = await body();
-      const args = {
-        txKey,
-        payload,
-        activeWallet,
-        chainId,
-        type,
-      };
-
-      return isGelatoTx(txKey) // in case of gnosis safe it works in a same way
-        ? get().gelatoAdapter.executeTx(args)
-        : get().ethereumAdapter.executeTx(args);
-    },
-
-    addTXToPool: (tx, walletType) => {
-      const localTimestamp = dayjs().unix();
-      if (isGelatoBaseTxWithoutTimestamp(tx)) {
-        set((state) =>
-          produce(state, (draft) => {
-            draft.transactionsPool[tx.taskId] = {
-              ...tx,
-              pending: true,
-              walletType,
-              localTimestamp,
-            } as Draft<
-              T & {
-                pending: boolean;
-                walletType: WalletType;
-                localTimestamp: number;
-              }
-            >;
-          }),
-        );
-
-        const txPool = get().transactionsPool;
-        setLocalStorageTxPool(txPool);
-      } else {
-        set((state) =>
-          produce(state, (draft) => {
-            draft.transactionsPool[tx.hash] = {
-              ...tx,
-              pending: true,
-              walletType,
-              localTimestamp,
-            } as Draft<
-              T & {
-                pending: boolean;
-                walletType: WalletType;
-              }
-            >;
-          }),
-        );
-      }
-      const txPool = get().transactionsPool;
-      setLocalStorageTxPool(txPool);
-      return txPool;
-    },
-    removeTXFromPool: (txKey) => {
-      set((state) =>
-        produce(state, (draft) => {
-          delete draft.transactionsPool[txKey];
-        }),
-      );
-      const txPool = get().transactionsPool;
-      setLocalStorageTxPool(txPool);
-    },
-    initTxPool: () => {
-      const localStorageTXPool = getLocalStorageTxPool();
-      if (localStorageTXPool) {
-        const transactionsPool = JSON.parse(localStorageTXPool);
-        // TODO: figure out type casting from string via ZOD or similar
-        set(() => ({
-          transactionsPool,
-        }));
-      }
-      Object.values(get().transactionsPool).forEach((tx) => {
-        if (tx.pending) {
-          if (isGelatoBaseTx(tx)) {
-            get().gelatoAdapter.startTxTracking(tx.taskId);
-          } else {
-            if (tx.hash) {
-              get().ethereumAdapter.startTxTracking(tx.hash);
-            }
-          }
-        }
-      });
-    },
-
     setClient: (chainId, client) => {
       set((state) =>
         produce(state, (draft) => {
@@ -256,32 +102,72 @@ export function createTransactionsSlice<T extends BaseTx>({
       );
     },
 
-    isGelatoAvailable: true,
-    checkIsGelatoAvailable: async (chainId) => {
-      try {
-        const response = await fetch(`https://relay.gelato.digital/relays/v2`);
-        if (!response.ok) {
-          set({ isGelatoAvailable: false });
-        } else {
-          const listOfRelays = (await response.json()) as { relays: string[] };
-          const isRelayAvailable = !!listOfRelays.relays.find(
-            (id) => +id === chainId,
-          );
-          set({ isGelatoAvailable: isRelayAvailable });
-        }
-      } catch (e) {
-        set({ isGelatoAvailable: false });
-        console.error('Check gelato available error', e);
+    txStatusChangedCallback,
+
+    adapter: new BaseAdapter(get, set),
+
+    transactionsPool: {},
+    transactionsIntervalsMap: {},
+
+    initTxPool: () => {
+      const localStorageTXPool = getLocalStorageTxPool();
+
+      if (localStorageTXPool) {
+        const transactionsPool = JSON.parse(localStorageTXPool);
+        // TODO: figure out type casting from string via ZOD or similar
+        set(() => ({
+          transactionsPool,
+        }));
       }
+
+      Object.values(get().transactionsPool).forEach((tx) => {
+        get().adapter.startTxTracking(tx);
+      });
     },
-    updateEthAdapter: (gnosis: boolean) => {
+
+    executeTx: async ({ body, params }) => {
+      await get().checkAndSwitchNetwork(params.desiredChainID);
+      const txKey = await body();
+      return get().adapter.executeTx({ txKey, params });
+    },
+
+    addTXToPool: (tx, walletType) => {
+      const localTimestamp = dayjs().unix();
+      const txKey = get().adapter.getTxKey(tx);
+
       set((state) =>
         produce(state, (draft) => {
-          draft.ethereumAdapter = gnosis
-            ? new GnosisAdapter(get, set)
-            : new EthereumAdapter(get, set);
+          draft.transactionsPool[txKey] = {
+            ...tx,
+            pending: true,
+            walletType,
+            localTimestamp,
+          } as Draft<PoolTx<T>>;
         }),
       );
+
+      const txPool = get().transactionsPool;
+      setLocalStorageTxPool(txPool);
+
+      return txPool;
+    },
+
+    removeTXFromPool: (txKey) => {
+      set((state) =>
+        produce(state, (draft) => {
+          delete draft.transactionsPool[txKey];
+        }),
+      );
+
+      const txPool = get().transactionsPool;
+      setLocalStorageTxPool(txPool);
+    },
+
+    // need for gelato only
+    isGelatoAvailable: true,
+    checkIsGelatoAvailable: async (chainId) => {
+      const isAvailable = await get().adapter.checkIsGelatoAvailable(chainId);
+      set({ isGelatoAvailable: isAvailable });
     },
   });
 }

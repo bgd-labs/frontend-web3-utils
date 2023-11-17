@@ -1,16 +1,22 @@
 import { produce } from 'immer';
 import { Hex, isHex } from 'viem';
 
-import { SafeTransactionServiceUrls } from '../../utils/constants';
 import { setLocalStorageTxPool } from '../../utils/localStorage';
+import { ITransactionsSliceWithWallet } from '../store/transactionsSlice';
+import { isEthPoolTx, preExecuteTx } from './helpers';
 import {
+  AdapterInterface,
   BaseTx,
-  isEthPoolTx,
-  ITransactionsSliceWithWallet,
+  BasicTx,
+  ExecuteTxParams,
   TransactionStatus,
-} from '../store/transactionsSlice';
-import { preExecuteTx } from './helpers';
-import { AdapterInterface, ExecuteTxParams } from './interface';
+} from './types';
+
+export type EthBaseTx = BasicTx & {
+  hash: Hex;
+  to?: Hex;
+  nonce?: number;
+};
 
 export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
   get: () => ITransactionsSliceWithWallet<T>;
@@ -34,39 +40,11 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
   }
 
   executeTx = async (params: ExecuteTxParams<T>) => {
-    const { txKey, activeWallet, argsForExecute, txParams } =
-      preExecuteTx(params);
-
+    const { txKey, activeWallet, txParams } = preExecuteTx(params);
     if (txParams && isHex(txKey)) {
-      const addToPool = (hash: Hex) => {
-        const txPool = this.get().addTXToPool(
-          txParams,
-          activeWallet.walletType,
-        );
-        this.waitForTxReceipt(hash);
-        return txPool[hash];
-      };
-
-      // check if tx real on safe (only for safe + wallet connect)
-      if (
-        activeWallet.walletType === 'WalletConnect' &&
-        activeWallet.isContractAddress
-      ) {
-        const response = await fetch(
-          `${
-            SafeTransactionServiceUrls[txParams.chainId]
-          }/multisig-transactions/${txKey}/`,
-        );
-
-        if (response.ok) {
-          this.get().updateEthAdapter(true);
-          return this.get().ethereumAdapter.executeTx(argsForExecute);
-        } else {
-          return addToPool(txKey);
-        }
-      } else {
-        return addToPool(txKey);
-      }
+      const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
+      this.waitForTxReceipt(txKey);
+      return txPool[txKey];
     } else {
       return undefined;
     }

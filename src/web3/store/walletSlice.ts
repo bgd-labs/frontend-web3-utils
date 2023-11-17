@@ -161,9 +161,7 @@ export function createWalletSlice({
             } else {
               await connect({ connector });
             }
-
             setLocalStorageWallet(walletType);
-            get().updateEthAdapter(walletType === 'GnosisSafe');
           }
 
           const account = getAccount();
@@ -185,7 +183,7 @@ export function createWalletSlice({
             walletConnectionError: errorMessage,
           });
         }
-        console.error('wallet connect error', e);
+        console.error('Wallet connect error', e);
       }
       set({ walletActivating: false });
     },

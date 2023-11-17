@@ -4,17 +4,16 @@ import { Hex, isHex } from 'viem';
 
 import { SafeTransactionServiceUrls } from '../../utils/constants';
 import { setLocalStorageTxPool } from '../../utils/localStorage';
+import { ITransactionsSliceWithWallet } from '../store/transactionsSlice';
+import { isEthPoolTx, preExecuteTx } from './helpers';
 import {
+  AdapterInterface,
   BaseTx,
-  isEthPoolTx,
-  ITransactionsSliceWithWallet,
+  ExecuteTxParams,
   TransactionStatus,
-  TxKey,
-} from '../store/transactionsSlice';
-import { preExecuteTx } from './helpers';
-import { AdapterInterface, ExecuteTxParams } from './interface';
+} from './types';
 
-export type GnosisTxStatusResponse = {
+export type SafeTxStatusResponse = {
   transactionHash: string;
   safeTxHash: string;
   isExecuted: boolean;
@@ -25,21 +24,17 @@ export type GnosisTxStatusResponse = {
   nonce: number;
 };
 
-export type GnosisTxSameNonceResponse = {
+export type SafeTxSameNonceResponse = {
   count: number;
   countUniqueNonce: number;
-  results: GnosisTxStatusResponse[];
+  results: SafeTxStatusResponse[];
 };
 
 export type SafeTx = {
   safeTxHash: string;
 };
 
-export function isSafeTx(txKey: TxKey): txKey is SafeTx {
-  return (txKey as SafeTx).safeTxHash !== undefined;
-}
-
-export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
+export class SafeAdapter<T extends BaseTx> implements AdapterInterface<T> {
   get: () => ITransactionsSliceWithWallet<T>;
   set: (
     fn: (
@@ -60,46 +55,15 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     this.set = set;
   }
   executeTx = async (params: ExecuteTxParams<T>) => {
-    const { txKey, activeWallet, txParams, argsForExecute } =
-      preExecuteTx(params);
-
+    const { txKey, activeWallet, txParams } = preExecuteTx(params);
     if (txParams) {
       const safeTxParams = { ...txParams, isSafeTx: true };
-      const addToPool = (key: Hex) => {
-        const txPool = this.get().addTXToPool(
-          safeTxParams,
-          activeWallet.walletType,
-        );
-        this.startTxTracking(key);
-        return txPool[key];
-      };
-
-      if (isSafeTx(txKey) && isHex(txKey.safeTxHash)) {
-        return addToPool(txKey.safeTxHash);
-      } else if (isHex(txKey)) {
-        // check if tx real on safe (only for safe + wallet connect)
-        if (
-          activeWallet.walletType === 'WalletConnect' &&
-          activeWallet.isContractAddress
-        ) {
-          const response = await fetch(
-            `${
-              SafeTransactionServiceUrls[txParams.chainId]
-            }/multisig-transactions/${txKey}/`,
-          );
-
-          if (response.ok) {
-            return addToPool(txKey);
-          } else {
-            this.get().updateEthAdapter(false);
-            return this.get().ethereumAdapter.executeTx(argsForExecute);
-          }
-        } else {
-          return addToPool(txKey);
-        }
-      } else {
-        return undefined;
-      }
+      const txPool = this.get().addTXToPool(
+        safeTxParams,
+        activeWallet.walletType,
+      );
+      this.startTxTracking(txKey);
+      return txPool[txKey];
     } else {
       return undefined;
     }
@@ -114,17 +78,17 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
         return;
       }
 
-      this.stopPollingGnosisTXStatus(txKey);
+      this.stopPollingSafeTXStatus(txKey);
 
       let retryCount = 5;
       const newGnosisInterval = setInterval(async () => {
         if (retryCount > 0) {
-          const response = await this.fetchGnosisTxStatus(txKey);
+          const response = await this.fetchSafeTxStatus(txKey);
           if (!response.ok) {
             retryCount--;
           }
         } else {
-          this.stopPollingGnosisTXStatus(txKey);
+          this.stopPollingSafeTXStatus(txKey);
           this.get().removeTXFromPool(txKey);
           return;
         }
@@ -134,7 +98,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     }
   };
 
-  private fetchGnosisTxStatus = async (txKey: string) => {
+  private fetchSafeTxStatus = async (txKey: string) => {
     const tx = this.get().transactionsPool[txKey];
     const response = await fetch(
       `${
@@ -143,49 +107,49 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     );
 
     if (response.ok) {
-      const gnosisStatus = (await response.json()) as GnosisTxStatusResponse;
+      const safeStatus = (await response.json()) as SafeTxStatusResponse;
 
-      if (gnosisStatus.nonce) {
+      if (safeStatus.nonce) {
         const allTxWithSameNonceResponse = await fetch(
           `${SafeTransactionServiceUrls[tx.chainId]}/safes/${this.get()
             .activeWallet?.address}/multisig-transactions/?nonce=${
-            gnosisStatus.nonce
+            safeStatus.nonce
           }`,
         );
 
         if (allTxWithSameNonceResponse.ok) {
           const sameNonceResponse =
-            (await allTxWithSameNonceResponse.json()) as GnosisTxSameNonceResponse;
+            (await allTxWithSameNonceResponse.json()) as SafeTxSameNonceResponse;
 
           const isPending =
-            !gnosisStatus.isExecuted && sameNonceResponse.count <= 1;
+            !safeStatus.isExecuted && sameNonceResponse.count <= 1;
 
           // check if more than a day passed and tx wasn't executed still, remove the transaction from the pool
-          const gnosisStatusModified = dayjs(gnosisStatus.modified);
+          const gnosisStatusModified = dayjs(safeStatus.modified);
           const currentTime = dayjs();
           const daysPassed = currentTime.diff(gnosisStatusModified, 'day');
           if (daysPassed >= 1 && isPending) {
-            this.stopPollingGnosisTXStatus(txKey);
+            this.stopPollingSafeTXStatus(txKey);
             this.get().removeTXFromPool(txKey);
             return response;
           }
 
           if (sameNonceResponse.count > 1) {
             const replacedHash = sameNonceResponse.results.filter(
-              (safeTx) => safeTx.safeTxHash !== gnosisStatus.safeTxHash,
+              (safeTx) => safeTx.safeTxHash !== safeStatus.safeTxHash,
             )[0].safeTxHash;
 
             if (isHex(replacedHash)) {
-              this.updateGnosisTxStatus(txKey, gnosisStatus, replacedHash);
-              this.stopPollingGnosisTXStatus(txKey);
+              this.updateSafeTxStatus(txKey, safeStatus, replacedHash);
+              this.stopPollingSafeTXStatus(txKey);
               return response;
             }
           }
 
-          this.updateGnosisTxStatus(txKey, gnosisStatus);
+          this.updateSafeTxStatus(txKey, safeStatus);
 
           if (!isPending) {
-            this.stopPollingGnosisTXStatus(txKey);
+            this.stopPollingSafeTXStatus(txKey);
             this.get().txStatusChangedCallback(tx);
           }
         }
@@ -195,15 +159,15 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     return response;
   };
 
-  private stopPollingGnosisTXStatus = (txKey: string) => {
+  private stopPollingSafeTXStatus = (txKey: string) => {
     const currentInterval = this.transactionsIntervalsMap[txKey];
     clearInterval(currentInterval);
     this.transactionsIntervalsMap[txKey] = undefined;
   };
 
-  private updateGnosisTxStatus = (
+  private updateSafeTxStatus = (
     txKey: string,
-    statusResponse: GnosisTxStatusResponse,
+    statusResponse: SafeTxStatusResponse,
     replacedHash?: Hex,
   ) => {
     this.set((state) =>

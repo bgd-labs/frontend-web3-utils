@@ -10,7 +10,7 @@ import {
   sepolia,
 } from 'viem/chains';
 
-import { ClientsRecord } from '../web3/store/transactionsSlice';
+import { ClientsRecord } from '../types/base';
 
 export const initialChains: Record<number, Chain> = {
   [mainnet.id]: mainnet,

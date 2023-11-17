@@ -4,15 +4,15 @@ import { Hex } from 'viem';
 
 import { setLocalStorageTxPool } from '../../utils/localStorage';
 import { selectIsGelatoTXPending } from '../store/transactionsSelectors';
+import { ITransactionsSliceWithWallet } from '../store/transactionsSlice';
+import { isGelatoBaseTx, preExecuteTx } from './helpers';
 import {
+  AdapterInterface,
   BaseTx,
-  GelatoBaseTx,
-  ITransactionsSliceWithWallet,
+  BasicTx,
+  ExecuteTxParams,
   TransactionStatus,
-  TxKey,
-} from '../store/transactionsSlice';
-import { preExecuteTx } from './helpers';
-import { AdapterInterface, ExecuteTxParams } from './interface';
+} from './types';
 
 export type GelatoTXState =
   | 'WaitingForConfirmation'
@@ -35,23 +35,15 @@ export type GelatoTaskStatusResponse = {
   };
 };
 
+export type GelatoBaseTx = BasicTx & {
+  taskId: string;
+  hash?: Hex;
+  gelatoStatus?: GelatoTXState;
+};
+
 export type GelatoTx = {
   taskId: string;
 };
-
-export function isGelatoTx(tx: TxKey): tx is GelatoTx {
-  return (tx as GelatoTx).taskId !== undefined;
-}
-
-export function isGelatoBaseTx(tx: BaseTx): tx is GelatoBaseTx {
-  return (tx as GelatoBaseTx).taskId !== undefined;
-}
-
-export function isGelatoBaseTxWithoutTimestamp(
-  tx: Omit<BaseTx, 'localTimestamp'>,
-): tx is Omit<GelatoBaseTx, 'localTimestamp'> {
-  return (tx as GelatoBaseTx).taskId !== undefined;
-}
 
 export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
   get: () => ITransactionsSliceWithWallet<T>;
@@ -76,11 +68,10 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
   executeTx = async (params: ExecuteTxParams<T>) => {
     const { txKey, activeWallet, txParams } = preExecuteTx(params);
-
-    if (txParams && isGelatoTx(txKey)) {
+    if (txParams) {
       const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
-      this.startTxTracking(txKey.taskId);
-      return txPool[txKey.taskId];
+      this.startTxTracking(txKey);
+      return txPool[txKey];
     } else {
       return undefined;
     }
@@ -112,6 +103,21 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
       }, 5000);
 
       this.transactionsIntervalsMap[taskId] = Number(newGelatoInterval);
+    }
+  };
+
+  checkIsGelatoAvailable = async (chainId: number) => {
+    try {
+      const response = await fetch(`https://relay.gelato.digital/relays/v2`);
+      if (!response.ok) {
+        return false;
+      } else {
+        const listOfRelays = (await response.json()) as { relays: string[] };
+        return !!listOfRelays.relays.find((id) => +id === chainId);
+      }
+    } catch (e) {
+      console.error('Check gelato available error', e);
+      return false;
     }
   };
 

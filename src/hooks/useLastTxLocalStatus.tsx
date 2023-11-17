@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Hex } from 'viem';
 
+import { BaseTx, TransactionStatus } from '../web3/adapters/types';
 import { selectLastTxByTypeAndPayload } from '../web3/store/transactionsSelectors';
-import {
-  BaseTx,
-  ITransactionsState,
-  PoolTx,
-  TransactionStatus,
-} from '../web3/store/transactionsSlice';
+import { ITransactionsState, PoolTx } from '../web3/store/transactionsSlice';
 
 interface LastTxStatusesParams<T extends BaseTx> {
   state: ITransactionsState<T>;

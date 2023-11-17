@@ -2,8 +2,10 @@ import isEqual from 'lodash/isEqual.js';
 import { Chain, Hex } from 'viem';
 
 import { gnosisSafeLinksHelper } from '../../utils/constants';
-import { isGelatoBaseTx } from '../adapters/GelatoAdapter';
-import { BaseTx, GelatoBaseTx, ITransactionsState } from './transactionsSlice';
+import { GelatoBaseTx } from '../adapters/GelatoAdapter';
+import { isGelatoBaseTx } from '../adapters/helpers';
+import { BaseTx } from '../adapters/types';
+import { ITransactionsState } from './transactionsSlice';
 
 export const selectAllTransactions = <T extends BaseTx>(
   state: ITransactionsState<T>,
