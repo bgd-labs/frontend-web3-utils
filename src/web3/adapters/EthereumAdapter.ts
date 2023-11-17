@@ -164,6 +164,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
           draft.transactionsPool[txKey] = {
             ...draft.transactionsPool[txKey],
             ...params,
+            pending: false,
             isError:
               !draft.transactionsPool[txKey].pending &&
               draft.transactionsPool[txKey].status !==

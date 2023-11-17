@@ -222,6 +222,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
         if (isEthPoolTx(draft.transactionsPool[txKey])) {
           draft.transactionsPool[txKey] = {
             ...draft.transactionsPool[txKey],
+            pending,
             status,
             nonce: statusResponse.nonce,
             replacedTxHash: replacedHash,
