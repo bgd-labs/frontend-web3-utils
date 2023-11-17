@@ -132,6 +132,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
         if (daysPassed >= 1 && isPending) {
           this.stopPollingGelatoTXStatus(taskId);
           this.get().removeTXFromPool(taskId);
+          return response;
         }
       }
 
