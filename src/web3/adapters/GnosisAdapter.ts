@@ -174,7 +174,10 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
               (safeTx) => safeTx.safeTxHash !== gnosisStatus.safeTxHash,
             )[0].safeTxHash;
 
+            console.log('replacedHash before check', replacedHash);
+
             if (isHex(replacedHash)) {
+              console.log('replacedHash', replacedHash);
               this.updateGnosisTxStatus(txKey, gnosisStatus, replacedHash);
               this.stopPollingGnosisTXStatus(txKey);
             }
@@ -204,6 +207,8 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
     statusResponse: GnosisTxStatusResponse,
     replacedHash?: Hex,
   ) => {
+    console.log('replacedHash in update', replacedHash);
+
     this.set((state) =>
       produce(state, (draft) => {
         let status = undefined;
