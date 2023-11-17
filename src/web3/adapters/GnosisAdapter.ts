@@ -77,7 +77,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
       if (isSafeTx(txKey) && isHex(txKey.safeTxHash)) {
         return addToPool(txKey.safeTxHash);
       } else if (isHex(txKey)) {
-        // check if tx real on safe (need for safe + wallet connect)
+        // check if tx real on safe (only for safe + wallet connect)
         if (
           activeWallet.walletType === 'WalletConnect' &&
           activeWallet.isContractAddress

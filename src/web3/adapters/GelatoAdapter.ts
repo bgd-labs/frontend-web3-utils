@@ -180,7 +180,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
               ? dayjs(statusResponse.task.executionDate).unix()
               : undefined,
             errorMessage: statusResponse.task.lastCheckMessage,
-            isError: pending && status !== TransactionStatus.Success,
+            isError: !pending && status !== TransactionStatus.Success,
           };
         }
       }),

@@ -116,7 +116,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
         onReplaced: (replacement) => {
           this.updateTXStatus(txHash, {
             status: TransactionStatus.Replaced,
-            replacedHash: replacement.transaction.hash,
+            replacedTxHash: replacement.transaction.hash,
           });
           txWasReplaced = true;
         },
@@ -153,7 +153,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     txKey: Hex,
     params: {
       status?: TransactionStatus;
-      replacedHash?: Hex;
+      replacedTxHash?: Hex;
       to?: Hex;
       nonce?: number;
     },
@@ -167,10 +167,8 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
             pending: false,
             isError:
               !draft.transactionsPool[txKey].pending &&
-              draft.transactionsPool[txKey].status !==
-                TransactionStatus.Success &&
-              draft.transactionsPool[txKey].status !==
-                TransactionStatus.Replaced,
+              params.status !== TransactionStatus.Success &&
+              params.status !== TransactionStatus.Replaced,
           };
         }
       }),
