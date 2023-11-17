@@ -167,6 +167,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
           if (daysPassed >= 1 && isPending) {
             this.stopPollingGnosisTXStatus(txKey);
             this.get().removeTXFromPool(txKey);
+            return response;
           }
 
           if (sameNonceResponse.count > 1) {
@@ -177,6 +178,7 @@ export class GnosisAdapter<T extends BaseTx> implements AdapterInterface<T> {
             if (isHex(replacedHash)) {
               this.updateGnosisTxStatus(txKey, gnosisStatus, replacedHash);
               this.stopPollingGnosisTXStatus(txKey);
+              return response;
             }
           }
 
