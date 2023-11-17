@@ -5,6 +5,8 @@ export * from './utils/chainInfoHelpers';
 export * from './utils/constants';
 export * from './utils/localStorage';
 export * from './utils/wallets/getBrowserWalletLabelAndIcon';
+export * from './web3/adapters/helpers';
+export * from './web3/adapters/types';
 export * from './web3/connectors/index';
 export * from './web3/providers/WagmiProvider';
 export * from './web3/store/transactionsSelectors';
