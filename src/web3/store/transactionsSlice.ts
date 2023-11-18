@@ -227,6 +227,10 @@ export function createTransactionsSlice<T extends BaseTx>({
           if (params.txKey) {
             draft.transactionsPool[params.txKey] = {
               ...params,
+              hash:
+                params.adapter !== TxAdapter.Gelato ? params.txKey : undefined,
+              taskId:
+                params.adapter === TxAdapter.Gelato ? params.txKey : undefined,
               pending: true,
               walletType: get().activeWallet?.walletType,
               localTimestamp,
