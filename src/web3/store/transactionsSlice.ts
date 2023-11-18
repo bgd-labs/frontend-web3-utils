@@ -211,7 +211,13 @@ export function createTransactionsSlice<T extends BaseTx>({
         const txPool = get().addTXToPool(txInitialParams);
         const adapter = get().adapters[txInitialParams.adapter];
         if (adapter) {
-          adapter.startTxTracking(txPool[txInitialParams.txKey]);
+          if (adapter instanceof EthereumAdapter) {
+            if (isHex(txInitialParams.txKey)) {
+              adapter.waitForTxReceipt(txInitialParams.txKey);
+            }
+          } else {
+            adapter.startTxTracking(txPool[txInitialParams.txKey]);
+          }
         }
         return txPool[txInitialParams.txKey];
       } else {

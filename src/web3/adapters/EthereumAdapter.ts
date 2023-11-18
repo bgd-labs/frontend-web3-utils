@@ -47,9 +47,6 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
         for (let i = 0; i < retryCount; i++) {
           try {
             const tx = await client.getTransaction({ hash: txData.hash });
-
-            console.log('tx in start tx', tx);
-
             // If the transaction is found, wait for the receipt
             await this.waitForTxReceipt(txData.hash, tx.nonce);
             return; // Exit the function if successful
@@ -69,7 +66,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     }
   };
 
-  private waitForTxReceipt = async (txHash: Hex, txNonce?: number) => {
+  waitForTxReceipt = async (txHash: Hex, txNonce?: number) => {
     const chainId = this.get().transactionsPool[txHash].chainId;
     const client = this.get().clients[chainId];
     let txWasReplaced = false;
