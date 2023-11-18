@@ -4,14 +4,12 @@ import { Hex, isHex } from 'viem';
 
 import { SafeTransactionServiceUrls } from '../../utils/constants';
 import { setLocalStorageTxPool } from '../../utils/localStorage';
-import { ITransactionsSliceWithWallet } from '../store/transactionsSlice';
-import { isEthPoolTx, preExecuteTx } from './helpers';
 import {
-  AdapterInterface,
-  BaseTx,
-  ExecuteTxParams,
-  TransactionStatus,
-} from './types';
+  ITransactionsSliceWithWallet,
+  PoolTx,
+} from '../store/transactionsSlice';
+import { isEthPoolTx } from './helpers';
+import { AdapterInterface, BaseTx, TransactionStatus } from './types';
 
 export type SafeTxStatusResponse = {
   transactionHash: string;
@@ -54,47 +52,31 @@ export class SafeAdapter<T extends BaseTx> implements AdapterInterface<T> {
     this.get = get;
     this.set = set;
   }
-  executeTx = async (params: ExecuteTxParams<T>) => {
-    const { txKey, activeWallet, txParams } = preExecuteTx(params);
-    if (txParams) {
-      const safeTxParams = { ...txParams, isSafeTx: true };
-      const txPool = this.get().addTXToPool(
-        safeTxParams,
-        activeWallet.walletType,
-      );
-      this.startTxTracking(txKey);
-      return txPool[txKey];
-    } else {
-      return undefined;
-    }
-  };
 
-  startTxTracking = async (txKey: string) => {
-    const tx = this.get().transactionsPool[txKey];
-
+  startTxTracking = async (tx: PoolTx<T>) => {
     if (isEthPoolTx(tx)) {
       const isPending = tx.pending;
       if (!isPending) {
         return;
       }
 
-      this.stopPollingSafeTXStatus(txKey);
+      this.stopPollingSafeTXStatus(tx.hash);
 
       let retryCount = 5;
       const newGnosisInterval = setInterval(async () => {
         if (retryCount > 0) {
-          const response = await this.fetchSafeTxStatus(txKey);
+          const response = await this.fetchSafeTxStatus(tx.hash);
           if (!response.ok) {
             retryCount--;
           }
         } else {
-          this.stopPollingSafeTXStatus(txKey);
-          this.get().removeTXFromPool(txKey);
+          this.stopPollingSafeTXStatus(tx.hash);
+          this.get().removeTXFromPool(tx.hash);
           return;
         }
       }, 5000);
 
-      this.transactionsIntervalsMap[txKey] = Number(newGnosisInterval);
+      this.transactionsIntervalsMap[tx.hash] = Number(newGnosisInterval);
     }
   };
 

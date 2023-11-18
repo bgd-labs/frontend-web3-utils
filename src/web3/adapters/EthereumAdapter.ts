@@ -2,15 +2,12 @@ import { produce } from 'immer';
 import { Hex, isHex } from 'viem';
 
 import { setLocalStorageTxPool } from '../../utils/localStorage';
-import { ITransactionsSliceWithWallet } from '../store/transactionsSlice';
-import { isEthPoolTx, preExecuteTx } from './helpers';
 import {
-  AdapterInterface,
-  BaseTx,
-  BasicTx,
-  ExecuteTxParams,
-  TransactionStatus,
-} from './types';
+  ITransactionsSliceWithWallet,
+  PoolTx,
+} from '../store/transactionsSlice';
+import { isEthPoolTx } from './helpers';
+import { AdapterInterface, BaseTx, BasicTx, TransactionStatus } from './types';
 
 export type EthBaseTx = BasicTx & {
   hash: Hex;
@@ -39,19 +36,9 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     this.set = set;
   }
 
-  executeTx = async (params: ExecuteTxParams<T>) => {
-    const { txKey, activeWallet, txParams } = preExecuteTx(params);
-    if (txParams && isHex(txKey)) {
-      const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
-      this.waitForTxReceipt(txKey);
-      return txPool[txKey];
-    } else {
-      return undefined;
-    }
-  };
-  startTxTracking = async (txKey: string) => {
+  startTxTracking = async (tx: PoolTx<T>) => {
     const retryCount = 5;
-    const txData = this.get().transactionsPool[txKey];
+    const txData = tx.hash ? this.get().transactionsPool[tx.hash] : undefined;
     // check if tx is in local storage
     if (txData) {
       const client = this.get().clients[txData.chainId];

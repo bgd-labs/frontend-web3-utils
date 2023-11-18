@@ -3,16 +3,12 @@ import { produce } from 'immer';
 import { Hex } from 'viem';
 
 import { setLocalStorageTxPool } from '../../utils/localStorage';
-import { selectIsGelatoTXPending } from '../store/transactionsSelectors';
-import { ITransactionsSliceWithWallet } from '../store/transactionsSlice';
-import { isGelatoBaseTx, preExecuteTx } from './helpers';
 import {
-  AdapterInterface,
-  BaseTx,
-  BasicTx,
-  ExecuteTxParams,
-  TransactionStatus,
-} from './types';
+  ITransactionsSliceWithWallet,
+  PoolTx,
+} from '../store/transactionsSlice';
+import { isGelatoBaseTx, isGelatoTXPending } from './helpers';
+import { AdapterInterface, BaseTx, BasicTx, TransactionStatus } from './types';
 
 export type GelatoTXState =
   | 'WaitingForConfirmation'
@@ -66,43 +62,30 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
     this.set = set;
   }
 
-  executeTx = async (params: ExecuteTxParams<T>) => {
-    const { txKey, activeWallet, txParams } = preExecuteTx(params);
-    if (txParams) {
-      const txPool = this.get().addTXToPool(txParams, activeWallet.walletType);
-      this.startTxTracking(txKey);
-      return txPool[txKey];
-    } else {
-      return undefined;
-    }
-  };
-
-  startTxTracking = async (taskId: string) => {
-    const tx = this.get().transactionsPool[taskId];
-
+  startTxTracking = async (tx: PoolTx<T>) => {
     if (isGelatoBaseTx(tx)) {
-      const isPending = selectIsGelatoTXPending(tx.gelatoStatus);
+      const isPending = isGelatoTXPending(tx.gelatoStatus);
       if (!isPending) {
         return;
       }
 
-      this.stopPollingGelatoTXStatus(taskId);
+      this.stopPollingGelatoTXStatus(tx.taskId);
 
       let retryCount = 5;
       const newGelatoInterval = setInterval(async () => {
         if (retryCount > 0) {
-          const response = await this.fetchGelatoTXStatus(taskId);
+          const response = await this.fetchGelatoTXStatus(tx.taskId);
           if (!response.ok) {
             retryCount--;
           }
         } else {
-          this.stopPollingGelatoTXStatus(taskId);
-          this.get().removeTXFromPool(taskId);
+          this.stopPollingGelatoTXStatus(tx.taskId);
+          this.get().removeTXFromPool(tx.taskId);
           return;
         }
       }, 5000);
 
-      this.transactionsIntervalsMap[taskId] = Number(newGelatoInterval);
+      this.transactionsIntervalsMap[tx.taskId] = Number(newGelatoInterval);
     }
   };
 
@@ -128,7 +111,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
     if (response.ok) {
       const gelatoStatus = (await response.json()) as GelatoTaskStatusResponse;
-      const isPending = selectIsGelatoTXPending(gelatoStatus.task.taskState);
+      const isPending = isGelatoTXPending(gelatoStatus.task.taskState);
 
       // check if more than a day passed and tx wasn't executed still, remove the transaction from the pool
       if (gelatoStatus.task.creationDate) {
@@ -167,9 +150,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
     this.set((state) =>
       produce(state, (draft) => {
         if (isGelatoBaseTx(draft.transactionsPool[taskId])) {
-          const pending = selectIsGelatoTXPending(
-            statusResponse.task.taskState,
-          );
+          const pending = isGelatoTXPending(statusResponse.task.taskState);
           const status =
             statusResponse.task.taskState === 'ExecSuccess'
               ? TransactionStatus.Success

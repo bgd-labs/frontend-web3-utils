@@ -3,22 +3,26 @@ import { Hex } from 'viem';
 import {
   ITransactionsSliceWithWallet,
   PoolTx,
-  PoolTxParams,
-  TransactionPool,
 } from '../store/transactionsSlice';
-import { Wallet } from '../store/walletSlice';
 import { EthBaseTx } from './EthereumAdapter';
 import { GelatoBaseTx, GelatoTx } from './GelatoAdapter';
 import { SafeTx } from './SafeAdapter';
 
 // generic
+export enum TxAdapter {
+  Ethereum = 'ethereum',
+  Safe = 'safe',
+  Gelato = 'gelato',
+}
+
 export type BasicTx = {
+  adapter: TxAdapter;
   chainId: number;
   type: string;
   from: Hex;
-  payload?: object;
-  isSafeTx?: boolean;
   localTimestamp: number;
+  txKey: Hex | string;
+  payload?: object;
   timestamp?: number;
   isError?: boolean;
   errorMessage?: string;
@@ -37,38 +41,16 @@ export type BaseTxWithoutTime =
   | Omit<GelatoBaseTx, 'localTimestamp'>
   | Omit<EthBaseTx, 'localTimestamp'>;
 
-// adapters
-export type ExecuteTx<T extends BaseTx> = (params: {
-  txKey: TxKey;
-  params: {
-    type: T['type'];
-    payload: T['payload'];
-    desiredChainID: number;
-  };
-}) => Promise<TransactionPool<T & PoolTxParams>[string] | undefined>;
-
-export interface BaseAdapterInterface<T extends BaseTx> {
-  get: () => ITransactionsSliceWithWallet<T>;
-  set: (
-    fn: (
-      state: ITransactionsSliceWithWallet<T>,
-    ) => ITransactionsSliceWithWallet<T>,
-  ) => void;
-
-  executeTx: ExecuteTx<T>;
-  startTxTracking: (tx: PoolTx<T>) => Promise<void>;
-  getTxKey: (tx: BaseTxWithoutTime) => string;
-  checkIsGelatoAvailable: (chainId: number) => Promise<boolean>;
-}
-
-export type ExecuteTxParams<T extends BaseTx> = {
-  txKey: TxKey;
-  activeWallet: Wallet;
+export type InitialTxParams<T extends BaseTx> = {
+  adapter: TxAdapter;
+  txKey?: Hex | string;
+  type: T['type'];
   payload: object | undefined;
   chainId: number;
-  type: T['type'];
+  from: Hex;
 };
 
+// adapters
 export interface AdapterInterface<T extends BaseTx> {
   get: () => ITransactionsSliceWithWallet<T>;
   set: (
@@ -76,12 +58,5 @@ export interface AdapterInterface<T extends BaseTx> {
       state: ITransactionsSliceWithWallet<T>,
     ) => ITransactionsSliceWithWallet<T>,
   ) => void;
-  executeTx: (params: ExecuteTxParams<T>) => Promise<
-    | (T & {
-        status?: TransactionStatus;
-        pending: boolean;
-      })
-    | undefined
-  >;
-  startTxTracking: (txId: string) => Promise<void>;
+  startTxTracking: (tx: PoolTx<T>) => Promise<void>;
 }

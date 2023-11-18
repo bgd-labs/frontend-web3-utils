@@ -1,22 +1,24 @@
 import { PublicClient } from '@wagmi/core';
 import dayjs from 'dayjs';
 import { Draft, produce } from 'immer';
-import { Hex } from 'viem';
+import { Hex, isHex } from 'viem';
 
 import { ClientsRecord } from '../../types/base';
 import { StoreSlice } from '../../types/store';
+import { SafeTransactionServiceUrls } from '../../utils/constants';
 import {
   getLocalStorageTxPool,
   setLocalStorageTxPool,
 } from '../../utils/localStorage';
-import { BaseAdapter } from '../adapters/BaseAdapter';
-import { EthBaseTx } from '../adapters/EthereumAdapter';
-import { GelatoBaseTx } from '../adapters/GelatoAdapter';
+import { EthBaseTx, EthereumAdapter } from '../adapters/EthereumAdapter';
+import { GelatoAdapter, GelatoBaseTx } from '../adapters/GelatoAdapter';
+import { isGelatoTxKey, isSafeTxKey } from '../adapters/helpers';
+import { SafeAdapter } from '../adapters/SafeAdapter';
 import {
-  BaseAdapterInterface,
   BaseTx,
-  BaseTxWithoutTime,
+  InitialTxParams,
   TransactionStatus,
+  TxAdapter,
   TxKey,
 } from '../adapters/types';
 import { WalletType } from '../connectors';
@@ -48,7 +50,12 @@ export interface ITransactionsState<T extends BaseTx> {
 }
 
 export interface ITransactionsActions<T extends BaseTx> {
-  adapter: BaseAdapterInterface<T>;
+  adapters: {
+    [TxAdapter.Ethereum]: EthereumAdapter<T>;
+    [TxAdapter.Safe]?: SafeAdapter<T>;
+    [TxAdapter.Gelato]?: GelatoAdapter<T>;
+  };
+  setAdapter: (adapter: TxAdapter) => void;
 
   txStatusChangedCallback: (
     data: T & {
@@ -64,10 +71,7 @@ export interface ITransactionsActions<T extends BaseTx> {
       desiredChainID: number;
     };
   }) => Promise<TransactionPool<T & PoolTxParams>[string] | undefined>;
-  addTXToPool: (
-    tx: BaseTxWithoutTime,
-    activeWallet: WalletType,
-  ) => TransactionPool<PoolTx<T>>;
+  addTXToPool: (tx: InitialTxParams<T>) => TransactionPool<PoolTx<T>>;
   removeTXFromPool: (txKey: string) => void;
 
   isGelatoAvailable: boolean;
@@ -104,7 +108,23 @@ export function createTransactionsSlice<T extends BaseTx>({
 
     txStatusChangedCallback,
 
-    adapter: new BaseAdapter(get, set),
+    adapters: {
+      [TxAdapter.Ethereum]: new EthereumAdapter(get, set),
+    },
+    setAdapter: (adapter) => {
+      const currentAdapter = get().adapters[adapter];
+      if (!currentAdapter) {
+        set((state) =>
+          produce(state, (draft) => {
+            if (adapter === TxAdapter.Gelato) {
+              draft.adapters[adapter] = new GelatoAdapter(get, set);
+            } else if (adapter === TxAdapter.Safe) {
+              draft.adapters[adapter] = new SafeAdapter(get, set);
+            }
+          }),
+        );
+      }
+    },
 
     transactionsPool: {},
     transactionsIntervalsMap: {},
@@ -121,28 +141,97 @@ export function createTransactionsSlice<T extends BaseTx>({
       }
 
       Object.values(get().transactionsPool).forEach((tx) => {
-        get().adapter.startTxTracking(tx);
+        if (tx.pending) {
+          const adapter = get().adapters[tx.adapter];
+          if (adapter) {
+            adapter.startTxTracking(tx);
+          } else if (!adapter && tx.adapter === TxAdapter.Gelato) {
+            get().setAdapter(TxAdapter.Gelato);
+            get().adapters[tx.adapter]?.startTxTracking(tx);
+          } else if (!adapter && tx.adapter === TxAdapter.Safe) {
+            get().setAdapter(TxAdapter.Safe);
+            get().adapters[tx.adapter]?.startTxTracking(tx);
+          }
+        }
       });
     },
 
     executeTx: async ({ body, params }) => {
       await get().checkAndSwitchNetwork(params.desiredChainID);
       const txKey = await body();
-      return get().adapter.executeTx({ txKey, params });
+
+      const { desiredChainID, payload, type } = params;
+
+      const activeWallet = get().activeWallet;
+      if (!activeWallet) {
+        throw new Error('No wallet connected');
+      }
+
+      const chainId = Number(desiredChainID);
+
+      let adapterType = TxAdapter.Ethereum;
+      let newTxKey: Hex | string | undefined = isHex(txKey) ? txKey : undefined;
+
+      if (isGelatoTxKey(txKey)) {
+        adapterType = TxAdapter.Gelato;
+        newTxKey = txKey.taskId;
+        get().setAdapter(TxAdapter.Gelato);
+      } else if (isSafeTxKey(txKey) || activeWallet.walletType === 'Safe') {
+        adapterType = TxAdapter.Safe;
+        if (isSafeTxKey(txKey)) {
+          newTxKey = txKey.safeTxHash;
+        } else {
+          newTxKey = txKey;
+        }
+        get().setAdapter(TxAdapter.Safe);
+      } else if (
+        activeWallet.walletType === 'WalletConnect' &&
+        activeWallet.isContractAddress
+      ) {
+        // check if tx real on safe (only for safe + wallet connect)
+        const response = await fetch(
+          `${SafeTransactionServiceUrls[chainId]}/multisig-transactions/${txKey}/`,
+        );
+        if (response.ok) {
+          adapterType = TxAdapter.Safe;
+          get().setAdapter(TxAdapter.Safe);
+        }
+      }
+
+      const txInitialParams = {
+        adapter: adapterType,
+        txKey: newTxKey,
+        type,
+        payload,
+        chainId,
+        from: activeWallet.address,
+      };
+
+      if (txInitialParams.txKey) {
+        const txPool = get().addTXToPool(txInitialParams);
+        const adapter = get().adapters[txInitialParams.adapter];
+        if (adapter) {
+          adapter.startTxTracking(txPool[txInitialParams.txKey]);
+        }
+        return txPool[txInitialParams.txKey];
+      } else {
+        return undefined;
+      }
     },
 
-    addTXToPool: (tx, walletType) => {
+    addTXToPool: (params) => {
       const localTimestamp = dayjs().unix();
-      const txKey = get().adapter.getTxKey(tx);
 
       set((state) =>
         produce(state, (draft) => {
-          draft.transactionsPool[txKey] = {
-            ...tx,
-            pending: true,
-            walletType,
-            localTimestamp,
-          } as Draft<PoolTx<T>>;
+          if (params.txKey) {
+            draft.transactionsPool[params.txKey] = {
+              ...params,
+              pending: true,
+              walletType: get().activeWallet?.walletType,
+              localTimestamp,
+            } as Draft<PoolTx<T>>;
+          }
         }),
       );
 
@@ -166,8 +255,18 @@ export function createTransactionsSlice<T extends BaseTx>({
     // need for gelato only
     isGelatoAvailable: true,
     checkIsGelatoAvailable: async (chainId) => {
-      const isAvailable = await get().adapter.checkIsGelatoAvailable(chainId);
-      set({ isGelatoAvailable: isAvailable });
+      const adapter = get().adapters[TxAdapter.Gelato];
+      if (adapter) {
+        const isAvailable = await adapter.checkIsGelatoAvailable(chainId);
+        set({ isGelatoAvailable: isAvailable });
+      } else {
+        get().setAdapter(TxAdapter.Gelato);
+        const isAvailable =
+          await get().adapters[TxAdapter.Gelato]?.checkIsGelatoAvailable(
+            chainId,
+          );
+        set({ isGelatoAvailable: isAvailable });
+      }
     },
   });
 }
