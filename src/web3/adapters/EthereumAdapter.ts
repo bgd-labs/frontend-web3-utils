@@ -48,6 +48,8 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
           try {
             const tx = await client.getTransaction({ hash: txData.hash });
 
+            console.log('tx in start tx', tx);
+
             // If the transaction is found, wait for the receipt
             await this.waitForTxReceipt(txData.hash, tx.nonce);
             return; // Exit the function if successful
@@ -64,8 +66,6 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
         // Wait before the next retry
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
-    } else {
-      return; // Exit the function if the transaction is not found
     }
   };
 
@@ -131,7 +131,6 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
             ...params,
             pending: false,
             isError:
-              !draft.transactionsPool[txKey].pending &&
               params.status !== TransactionStatus.Success &&
               params.status !== TransactionStatus.Replaced,
           };
