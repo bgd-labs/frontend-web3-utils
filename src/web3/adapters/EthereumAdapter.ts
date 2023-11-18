@@ -49,14 +49,15 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
             const tx = await client.getTransaction({ hash: txData.hash });
             // If the transaction is found, wait for the receipt
             await this.waitForTxReceipt(txData.hash, tx.nonce);
-            return; // Exit the function if successful
+            return;
           } catch (e) {
             if (i === retryCount - 1) {
+              console.error('Error when tracking eth tx', e);
               // If the transaction is not found after the last retry, set the status to unknownError (it could be replaced with completely new one or lost in mempool)
               this.updateTXStatus(txData.hash, {
                 status: TransactionStatus.Failed,
               });
-              return; // Exit the function
+              return;
             }
           }
         }

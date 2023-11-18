@@ -18,13 +18,11 @@ export function isGelatoBaseTx(tx: BaseTx): tx is GelatoBaseTx {
   return (tx as GelatoBaseTx).adapter === TxAdapter.Gelato;
 }
 
-export const isGelatoTXPending = (
-  gelatoStatus?: GelatoBaseTx['gelatoStatus'],
-) => {
+export function isGelatoTXPending(gelatoStatus?: GelatoBaseTx['gelatoStatus']) {
   return (
     gelatoStatus === undefined ||
     gelatoStatus === 'CheckPending' ||
     gelatoStatus === 'WaitingForConfirmation' ||
     gelatoStatus === 'ExecPending'
   );
-};
+}
