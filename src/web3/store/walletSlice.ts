@@ -35,42 +35,48 @@ export interface Wallet {
   walletClient: WalletClient;
   // isActive is added, because Wallet can be connected but not active, i.e. wrong network
   isActive: boolean;
-  // isContractAddress is added, to check if wallet address is contract
+  // isContractAddress is added, to check if wallet address is contract (mostly fo safe)
   isContractAddress: boolean;
 }
 
 export type IWalletSlice = {
-  isContractWalletRecord: Record<string, boolean>;
+  connectors: ConnectorType[];
+  setConnectors: (connectors: ConnectorType[]) => void;
+
+  defaultChainId: number;
+  setDefaultChainId: (chainId: number) => void;
+
+  initDefaultWallet: () => Promise<void>;
+
+  isActiveWalletSetting: boolean;
   activeWallet?: Wallet;
   setActiveWallet: (
     wallet: Omit<Wallet, 'walletClient' | 'client'>,
   ) => Promise<void>;
-  isActiveWalletSetting: boolean;
-  connectWallet: (walletType: WalletType, chainId?: number) => Promise<void>;
-  disconnectActiveWallet: () => Promise<void>;
+
   walletActivating: boolean;
   walletConnectionError: string;
+  connectWallet: (walletType: WalletType, chainId?: number) => Promise<void>;
+  disconnectActiveWallet: () => Promise<void>;
   resetWalletConnectionError: () => void;
-  initDefaultWallet: () => Promise<void>;
-  changeActiveWalletAccount: (account?: GetAccountResult) => Promise<void>;
-  isActiveWalletAccountChanging: boolean;
-  changeActiveWalletChain: (chain?: Chain) => Promise<void>;
-  isActiveWalletChainChanging: boolean;
   checkAndSwitchNetwork: (chainId?: number) => Promise<void>;
-  connectors: ConnectorType[];
-  setConnectors: (connectors: ConnectorType[]) => void;
+
+  isActiveWalletAccountChanging: boolean;
+  changeActiveWalletAccount: (account?: GetAccountResult) => Promise<void>;
+  isActiveWalletChainChanging: boolean;
+  changeActiveWalletChain: (chain?: Chain) => Promise<void>;
+
   impersonated?: {
     account?: Account;
     address?: Hex;
     isViewOnly?: boolean;
   };
   setImpersonated: (privateKeyOrAddress: string) => void;
+
+  isContractWalletRecord: Record<string, boolean>;
   checkIsContractWallet: (
     wallet: Omit<Wallet, 'walletClient'>,
   ) => Promise<boolean>;
-
-  defaultChainId: number;
-  setDefaultChainId: (chainId: number) => void;
 };
 
 export function createWalletSlice({
@@ -79,9 +85,6 @@ export function createWalletSlice({
   walletConnected: (wallet: Wallet) => void;
 }): StoreSlice<IWalletSlice, TransactionsSliceBaseType> {
   return (set, get) => ({
-    isContractWalletRecord: {},
-    walletActivating: false,
-    walletConnectionError: '',
     connectors: [],
     setConnectors: async (connectors) => {
       if (get().connectors.length !== connectors.length) {
@@ -90,6 +93,12 @@ export function createWalletSlice({
         get().initTxPool();
       }
     },
+
+    defaultChainId: mainnet.id,
+    setDefaultChainId: (chainId) => {
+      set({ defaultChainId: chainId });
+    },
+
     initDefaultWallet: async () => {
       const lastConnectedWallet = localStorage.getItem(
         LocalStorageKeys.LastConnectedWallet,
@@ -100,6 +109,7 @@ export function createWalletSlice({
       }
     },
 
+    isActiveWalletSetting: false,
     setActiveWallet: async (wallet) => {
       if (wallet.isActive) {
         if (wallet.chain) {
@@ -128,8 +138,9 @@ export function createWalletSlice({
         }
       }
     },
-    isActiveWalletSetting: false,
 
+    walletActivating: false,
+    walletConnectionError: '',
     connectWallet: async (walletType, chainId) => {
       clearWalletLinkLocalStorage();
       clearWalletConnectV2LocalStorage();
@@ -178,7 +189,7 @@ export function createWalletSlice({
         }
       } catch (e) {
         if (e instanceof Error) {
-          const errorMessage = e.message ? e.message.toString() : e.toString();
+          const errorMessage = e.message ? String(e.message) : String(e);
           set({
             walletConnectionError: errorMessage,
           });
@@ -186,6 +197,16 @@ export function createWalletSlice({
         console.error('Wallet connect error', e);
       }
       set({ walletActivating: false });
+    },
+    disconnectActiveWallet: async () => {
+      await disconnect();
+      set({ activeWallet: undefined });
+      deleteLocalStorageWallet();
+      clearWalletLinkLocalStorage();
+      clearWalletConnectV2LocalStorage();
+    },
+    resetWalletConnectionError: () => {
+      set({ walletConnectionError: '' });
     },
     checkAndSwitchNetwork: async (chainId) => {
       const activeWallet = get().activeWallet;
@@ -207,32 +228,8 @@ export function createWalletSlice({
         });
       }
     },
-    disconnectActiveWallet: async () => {
-      await disconnect();
-      set({ activeWallet: undefined });
-      deleteLocalStorageWallet();
-      clearWalletLinkLocalStorage();
-      clearWalletConnectV2LocalStorage();
-    },
 
-    checkIsContractWallet: async (wallet) => {
-      const address = wallet.address;
-      const walletRecord = get().isContractWalletRecord[address];
-      if (walletRecord !== undefined) {
-        return walletRecord;
-      }
-      const codeOfWalletAddress = await wallet.client.getBytecode({
-        address: wallet.address,
-      });
-      const isContractWallet = !!codeOfWalletAddress;
-      set((state) =>
-        produce(state, (draft) => {
-          draft.isContractWalletRecord[address] = isContractWallet;
-        }),
-      );
-      return isContractWallet;
-    },
-
+    isActiveWalletAccountChanging: false,
     changeActiveWalletAccount: async (account) => {
       const activeWallet = get().activeWallet;
       if (
@@ -252,7 +249,7 @@ export function createWalletSlice({
         set({ isActiveWalletAccountChanging: false });
       }
     },
-    isActiveWalletAccountChanging: false,
+    isActiveWalletChainChanging: false,
     changeActiveWalletChain: async (chain) => {
       const activeWallet = get().activeWallet;
       if (
@@ -273,7 +270,6 @@ export function createWalletSlice({
         set({ isActiveWalletChainChanging: false });
       }
     },
-    isActiveWalletChainChanging: false,
 
     setImpersonated: (privateKeyOrAddress) => {
       if (isAddress(privateKeyOrAddress)) {
@@ -292,13 +288,24 @@ export function createWalletSlice({
         });
       }
     },
-    resetWalletConnectionError: () => {
-      set({ walletConnectionError: '' });
-    },
 
-    defaultChainId: mainnet.id,
-    setDefaultChainId: (chainId) => {
-      set({ defaultChainId: chainId });
+    isContractWalletRecord: {},
+    checkIsContractWallet: async (wallet) => {
+      const address = wallet.address;
+      const walletRecord = get().isContractWalletRecord[address];
+      if (walletRecord !== undefined) {
+        return walletRecord;
+      }
+      const codeOfWalletAddress = await wallet.client.getBytecode({
+        address: wallet.address,
+      });
+      const isContractWallet = !!codeOfWalletAddress;
+      set((state) =>
+        produce(state, (draft) => {
+          draft.isContractWalletRecord[address] = isContractWallet;
+        }),
+      );
+      return isContractWallet;
     },
   });
 }

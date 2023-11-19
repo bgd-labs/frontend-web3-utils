@@ -62,6 +62,21 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
     this.set = set;
   }
 
+  checkIsGelatoAvailable = async (chainId: number) => {
+    try {
+      const response = await fetch(`https://relay.gelato.digital/relays/v2`);
+      if (!response.ok) {
+        return false;
+      } else {
+        const listOfRelays = (await response.json()) as { relays: string[] };
+        return !!listOfRelays.relays.find((id) => +id === chainId);
+      }
+    } catch (e) {
+      console.error('Check gelato available error', e);
+      return false;
+    }
+  };
+
   startTxTracking = async (tx: PoolTx<T>) => {
     if (isGelatoBaseTx(tx)) {
       const isPending = isGelatoTXPending(tx.gelatoStatus);
@@ -86,21 +101,6 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
       }, 5000);
 
       this.transactionsIntervalsMap[tx.taskId] = Number(newGelatoInterval);
-    }
-  };
-
-  checkIsGelatoAvailable = async (chainId: number) => {
-    try {
-      const response = await fetch(`https://relay.gelato.digital/relays/v2`);
-      if (!response.ok) {
-        return false;
-      } else {
-        const listOfRelays = (await response.json()) as { relays: string[] };
-        return !!listOfRelays.relays.find((id) => +id === chainId);
-      }
-    } catch (e) {
-      console.error('Check gelato available error', e);
-      return false;
     }
   };
 

@@ -25,16 +25,15 @@ import { WalletType } from '../connectors';
 import { IWalletSlice } from './walletSlice';
 
 export type PoolTxParams = {
-  status?: TransactionStatus;
   pending: boolean;
   walletType: WalletType;
+  status?: TransactionStatus;
   replacedTxHash?: Hex;
 };
-
+export type PoolTx<T extends BaseTx> = T & PoolTxParams;
 export type EthPoolTx = EthBaseTx & PoolTxParams;
 export type GelatoPoolTx = GelatoBaseTx & PoolTxParams;
-
-export type PoolTx<T extends BaseTx> = T & PoolTxParams;
+export type TransactionPool<T extends BaseTx> = Record<string, T>;
 
 export type TransactionsSliceBaseType = {
   clients: ClientsRecord;
@@ -42,14 +41,7 @@ export type TransactionsSliceBaseType = {
   initTxPool: () => void;
 };
 
-export type TransactionPool<T extends BaseTx> = Record<string, T>;
-
 export interface ITransactionsState<T extends BaseTx> {
-  transactionsPool: TransactionPool<PoolTx<T>>;
-  transactionsIntervalsMap: Record<string, number | undefined>;
-}
-
-export interface ITransactionsActions<T extends BaseTx> {
   adapters: {
     [TxAdapter.Ethereum]: EthereumAdapter<T>;
     [TxAdapter.Safe]?: SafeAdapter<T>;
@@ -57,6 +49,14 @@ export interface ITransactionsActions<T extends BaseTx> {
   };
   setAdapter: (adapter: TxAdapter) => void;
 
+  transactionsPool: TransactionPool<PoolTx<T>>;
+  transactionsIntervalsMap: Record<string, number | undefined>;
+
+  isGelatoAvailable: boolean;
+  checkIsGelatoAvailable: (chainId: number) => Promise<void>;
+}
+
+export interface ITransactionsActions<T extends BaseTx> {
   txStatusChangedCallback: (
     data: T & {
       status?: TransactionStatus;
@@ -73,9 +73,6 @@ export interface ITransactionsActions<T extends BaseTx> {
   }) => Promise<TransactionPool<T & PoolTxParams>[string] | undefined>;
   addTXToPool: (tx: InitialTxParams<T>) => TransactionPool<PoolTx<T>>;
   removeTXFromPool: (txKey: string) => void;
-
-  isGelatoAvailable: boolean;
-  checkIsGelatoAvailable: (chainId: number) => Promise<void>;
 }
 
 export type ITransactionsSlice<T extends BaseTx> = ITransactionsActions<T> &
@@ -97,6 +94,7 @@ export function createTransactionsSlice<T extends BaseTx>({
   Pick<IWalletSlice, 'checkAndSwitchNetwork' | 'activeWallet'>
 > {
   return (set, get) => ({
+    txStatusChangedCallback,
     clients: defaultClients,
     setClient: (chainId, client) => {
       set((state) =>
@@ -106,7 +104,8 @@ export function createTransactionsSlice<T extends BaseTx>({
       );
     },
 
-    txStatusChangedCallback,
+    transactionsPool: {},
+    transactionsIntervalsMap: {},
 
     adapters: {
       [TxAdapter.Ethereum]: new EthereumAdapter(get, set),
@@ -125,9 +124,6 @@ export function createTransactionsSlice<T extends BaseTx>({
         );
       }
     },
-
-    transactionsPool: {},
-    transactionsIntervalsMap: {},
 
     initTxPool: () => {
       const localStorageTXPool = getLocalStorageTxPool();
@@ -168,7 +164,6 @@ export function createTransactionsSlice<T extends BaseTx>({
       }
 
       const chainId = Number(desiredChainID);
-
       let adapterType = TxAdapter.Ethereum;
       let newTxKey: Hex | string | undefined = isHex(txKey) ? txKey : undefined;
 
@@ -257,26 +252,16 @@ export function createTransactionsSlice<T extends BaseTx>({
           delete draft.transactionsPool[txKey];
         }),
       );
-
-      const txPool = get().transactionsPool;
-      setLocalStorageTxPool(txPool);
+      setLocalStorageTxPool(get().transactionsPool);
     },
 
     // need for gelato only
     isGelatoAvailable: true,
     checkIsGelatoAvailable: async (chainId) => {
+      get().setAdapter(TxAdapter.Gelato);
       const adapter = get().adapters[TxAdapter.Gelato];
-      if (adapter) {
-        const isAvailable = await adapter.checkIsGelatoAvailable(chainId);
-        set({ isGelatoAvailable: isAvailable });
-      } else {
-        get().setAdapter(TxAdapter.Gelato);
-        const isAvailable =
-          await get().adapters[TxAdapter.Gelato]?.checkIsGelatoAvailable(
-            chainId,
-          );
-        set({ isGelatoAvailable: isAvailable });
-      }
+      const isAvailable = await adapter?.checkIsGelatoAvailable(chainId);
+      set({ isGelatoAvailable: isAvailable });
     },
   });
 }
