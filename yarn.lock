@@ -6013,10 +6013,10 @@ tslib@^2.0.0, tslib@^2.3.1, tslib@^2.5.0, tslib@^2.6.0:
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.6.1.tgz"
   integrity sha512-t0hLfiEKfMUoqhG+U1oid7Pva4bbDPHYfJNiB7BiIjRkj1pyC++4N3huJfqY6aRH6VTB0rvtzQwjM4K6qpfOig==
 
-tsup@^7.3.0:
-  version "7.3.0"
-  resolved "https://registry.yarnpkg.com/tsup/-/tsup-7.3.0.tgz#c7776e08c7ef55ed69def2c6e7ba4719005f5abd"
-  integrity sha512-Ja1eaSRrE+QarmATlNO5fse2aOACYMBX+IZRKy1T+gpyH+jXgRrl5l4nHIQJQ1DoDgEjHDTw8cpE085UdBZuWQ==
+tsup@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/tsup/-/tsup-8.0.0.tgz#8e6c24c1ba88200ad54ab274259041b140dc1d59"
+  integrity sha512-9rOGn8LsFn2iAg2pCB1jnH7ygVuGjlzIomjw0jKXUxAii3iL5cXgm0jZMPKfFH1bSAjQovJ1DUVPSw+oDuIu8A==
   dependencies:
     bundle-require "^4.0.0"
     cac "^6.7.12"
@@ -6226,10 +6226,10 @@ viem@^1.0.0:
     isomorphic-ws "5.0.0"
     ws "8.12.0"
 
-viem@^1.19.3:
-  version "1.19.3"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-1.19.3.tgz#896443d4f68005d68b9a1b5b61370ceb7bdf913b"
-  integrity sha512-SymIbCO0nIq2ucna8R3XV4f/lEshKGLuhYU2f6O+OAbmE2ugBxBKx2axMKQrQML87nE0jb2qqqtRJka5SO/7MA==
+viem@^1.19.4:
+  version "1.19.4"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-1.19.4.tgz#0a345e36a6f5526dd6d7cf9b280b06de915ba46b"
+  integrity sha512-CvAVaOzxlu3Q/cpfrYvTRMBIPDMAkLu8aFmHLqU1Bg25DyUxp9xwoF1Ljp38q7/Rosm1OPFQ4y6K64v/VwoumQ==
   dependencies:
     "@adraffy/ens-normalize" "1.10.0"
     "@noble/curves" "1.2.0"

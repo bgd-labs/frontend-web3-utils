@@ -59,7 +59,7 @@
   "peerDependencies": {
     "immer": "^10.0.3",
     "react": "^18.2.0",
-    "viem": "^1.19.3",
+    "viem": "^1.19.4",
     "wagmi": "^1.4.7",
     "zustand": "^4.4.6"
   },
@@ -83,14 +83,14 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "size-limit": "^11.0.0",
-    "tsup": "^7.3.0",
+    "tsup": "^8.0.0",
     "typescript": "5.1.6"
   },
   "dependencies": {
     "dayjs": "^1.11.10",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
-    "viem": "^1.19.3",
+    "viem": "^1.19.4",
     "wagmi": "^1.4.7",
     "zustand": "^4.4.6"
   }
