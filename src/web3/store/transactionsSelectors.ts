@@ -1,9 +1,9 @@
 import isEqual from 'lodash/isEqual.js';
-import { Chain } from 'viem';
+import { Chain, Hex } from 'viem';
 
 import { gnosisSafeLinksHelper } from '../../utils/constants';
-import { isGelatoBaseTx } from '../adapters/GelatoAdapter';
-import { BaseTx, GelatoBaseTx, ITransactionsState } from './transactionsSlice';
+import { BaseTx, TxAdapter } from '../adapters/types';
+import { ITransactionsState } from './transactionsSlice';
 
 export const selectAllTransactions = <T extends BaseTx>(
   state: ITransactionsState<T>,
@@ -28,7 +28,7 @@ export const selectTXByKey = <T extends BaseTx>(
 
 export const selectTXByHash = <T extends BaseTx>(
   state: ITransactionsState<T>,
-  hash: string,
+  hash: Hex,
 ) => {
   const txByKey = selectTXByKey<T>(state, hash);
   if (txByKey) {
@@ -39,21 +39,21 @@ export const selectTXByHash = <T extends BaseTx>(
 
 export const selectAllTransactionsByWallet = <T extends BaseTx>(
   state: ITransactionsState<T>,
-  from: string,
+  from: Hex,
 ) => {
   return selectAllTransactions(state).filter((tx) => tx.from === from);
 };
 
 export const selectPendingTransactionByWallet = <T extends BaseTx>(
   state: ITransactionsState<T>,
-  from: string,
+  from: Hex,
 ) => {
   return selectPendingTransactions(state).filter((tx) => tx.from === from);
 };
 
 export const selectLastTxByTypeAndPayload = <T extends BaseTx>(
   state: ITransactionsState<T>,
-  from: string,
+  from: Hex,
   type: T['type'],
   payload: T['payload'],
 ) => {
@@ -67,15 +67,7 @@ export const selectLastTxByTypeAndPayload = <T extends BaseTx>(
     filteredTransactions[filteredTransactions.length - 1];
 
   if (lastFilteredTransaction) {
-    if (isGelatoBaseTx(lastFilteredTransaction)) {
-      return selectTXByKey(state, lastFilteredTransaction.taskId);
-    } else {
-      if (lastFilteredTransaction.hash) {
-        return selectTXByKey(state, lastFilteredTransaction.hash);
-      } else {
-        return undefined;
-      }
-    }
+    return selectTXByKey(state, lastFilteredTransaction.txKey);
   } else {
     return undefined;
   }
@@ -84,9 +76,8 @@ export const selectLastTxByTypeAndPayload = <T extends BaseTx>(
 export const selectTxExplorerLink = <T extends BaseTx>(
   state: ITransactionsState<T>,
   getChainParameters: (chainId: number) => Chain,
-  txHash: string,
-  isWalletContract?: boolean,
-  replacedTxHash?: string,
+  txHash: Hex,
+  replacedTxHash?: Hex,
 ) => {
   const tx = selectTXByHash(state, txHash);
   if (!tx) {
@@ -94,7 +85,7 @@ export const selectTxExplorerLink = <T extends BaseTx>(
   }
 
   const returnValue = (hash: string) => {
-    if (tx.walletType !== 'GnosisSafe' && !isWalletContract) {
+    if (tx.adapter !== TxAdapter.Safe) {
       return `${getChainParameters(tx.chainId).blockExplorers?.default
         .url}/tx/${hash}`;
     } else {
@@ -109,15 +100,4 @@ export const selectTxExplorerLink = <T extends BaseTx>(
   } else {
     return returnValue(txHash);
   }
-};
-
-export const selectIsGelatoTXPending = (
-  gelatoStatus?: GelatoBaseTx['gelatoStatus'],
-) => {
-  return (
-    gelatoStatus === undefined ||
-    gelatoStatus === 'CheckPending' ||
-    gelatoStatus === 'WaitingForConfirmation' ||
-    gelatoStatus === 'ExecPending'
-  );
 };

@@ -1,5 +1,6 @@
+import { BaseTx } from '../web3/adapters/types';
 import { WalletType } from '../web3/connectors';
-import { BaseTx, TransactionPool } from '../web3/store/transactionsSlice';
+import { TransactionPool } from '../web3/store/transactionsSlice';
 
 export enum LocalStorageKeys {
   LastConnectedWallet = 'LastConnectedWallet',

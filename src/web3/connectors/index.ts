@@ -93,7 +93,7 @@ export type WalletType =
   | 'Injected'
   | 'WalletConnect'
   | 'Coinbase'
-  | 'GnosisSafe'
+  | 'Safe'
   | 'Impersonated';
 
 export function getConnectorName(
@@ -102,7 +102,7 @@ export function getConnectorName(
   if (connector instanceof InjectedConnector) return 'Injected';
   if (connector instanceof WalletConnectConnector) return 'WalletConnect';
   if (connector instanceof CoinbaseWalletConnector) return 'Coinbase';
-  if (connector instanceof SafeConnector) return 'GnosisSafe';
+  if (connector instanceof SafeConnector) return 'Safe';
   if (connector instanceof ImpersonatedConnector) return 'Impersonated';
   return;
 }

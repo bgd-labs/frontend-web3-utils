@@ -10,7 +10,7 @@ import {
   sepolia,
 } from 'viem/chains';
 
-import { ClientsRecord } from '../web3/store/transactionsSlice';
+import { ClientsRecord } from '../types/base';
 
 export const initialChains: Record<number, Chain> = {
   [mainnet.id]: mainnet,
@@ -44,13 +44,11 @@ export const initChainInformationConfig = (chains?: Record<number, Chain>) => {
             },
             chain,
             transport: http(),
-          }) as PublicClient;
+          });
           initalizedClients[numberChainId] = client;
           return client;
         }
       },
-    } as {
-      instance: PublicClient;
     };
     return accumulator;
   }, {});
