@@ -1,105 +1,138 @@
-import { ethers } from 'ethers';
 import { produce } from 'immer';
+import { Hex, isHex } from 'viem';
 
 import { setLocalStorageTxPool } from '../../utils/localStorage';
-import { StaticJsonRpcBatchProvider } from '../../utils/StaticJsonRpcBatchProvider';
-import { BaseTx, ITransactionsSlice } from '../store/transactionsSlice';
-import { Wallet } from '../store/walletSlice';
-import { GelatoTx } from './GelatoAdapter';
-import { AdapterInterface } from './interface';
+import {
+  ITransactionsSliceWithWallet,
+  PoolTx,
+} from '../store/transactionsSlice';
+import { isEthPoolTx } from './helpers';
+import { AdapterInterface, BaseTx, BasicTx, TransactionStatus } from './types';
+
+export type EthBaseTx = BasicTx & {
+  hash: Hex;
+  to?: Hex;
+  nonce?: number;
+};
 
 export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
-  get: () => ITransactionsSlice<T>;
-  set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void;
+  get: () => ITransactionsSliceWithWallet<T>;
+  set: (
+    fn: (
+      state: ITransactionsSliceWithWallet<T>,
+    ) => ITransactionsSliceWithWallet<T>,
+  ) => void;
   transactionsIntervalsMap: Record<string, number | undefined> = {};
 
   constructor(
-    get: () => ITransactionsSlice<T>,
-    set: (fn: (state: ITransactionsSlice<T>) => ITransactionsSlice<T>) => void,
+    get: () => ITransactionsSliceWithWallet<T>,
+    set: (
+      fn: (
+        state: ITransactionsSliceWithWallet<T>,
+      ) => ITransactionsSliceWithWallet<T>,
+    ) => void,
   ) {
     this.get = get;
     this.set = set;
   }
 
-  executeTx = async (params: {
-    tx: ethers.ContractTransaction | GelatoTx;
-    activeWallet: Wallet;
-    payload: object | undefined;
-    chainId: number;
-    type: T['type'];
-  }): Promise<T & { status?: number; pending: boolean }> => {
-    const { activeWallet, chainId, type } = params;
-    const tx = params.tx as ethers.ContractTransaction;
-    // ethereum tx
-    const transaction = {
-      chainId,
-      hash: tx.hash,
-      type,
-      payload: params.payload,
-      from: tx.from,
-      to: tx.to as string,
-      nonce: tx.nonce,
-    };
-    const txPool = this.get().addTXToPool(transaction, activeWallet.walletType);
-    this.waitForTxReceipt(tx, tx.hash);
-    return txPool[tx.hash];
-  };
-  startTxTracking = async (txKey: string) => {
+  startTxTracking = async (tx: PoolTx<T>) => {
     const retryCount = 5;
-    const txData = this.get().transactionsPool[txKey];
+    const txData = tx.hash ? this.get().transactionsPool[tx.hash] : undefined;
+    // check if tx is in local storage
     if (txData) {
-      const provider = this.get().providers[
-        txData.chainId
-      ] as StaticJsonRpcBatchProvider;
-
+      const client = this.get().clients[txData.chainId];
       if (txData.hash) {
         // Find the transaction in the waiting pool
         for (let i = 0; i < retryCount; i++) {
-          const tx = await provider.getTransaction(txData.hash);
-          // If the transaction is found, wait for the receipt
-          if (tx) {
-            await this.waitForTxReceipt(tx, txData.hash);
-            return; // Exit the function if successful
+          try {
+            const tx = await client.getTransaction({ hash: txData.hash });
+            // If the transaction is found, wait for the receipt
+            await this.waitForTxReceipt(txData.hash, tx.nonce);
+            return;
+          } catch (e) {
+            if (i === retryCount - 1) {
+              console.error('Error when tracking eth tx', e);
+              // If the transaction is not found after the last retry, set the status to unknownError (it could be replaced with completely new one or lost in mempool)
+              this.updateTXStatus(txData.hash, {
+                status: TransactionStatus.Failed,
+              });
+              return;
+            }
           }
         }
         // Wait before the next retry
-        await new Promise((resolve) => setTimeout(resolve, 3000));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       }
-    } else {
-      // TODO: no transaction in waiting pool
     }
   };
 
-  private waitForTxReceipt = async (
-    tx: ethers.providers.TransactionResponse,
-    txHash: string,
-  ) => {
-    const chainId = tx.chainId || this.get().transactionsPool[txHash].chainId;
-    const provider = this.get().providers[
-      chainId
-    ] as StaticJsonRpcBatchProvider;
+  waitForTxReceipt = async (txHash: Hex, txNonce?: number) => {
+    const chainId = this.get().transactionsPool[txHash].chainId;
+    const client = this.get().clients[chainId];
+    let txWasReplaced = false;
 
     try {
-      const txn = await tx.wait();
-      this.updateTXStatus(txHash, txn.status);
+      const txn = await client.waitForTransactionReceipt({
+        pollingInterval: 8_000,
+        hash: txHash,
+        onReplaced: (replacement) => {
+          this.updateTXStatus(txHash, {
+            status: TransactionStatus.Replaced,
+            replacedTxHash: replacement.transaction.hash,
+          });
+          txWasReplaced = true;
+        },
+      });
+      if (txWasReplaced) {
+        return;
+      }
+
+      this.updateTXStatus(txHash, {
+        status:
+          txn.status === 'success'
+            ? TransactionStatus.Success
+            : TransactionStatus.Reverted,
+        to: isHex(txn.to) ? txn.to : undefined,
+        nonce: txNonce,
+      });
 
       const updatedTX = this.get().transactionsPool[txHash];
-      const txBlock = await provider.getBlock(txn.blockNumber);
+      const txBlock = await client.getBlock({ blockNumber: txn.blockNumber });
       const timestamp = txBlock.timestamp;
       this.get().txStatusChangedCallback({
         ...updatedTX,
         timestamp,
       });
     } catch (e) {
-      console.log(e);
+      this.updateTXStatus(txHash, {
+        status: TransactionStatus.Failed,
+      });
+      console.error('Error when check tx receipt', e);
     }
   };
 
-  private updateTXStatus = (hash: string, status?: number) => {
+  private updateTXStatus = (
+    txKey: Hex,
+    params: {
+      status?: TransactionStatus;
+      replacedTxHash?: Hex;
+      to?: Hex;
+      nonce?: number;
+    },
+  ) => {
     this.set((state) =>
       produce(state, (draft) => {
-        draft.transactionsPool[hash].status = status;
-        draft.transactionsPool[hash].pending = false;
+        if (isEthPoolTx(draft.transactionsPool[txKey])) {
+          draft.transactionsPool[txKey] = {
+            ...draft.transactionsPool[txKey],
+            ...params,
+            pending: false,
+            isError:
+              params.status !== TransactionStatus.Success &&
+              params.status !== TransactionStatus.Replaced,
+          };
+        }
       }),
     );
     setLocalStorageTxPool(this.get().transactionsPool);

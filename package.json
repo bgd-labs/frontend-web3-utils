@@ -1,6 +1,13 @@
 {
   "name": "@bgd-labs/frontend-web3-utils",
+  "description": "Frontend utilities common to multiple Web3 projects",
+  "version": "0.1.0",
   "author": "BGD labs",
+  "license": "MIT",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "contributors": [
     {
       "name": "Dmitriy Petrov",
@@ -19,85 +26,72 @@
       "url": "https://github.com/Tima0203"
     }
   ],
-  "version": "0.1.1",
-  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bgd-labs/fe-shared.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bgd-labs/fe-shared/issues"
+  },
+  "homepage": "https://github.com/bgd-labs/fe-shared#readme",
+  "scripts": {
+    "start": "tsup src/index.tsx --watch",
+    "build": "tsup",
+    "size": "size-limit",
+    "lint": "npx eslint --fix",
+    "ci:publish": "npm run build && npm publish --access=public"
+  },
+  "files": ["dist"],
+  "type": "module",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "src"
+  "module": "dist/index.js",
+  "sideEffects": false,
+  "size-limit": [
+    {
+      "path": "dist/index.js",
+      "limit": "100 KB"
+    }
   ],
   "engines": {
     "node": ">=18"
   },
-  "scripts": {
-    "start": "tsdx watch",
-    "build": "tsdx build",
-    "test": "tsdx test --passWithNoTests",
-    "lint": "tsdx lint",
-    "prepare": "tsdx build",
-    "size": "size-limit",
-    "analyze": "size-limit --why"
-  },
   "peerDependencies": {
-    "ethers": "5.x",
-    "immer": "10.x",
-    "react": "18.x",
-    "zustand": "4.x"
+    "immer": "^10.0.3",
+    "react": "^18.2.0",
+    "viem": "^1.19.4",
+    "wagmi": "^1.4.7",
+    "zustand": "^4.4.6"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsdx lint"
-    }
-  },
-  "module": "dist/bgd-frontend-web3-utils.esm.js",
-  "size-limit": [
-    {
-      "path": "dist/bgd-frontend-web3-utils.cjs.production.min.js",
-      "limit": "10 KB"
-    },
-    {
-      "path": "dist/bgd-frontend-web3-utils.esm.js",
-      "limit": "10 KB"
-    }
-  ],
   "devDependencies": {
-    "@size-limit/preset-small-lib": "^9.0.0",
-    "@types/lodash": "^4.14.199",
-    "@types/react": "^18.2.23",
-    "@types/react-dom": "^18.2.8",
-    "@typescript-eslint/eslint-plugin": "^6.7.3",
-    "@typescript-eslint/parser": "^6.7.3",
-    "eslint": "^8.50.0",
+    "@size-limit/preset-small-lib": "^11.0.0",
+    "@types/lodash": "^4.14.201",
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@typescript-eslint/eslint-plugin": "^6.11.0",
+    "@typescript-eslint/parser": "^6.11.0",
+    "eslint": "^8.53.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-config-react-app": "^7.0.1",
-    "eslint-plugin-import": "^2.28.1",
-    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
-    "ethers": "^5.7.2",
     "husky": "^8.0.3",
-    "immer": "^10.0.2",
-    "prettier": "^3.0.3",
+    "immer": "^10.0.3",
+    "prettier": "^3.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "size-limit": "^9.0.0",
-    "tsdx": "^0.14.1",
-    "tslib": "^2.6.2",
-    "typescript": "5.1.6",
-    "zustand": "^4.4.1"
+    "size-limit": "^11.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "5.1.6"
   },
   "dependencies": {
-    "@coinbase/wallet-sdk": "^3.7.1",
-    "@walletconnect/ethereum-provider": "^2.10.0",
-    "@web3-react/coinbase-wallet": "8.2.2",
-    "@web3-react/core": "8.2.2",
-    "@web3-react/gnosis-safe": "8.2.3",
-    "@web3-react/metamask": "8.2.3",
-    "@web3-react/types": "8.2.2",
-    "@web3-react/walletconnect-v2": "^8.5.0",
     "dayjs": "^1.11.10",
     "lodash": "^4.17.21",
-    "lodash-es": "^4.17.21"
+    "lodash-es": "^4.17.21",
+    "viem": "^1.19.4",
+    "wagmi": "^1.4.7",
+    "zustand": "^4.4.6"
   }
 }
