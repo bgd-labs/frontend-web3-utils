@@ -1,7 +1,7 @@
 {
   "name": "@bgd-labs/frontend-web3-utils",
   "description": "Frontend utilities common to multiple Web3 projects",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "author": "BGD labs",
   "license": "MIT",
   "private": false,
@@ -41,7 +41,9 @@
     "lint": "npx eslint --fix",
     "ci:publish": "npm run build && npm publish --access=public"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
