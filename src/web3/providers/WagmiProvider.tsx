@@ -89,7 +89,7 @@ export function WagmiProvider({
   );
 
   createConfig({
-    autoConnect: false,
+    autoConnect: true,
     publicClient,
     connectors,
   });
