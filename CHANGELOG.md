@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/bgd-labs/fe-shared/compare/v1.0.0...v1.0.1) (2023-12-04)
+
+
+### Bug Fixes
+
+* wagmi auto connect ([c89d738](https://github.com/bgd-labs/fe-shared/commit/c89d7386088ea0ec223a7969ada16fef1e5e5ff8))
+* wagmi provider ([3c7675a](https://github.com/bgd-labs/fe-shared/commit/3c7675acbbe0eaa5482265769631b6f1c4027a3c))
+
 ## 1.0.0 (2023-11-21)
 
 
