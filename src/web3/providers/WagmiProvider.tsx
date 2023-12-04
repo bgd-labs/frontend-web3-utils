@@ -5,7 +5,7 @@ import {
   watchAccount,
   watchNetwork,
 } from '@wagmi/core';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Chain } from 'viem';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { StoreApi, UseBoundStore } from 'zustand';
@@ -88,11 +88,13 @@ export function WagmiProvider({
     ],
   );
 
-  createConfig({
-    autoConnect: true,
-    publicClient,
-    connectors,
-  });
+  useMemo(() => {
+    createConfig({
+      autoConnect: true,
+      publicClient,
+      connectors,
+    });
+  }, []);
 
   return (
     <Child
