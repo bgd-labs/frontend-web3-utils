@@ -73,6 +73,9 @@ export const initAllConnectors = (props: AllConnectorsInitProps) => {
     chains,
     options: {
       chainId: props.chains[props.defaultChainId || chainIds[0]].id,
+      flags: {
+        isAuthorized: false,
+      },
     },
   });
 
