@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.2](https://github.com/bgd-labs/fe-shared/compare/v1.0.1...v1.0.2) (2023-12-11)
+
+
+### Bug Fixes
+
+* impersonated auto connect ([bc4dc72](https://github.com/bgd-labs/fe-shared/commit/bc4dc7285263a2dddcebdface6f01222524eebf7))
+* impersonated connector ([47ed4a6](https://github.com/bgd-labs/fe-shared/commit/47ed4a65ed3262e79581cd580155606998b8cd51))
+* package version ([93e4408](https://github.com/bgd-labs/fe-shared/commit/93e440888f4db65d35043cec22d20a8620f79a58))
+* update packages ([952de76](https://github.com/bgd-labs/fe-shared/commit/952de764166825ff589eea8821ba64e49072ac58))
+* version ([177b5bf](https://github.com/bgd-labs/fe-shared/commit/177b5bfb47e546d163fafc181ecce6bedbeecf7d))
+
 ## [1.0.1](https://github.com/bgd-labs/fe-shared/compare/v1.0.0...v1.0.1) (2023-12-04)
 
 
