@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/bgd-labs/fe-shared/compare/v1.0.3...v1.0.4) (2024-01-07)
+
+
+### Bug Fixes
+
+* chain switching ([f28b69f](https://github.com/bgd-labs/fe-shared/commit/f28b69f9426722b4c8147712125ef5dc32879615))
+
 ## [1.0.3](https://github.com/bgd-labs/fe-shared/compare/v1.0.2...v1.0.3) (2023-12-14)
 
 
