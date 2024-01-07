@@ -3,6 +3,7 @@ export * from './types/base';
 export * from './types/store';
 export * from './utils/chainInfoHelpers';
 export * from './utils/constants';
+export * from './utils/getChainByChainId';
 export * from './utils/localStorage';
 export * from './utils/wallets/getBrowserWalletLabelAndIcon';
 export * from './web3/adapters/helpers';

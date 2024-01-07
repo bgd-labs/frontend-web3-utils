@@ -16,6 +16,7 @@ import { mainnet } from 'viem/chains';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 
 import { StoreSlice } from '../../types/store';
+import { getChainByChainId } from '../../utils/getChainByChainId';
 import {
   clearWalletConnectV2LocalStorage,
   clearWalletLinkLocalStorage,
@@ -212,9 +213,31 @@ export function createWalletSlice({
       const activeWallet = get().activeWallet;
       if (chainId && activeWallet && activeWallet?.chain?.id !== chainId) {
         set({ isActiveWalletSetting: true });
-        await activeWallet.walletClient.switchChain({
-          id: chainId,
-        });
+        try {
+          await activeWallet.walletClient.switchChain({
+            id: chainId,
+          });
+        } catch (e) {
+          try {
+            const chain = getChainByChainId(chainId);
+            if (!!chain) {
+              await activeWallet.walletClient.addChain({
+                chain,
+              });
+              await activeWallet.walletClient.switchChain({
+                id: chainId,
+              });
+            } else {
+              console.error(e);
+            }
+          } catch (error) {
+            console.error(error);
+            throw new Error(
+              "Couldn't switch the network, change the network yourself in your wallet",
+            );
+          }
+        }
+
         await new Promise((resolve) => {
           function loop() {
             if (!get().isActiveWalletSetting) {
