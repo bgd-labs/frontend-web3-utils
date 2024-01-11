@@ -26,7 +26,6 @@ interface WagmiProviderProps {
       changeActiveWalletAccount: (
         account?: GetAccountReturnType,
       ) => Promise<void>;
-      setConnectors: (connectors: Connectors) => void;
       setDefaultChainId: (chainId: number) => void;
       getImpersonatedAddress?: () => Hex | undefined;
     }>
@@ -37,18 +36,12 @@ interface WagmiProviderProps {
 function Child({
   wagmiConfig,
   useStore,
-  connectors,
   connectorsInitProps,
 }: WagmiProviderProps & {
   wagmiConfig: Config;
-  connectors: Connectors;
 }) {
-  const {
-    setConnectors,
-    setDefaultChainId,
-    setWagmiConfig,
-    changeActiveWalletAccount,
-  } = useStore();
+  const { setDefaultChainId, setWagmiConfig, changeActiveWalletAccount } =
+    useStore();
 
   watchAccount(wagmiConfig, {
     onChange: async (account) => {
@@ -60,12 +53,6 @@ function Child({
   useEffect(() => {
     setWagmiConfig(wagmiConfig);
   }, [wagmiConfig]);
-
-  useEffect(() => {
-    if (connectors) {
-      setConnectors(connectors);
-    }
-  }, [connectors.length]);
 
   useEffect(() => {
     if (connectorsInitProps.defaultChainId) {
@@ -90,9 +77,6 @@ export function WagmiProvider({
   };
 
   const [connectors] = useState(initAllConnectors(formattedProps));
-  const [mappedConnectors] = useState<Connectors>(
-    connectors.map((connector) => connector),
-  );
 
   const config = useMemo(() => {
     const chains = Object.values(formattedProps.chains);
@@ -124,7 +108,6 @@ export function WagmiProvider({
         <Child
           wagmiConfig={config.wagmiConfig}
           useStore={useStore}
-          connectors={mappedConnectors}
           connectorsInitProps={formattedProps}
         />
       </QueryClientProvider>

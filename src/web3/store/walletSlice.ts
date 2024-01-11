@@ -29,7 +29,6 @@ import {
   setLocalStorageWallet,
 } from '../../utils/localStorage';
 import { WalletType } from '../connectors';
-import { Connectors } from '../providers/WagmiProvider';
 import { TransactionsSliceBaseType } from './transactionsSlice';
 
 export interface Wallet {
@@ -46,10 +45,7 @@ export interface Wallet {
 
 export type IWalletSlice = {
   wagmiConfig?: Config;
-  setWagmiConfig: (config: Config) => void;
-
-  connectors: Connectors;
-  setConnectors: (connectors: Connectors) => void;
+  setWagmiConfig: (config: Config) => Promise<void>;
 
   defaultChainId: number;
   setDefaultChainId: (chainId: number) => void;
@@ -92,14 +88,9 @@ export function createWalletSlice({
   walletConnected: (wallet: Wallet) => void;
 }): StoreSlice<IWalletSlice, TransactionsSliceBaseType> {
   return (set, get) => ({
-    setWagmiConfig: (config) => {
+    setWagmiConfig: async (config) => {
       set({ wagmiConfig: config });
-    },
-
-    connectors: [],
-    setConnectors: async (connectors) => {
-      if (get().connectors.length !== connectors.length) {
-        set(() => ({ connectors }));
+      if (get().wagmiConfig?.connectors.length !== config.connectors.length) {
         await get().initDefaultWallet();
         get().initTxPool();
       }
@@ -168,28 +159,26 @@ export function createWalletSlice({
       set({ walletActivating: true });
       set({ walletConnectionError: '' });
 
-      console.log('connectors', get().connectors);
-      const connector = get().connectors.find(
+      const connector = get().wagmiConfig?.connectors.find(
         (connector) => connector.type === walletType,
       );
-      console.log('connector', connector);
 
       if (config) {
         try {
           if (connector) {
             if (connector.type === WalletType.Impersonated) {
               await connect(config, {
-                connector: connector.connector,
+                connector,
                 chainId,
               });
             } else {
               if (connector.type === WalletType.WalletConnect) {
                 await connect(config, {
-                  connector: connector.connector,
+                  connector,
                   chainId: get().defaultChainId,
                 });
               } else {
-                await connect(config, { connector: connector.connector });
+                await connect(config, { connector });
               }
               setLocalStorageWallet(walletType);
             }
@@ -294,7 +283,7 @@ export function createWalletSlice({
         await get().setActiveWallet({
           walletType: activeWallet.walletType,
           address: account.address,
-          chain: account.chain || activeWallet.chain,
+          chain: account.chain,
           isActive: activeWallet.isActive,
           isContractAddress: activeWallet.isContractAddress,
         });
@@ -321,8 +310,6 @@ export function createWalletSlice({
     },
     getImpersonatedAddress: () => {
       const impersonated = get().impersonated;
-
-      console.log('getImpersonatedAddress', impersonated);
 
       if (impersonated) {
         if (impersonated.isViewOnly) {
