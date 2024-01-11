@@ -130,6 +130,9 @@ export function createWalletSlice({
           const publicClient = getPublicClient(config);
           const walletClient = await getWalletClient(config);
 
+          console.log('publicClient', publicClient);
+          console.log('walletClient', walletClient);
+
           if (publicClient && walletClient) {
             const walletWithClients = {
               ...wallet,
@@ -220,7 +223,7 @@ export function createWalletSlice({
     },
     disconnectActiveWallet: async () => {
       const config = get().wagmiConfig;
-      if (config) {
+      if (config && !!config.connectors.length) {
         await disconnect(config);
         set({ activeWallet: undefined });
         deleteLocalStorageWallet();
