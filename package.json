@@ -61,8 +61,8 @@
   "peerDependencies": {
     "immer": "^10.0.3",
     "react": "^18.2.0",
-    "viem": "^1.19.15",
-    "wagmi": "^1.4.12",
+    "viem": "^2.0.6",
+    "wagmi": "^2.1.1",
     "zustand": "^4.4.7"
   },
   "devDependencies": {
@@ -81,19 +81,20 @@
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "husky": "^8.0.3",
     "immer": "^10.0.3",
+    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "prettier": "^3.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "size-limit": "^11.0.1",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3",
-    "viem": "^1.9.15",
-    "wagmi": "^1.4.12",
-    "zustand": "^4.4.7",
-    "lodash": "^4.17.21",
-    "lodash-es": "^4.17.21"
+    "viem": "^2.0.6",
+    "wagmi": "^2.1.1",
+    "zustand": "^4.4.7"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.17.9",
     "dayjs": "^1.11.10"
   }
 }

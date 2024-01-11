@@ -1,18 +1,13 @@
-import { Chain } from 'viem';
-import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
-import { InjectedConnector } from 'wagmi/connectors/injected';
-import { SafeConnector } from 'wagmi/connectors/safe';
-import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
+import { Chain, Hex } from 'viem';
+import {
+  coinbaseWallet,
+  injected,
+  safe,
+  walletConnect,
+} from 'wagmi/connectors';
 
 import { safeSdkOptions } from '../../utils/constants';
-import { ImpersonatedConnector } from './ImpersonatedConnector';
-
-export type ConnectorType =
-  | InjectedConnector
-  | WalletConnectConnector
-  | CoinbaseWalletConnector
-  | SafeConnector
-  | ImpersonatedConnector;
+import { impersonated } from './ImpersonatedConnector';
 
 export type AllConnectorsInitProps = {
   appName: string;
@@ -27,85 +22,50 @@ export type AllConnectorsInitProps = {
       icons: string[];
     };
   };
+  getImpersonatedAccount?: () => Hex;
 };
+
+export enum WalletType {
+  Injected = 'injected',
+  WalletConnect = 'walletConnect',
+  Coinbase = 'coinbase',
+  Safe = 'safe',
+  Impersonated = 'Impersonated Connector',
+}
 
 export const initAllConnectors = (props: AllConnectorsInitProps) => {
-  const chains = Object.values(props.chains);
-  const chainIds = Object.keys(props.chains).map(Number);
+  const injectedConnector = injected();
+  const coinbaseConnector = coinbaseWallet({
+    appName: props.appName,
+  });
+  const gnosisSafe = safe({
+    ...safeSdkOptions,
+  });
+
+  const connectors = [injectedConnector, coinbaseConnector, gnosisSafe];
 
   const wcParams = props.wcParams;
-  let walletConnect: WalletConnectConnector | null = null;
-  if (wcParams) {
-    walletConnect = new WalletConnectConnector({
-      chains,
-      options: {
-        ...wcParams,
-      },
+  if (wcParams && !props.getImpersonatedAccount) {
+    const walletConnectConnector = walletConnect({
+      projectId: wcParams.projectId,
+      metadata: wcParams.metadata,
     });
+    return [walletConnectConnector, ...connectors];
+  } else if (!wcParams && !!props.getImpersonatedAccount) {
+    const impersonatedConnector = impersonated({
+      getAccountAddress: props.getImpersonatedAccount,
+    });
+    return [impersonatedConnector, ...connectors];
+  } else if (wcParams && !!props.getImpersonatedAccount) {
+    const walletConnectConnector = walletConnect({
+      projectId: wcParams.projectId,
+      metadata: wcParams.metadata,
+    });
+    const impersonatedConnector = impersonated({
+      getAccountAddress: props.getImpersonatedAccount,
+    });
+    return [walletConnectConnector, impersonatedConnector, ...connectors];
+  } else {
+    return connectors;
   }
-
-  const injected = new InjectedConnector({
-    chains,
-    options: {
-      name: (detectedName) =>
-        `${
-          typeof detectedName === 'string'
-            ? detectedName
-            : detectedName.join(', ')
-        }`,
-    },
-  });
-  const coinbase = new CoinbaseWalletConnector({
-    chains,
-    options: {
-      appName: props.appName,
-      jsonRpcUrl:
-        props.chains[props.defaultChainId || chainIds[0]].rpcUrls.default
-          .http[0],
-    },
-  });
-  const gnosisSafe = new SafeConnector({
-    chains,
-    options: safeSdkOptions,
-  });
-
-  const impersonated = new ImpersonatedConnector({
-    chains,
-    options: {
-      chainId: props.chains[props.defaultChainId || chainIds[0]].id,
-      flags: {
-        isAuthorized: false,
-      },
-    },
-  });
-
-  const connectors: ConnectorType[] = [
-    injected,
-    coinbase,
-    gnosisSafe,
-    impersonated,
-  ];
-  if (walletConnect !== null) {
-    connectors.push(walletConnect);
-  }
-
-  return connectors;
 };
-
-export type WalletType =
-  | 'Injected'
-  | 'WalletConnect'
-  | 'Coinbase'
-  | 'Safe'
-  | 'Impersonated';
-
-export function getConnectorName(
-  connector: ConnectorType,
-): WalletType | undefined {
-  if (connector instanceof InjectedConnector) return 'Injected';
-  if (connector instanceof WalletConnectConnector) return 'WalletConnect';
-  if (connector instanceof CoinbaseWalletConnector) return 'Coinbase';
-  if (connector instanceof SafeConnector) return 'Safe';
-  if (connector instanceof ImpersonatedConnector) return 'Impersonated';
-  return;
-}

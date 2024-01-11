@@ -1,185 +1,178 @@
-import { MockProvider, MockProviderOptions } from '@wagmi/connectors/mock';
-import { Connector, ConnectorData, WalletClient } from '@wagmi/core';
-import { Account, createWalletClient, getAddress, Hex, http } from 'viem';
-import type { Chain } from 'viem/chains';
-import { mainnet } from 'viem/chains';
+import {
+  type Address,
+  custom,
+  type EIP1193RequestFn,
+  fromHex,
+  getAddress,
+  type Hex,
+  numberToHex,
+  RpcRequestError,
+  SwitchChainError,
+  type Transport,
+  UserRejectedRequestError,
+  type WalletRpcSchema,
+} from 'viem';
+import { rpc } from 'viem/utils';
+import {
+  ChainNotConfiguredError,
+  createConnector,
+  normalizeChainId,
+} from 'wagmi';
 
-export function normalizeChainId(chainId: string | number | bigint) {
-  if (typeof chainId === 'string')
-    return Number.parseInt(
-      chainId,
-      chainId.trim().substring(0, 2) === '0x' ? 16 : 10,
-    );
-  if (typeof chainId === 'bigint') return Number(chainId);
-  return chainId;
-}
-
-type MockConnectorOptions = Omit<
-  MockProviderOptions,
-  'chainId' | 'walletClient'
-> & {
-  chainId?: number;
+export type ImpersonatedParameters = {
+  getAccountAddress: () => Hex;
+  features?:
+    | {
+        connectError?: boolean | Error | undefined;
+        switchChainError?: boolean | Error | undefined;
+        signMessageError?: boolean | Error | undefined;
+        signTypedDataError?: boolean | Error | undefined;
+        reconnect?: boolean | undefined;
+      }
+    | undefined;
 };
 
-export class ImpersonatedConnector extends Connector<
-  MockProvider,
-  MockConnectorOptions
-> {
-  readonly id = 'impersonated';
-  readonly name = 'Impersonated';
-  readonly ready = true;
-  private account: Account | undefined;
-  private accountAddress: Hex | undefined;
+impersonated.type = 'impersonated' as const;
+export function impersonated(parameters: ImpersonatedParameters) {
+  const features = parameters.features ?? {};
 
-  #provider?: MockProvider;
+  type Provider = ReturnType<
+    Transport<'custom', {}, EIP1193RequestFn<WalletRpcSchema>>
+  >;
+  let connected = false;
+  let connectedChainId: number;
+  let accountAddress: Hex | undefined = undefined;
 
-  constructor({
-    chains,
-    options,
-  }: {
-    chains?: Chain[];
-    options: MockConnectorOptions;
-  }) {
-    super({
-      chains,
-      options: {
-        ...options,
-        chainId: options.chainId ?? chains?.[0]?.id,
-      },
-    });
-    this.account = undefined;
-    this.accountAddress = undefined;
-  }
-
-  setAccount(account: Account | undefined) {
-    if (account) {
-      this.account = account;
-    }
-  }
-  setAccountAddress(address: Hex | undefined) {
-    if (address) {
-      this.accountAddress = address;
-    }
-  }
-
-  async connect({ chainId }: { chainId?: number } = {}) {
-    const provider = await this.getProvider({
-      chainId,
-    });
-    provider.on('accountsChanged', this.onAccountsChanged);
-    provider.on('chainChanged', this.onChainChanged);
-    provider.on('disconnect', this.onDisconnect);
-
-    this.emit('message', { type: 'connecting' });
-
-    const accounts = await provider.enable();
-    const account = getAddress(accounts[0] as string);
-    const id = normalizeChainId(provider.chainId);
-    const unsupported = this.isChainUnsupported(id);
-    const data = { account, chain: { id, unsupported }, provider };
-
-    if (!this.options.flags?.noSwitchChain)
-      this.switchChain = this.#switchChain;
-
-    return new Promise<Required<ConnectorData>>((res) =>
-      setTimeout(() => res(data), 100),
-    );
-  }
-
-  async disconnect() {
-    const provider = await this.getProvider();
-    await provider.disconnect();
-
-    provider.removeListener('accountsChanged', this.onAccountsChanged);
-    provider.removeListener('chainChanged', this.onChainChanged);
-    provider.removeListener('disconnect', this.onDisconnect);
-  }
-
-  async getAccount() {
-    const provider = await this.getProvider();
-    const accounts = await provider.getAccounts();
-    const account = accounts[0];
-    if (!account) throw new Error('Failed to get account');
-    // return checksum address
-    return getAddress(account);
-  }
-
-  async getChainId() {
-    const provider = await this.getProvider();
-    return normalizeChainId(provider.chainId);
-  }
-
-  async getProvider({ chainId }: { chainId?: number } = {}) {
-    const chain = this.chains.find((chain) => chain.id === chainId);
-    if (!this.#provider || chainId)
-      this.#provider = new MockProvider({
-        ...this.options,
-        chainId: chainId ?? this.options.chainId ?? this.chains[0]!.id,
-        // @ts-ignore
-        walletClient: createWalletClient({
-          account: this.account || this.accountAddress,
-          chain: chain || mainnet,
-          transport: http(chain?.rpcUrls.default.http[0]),
-        }),
-      });
-    return this.#provider;
-  }
-
-  async getWalletClient(): Promise<WalletClient> {
-    const provider = await this.getProvider();
-    return provider.getWalletClient();
-  }
-
-  async isAuthorized() {
-    try {
-      const provider = await this.getProvider();
-      const account = await provider.getAccounts();
-      return this.options.flags?.isAuthorized ?? !!account;
-    } catch {
-      return false;
-    }
-  }
-
-  async #switchChain(chainId: number) {
-    const provider = await this.getProvider();
-    await provider.switchChain(chainId);
-    return (
-      this.chains.find((x) => x.id === chainId) ?? {
-        id: chainId,
-        name: `Chain ${chainId}`,
-        network: `${chainId}`,
-        nativeCurrency: { name: 'Ether', decimals: 18, symbol: 'ETH' },
-        rpcUrls: { default: { http: [''] }, public: { http: [''] } },
+  return createConnector<Provider>((config) => ({
+    id: 'impersonated',
+    name: 'Impersonated Connector',
+    type: impersonated.type,
+    async setup() {
+      connectedChainId = config.chains[0].id;
+      accountAddress = parameters.getAccountAddress();
+    },
+    async connect({ chainId } = {}) {
+      if (features.connectError) {
+        if (typeof features.connectError === 'boolean')
+          throw new UserRejectedRequestError(new Error('Failed to connect.'));
+        throw features.connectError;
       }
-    );
-  }
 
-  async watchAsset(asset: {
-    address: string;
-    decimals?: number;
-    image?: string;
-    symbol: string;
-  }) {
-    const provider = await this.getProvider();
-    return provider.watchAsset(asset);
-  }
+      const provider = await this.getProvider();
+      const accounts = await provider.request({
+        method: 'eth_requestAccounts',
+      });
 
-  protected onAccountsChanged = (accounts: string[]) => {
-    if (accounts.length === 0) this.emit('disconnect');
-    else this.emit('change', { account: getAddress(accounts[0] as string) });
-  };
+      let currentChainId = await this.getChainId();
+      if (chainId && currentChainId !== chainId) {
+        const chain = await this.switchChain!({ chainId });
+        currentChainId = chain.id;
+      }
 
-  protected onChainChanged = (chainId: number | string) => {
-    const id = normalizeChainId(chainId);
-    const unsupported = this.isChainUnsupported(id);
-    this.emit('change', { chain: { id, unsupported } });
-  };
+      connected = true;
 
-  protected onDisconnect = () => {
-    this.emit('disconnect');
-  };
+      return { accounts, chainId: currentChainId };
+    },
+    async disconnect() {
+      connected = false;
+    },
+    async getAccounts() {
+      if (!connected) throw new Error('Not connected connector');
+      const provider = await this.getProvider();
+      const accounts = await provider.request({ method: 'eth_accounts' });
+      return accounts.map(getAddress);
+    },
+    async getChainId() {
+      const provider = await this.getProvider();
+      const hexChainId = await provider.request({ method: 'eth_chainId' });
+      return fromHex(hexChainId, 'number');
+    },
+    async isAuthorized() {
+      if (!features.reconnect) return false;
+      if (!connected) return false;
+      const accounts = await this.getAccounts();
+      return !!accounts.length;
+    },
+    async switchChain({ chainId }) {
+      const provider = await this.getProvider();
+      const chain = config.chains.find((x) => x.id === chainId);
+      if (!chain) throw new SwitchChainError(new ChainNotConfiguredError());
 
-  toJSON() {
-    return '<MockConnector>';
-  }
+      await provider.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: numberToHex(chainId) }],
+      });
+      return chain;
+    },
+    onAccountsChanged(accounts) {
+      if (accounts.length === 0) this.onDisconnect();
+      else
+        config.emitter.emit('change', { accounts: accounts.map(getAddress) });
+    },
+    onChainChanged(chain) {
+      const chainId = normalizeChainId(chain);
+      config.emitter.emit('change', { chainId });
+    },
+    async onDisconnect(_error) {
+      config.emitter.emit('disconnect');
+      connected = false;
+    },
+    async getProvider({ chainId }: { chainId?: number } = {}) {
+      accountAddress = parameters.getAccountAddress();
+      const chain =
+        config.chains.find((x) => x.id === chainId) ?? config.chains[0];
+      const url = chain.rpcUrls.default.http[0]!;
+
+      const request: EIP1193RequestFn = async ({ method, params }) => {
+        // eth methods
+        if (method === 'eth_chainId') return numberToHex(connectedChainId);
+        if (method === 'eth_requestAccounts') return accountAddress;
+        if (method === 'eth_signTypedData_v4')
+          if (features.signTypedDataError) {
+            if (typeof features.signTypedDataError === 'boolean')
+              throw new UserRejectedRequestError(
+                new Error('Failed to sign typed data.'),
+              );
+            throw features.signTypedDataError;
+          }
+
+        // wallet methods
+        if (method === 'wallet_switchEthereumChain') {
+          if (features.switchChainError) {
+            if (typeof features.switchChainError === 'boolean')
+              throw new UserRejectedRequestError(
+                new Error('Failed to switch chain.'),
+              );
+            throw features.switchChainError;
+          }
+          type Params = [{ chainId: Hex }];
+          connectedChainId = fromHex((params as Params)[0].chainId, 'number');
+          this.onChainChanged(connectedChainId.toString());
+          return;
+        }
+
+        // other methods
+        if (method === 'personal_sign') {
+          if (features.signMessageError) {
+            if (typeof features.signMessageError === 'boolean')
+              throw new UserRejectedRequestError(
+                new Error('Failed to sign message.'),
+              );
+            throw features.signMessageError;
+          }
+          // Change `personal_sign` to `eth_sign` and swap params
+          method = 'eth_sign';
+          type Params = [data: Hex, address: Address];
+          params = [(params as Params)[1], (params as Params)[0]];
+        }
+
+        const body = { method, params };
+        const { error, result } = await rpc.http(url, { body });
+        if (error) throw new RpcRequestError({ body, error, url });
+
+        return result;
+      };
+      return custom({ request })({ retryCount: 0 });
+    },
+  }));
 }

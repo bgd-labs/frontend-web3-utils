@@ -1,5 +1,4 @@
-import { PublicClient } from '@wagmi/core';
-import { Chain, createPublicClient, http } from 'viem';
+import { Chain, createPublicClient, fallback, http, PublicClient } from 'viem';
 import {
   avalanche,
   avalancheFuji,
@@ -43,7 +42,9 @@ export const initChainInformationConfig = (chains?: Record<number, Chain>) => {
               multicall: true,
             },
             chain,
-            transport: http(),
+            transport: fallback(
+              chain.rpcUrls.default.http.map((url) => http(url)),
+            ),
           });
           initalizedClients[numberChainId] = client;
           return client;

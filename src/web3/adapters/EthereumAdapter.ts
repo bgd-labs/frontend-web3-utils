@@ -1,5 +1,5 @@
 import { produce } from 'immer';
-import { Hex, isHex } from 'viem';
+import { Hex, isHex, ReplacementReturnType } from 'viem';
 
 import { setLocalStorageTxPool } from '../../utils/localStorage';
 import {
@@ -76,7 +76,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
       const txn = await client.waitForTransactionReceipt({
         pollingInterval: 8_000,
         hash: txHash,
-        onReplaced: (replacement) => {
+        onReplaced: (replacement: ReplacementReturnType) => {
           this.updateTXStatus(txHash, {
             status: TransactionStatus.Replaced,
             replacedTxHash: replacement.transaction.hash,

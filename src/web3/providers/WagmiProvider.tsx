@@ -1,57 +1,59 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
-  configureChains,
+  Config,
   createConfig,
-  GetAccountResult,
+  GetAccountReturnType,
   watchAccount,
-  watchNetwork,
 } from '@wagmi/core';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Chain } from 'viem';
-import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
+import { fallback, Hex, http, Transport } from 'viem';
+import { mainnet } from 'viem/chains';
+import { CreateConnectorFn, WagmiProvider as BaseWagmiProvider } from 'wagmi';
 import { StoreApi, UseBoundStore } from 'zustand';
 
-import {
-  AllConnectorsInitProps,
-  ConnectorType,
-  initAllConnectors,
-} from '../connectors';
+import { AllConnectorsInitProps, initAllConnectors } from '../connectors';
 
 interface WagmiProviderProps {
+  wagmiConfig: Config;
   useStore: UseBoundStore<
     StoreApi<{
-      changeActiveWalletAccount: (account?: GetAccountResult) => Promise<void>;
-      changeActiveWalletChain: (chain?: Chain) => Promise<void>;
-      setConnectors: (connectors: ConnectorType[]) => void;
+      setWagmiConfig: (config: Config) => void;
+      changeActiveWalletAccount: (
+        account?: GetAccountReturnType,
+      ) => Promise<void>;
+      setConnectors: (connectors: CreateConnectorFn[]) => void;
       setDefaultChainId: (chainId: number) => void;
+      getImpersonatedAddress?: () => Hex;
     }>
   >;
   connectorsInitProps: AllConnectorsInitProps;
 }
 
 function Child({
+  wagmiConfig,
   useStore,
   connectors,
   connectorsInitProps,
 }: WagmiProviderProps & {
-  connectors: ConnectorType[];
+  connectors: CreateConnectorFn[];
 }) {
   const {
     setConnectors,
-    changeActiveWalletAccount,
-    changeActiveWalletChain,
     setDefaultChainId,
+    setWagmiConfig,
+    changeActiveWalletAccount,
   } = useStore();
 
-  watchAccount(async (data) => {
-    if (data.address) {
-      await changeActiveWalletAccount(data);
-    }
+  watchAccount(wagmiConfig, {
+    onChange: async (account) => {
+      console.log('account changed', account);
+      await changeActiveWalletAccount(account);
+    },
   });
-  watchNetwork(async (data) => {
-    if (data.chain?.id) {
-      await changeActiveWalletChain(data.chain);
-    }
-  });
+
+  useEffect(() => {
+    setWagmiConfig(wagmiConfig);
+  }, [wagmiConfig]);
 
   useEffect(() => {
     if (connectors) {
@@ -72,35 +74,52 @@ export function WagmiProvider({
   useStore,
   connectorsInitProps,
 }: WagmiProviderProps) {
-  const [connectors] = useState(initAllConnectors(connectorsInitProps));
-  const [mappedConnectors] = useState<ConnectorType[]>(
+  const { getImpersonatedAddress } = useStore();
+
+  const formattedProps = {
+    ...connectorsInitProps,
+    getImpersonatedAccount: !!connectorsInitProps.getImpersonatedAccount
+      ? connectorsInitProps.getImpersonatedAccount
+      : getImpersonatedAddress,
+  };
+
+  const [connectors] = useState(initAllConnectors(formattedProps));
+  const [mappedConnectors] = useState<CreateConnectorFn[]>(
     connectors.map((connector) => connector),
   );
 
-  const { publicClient } = configureChains(
-    Object.values(connectorsInitProps.chains),
-    [
-      jsonRpcProvider({
-        rpc: (chain) => ({
-          http: connectorsInitProps.chains[chain.id].rpcUrls.default.http[0],
-        }),
-      }),
-    ],
-  );
-
-  useMemo(() => {
-    createConfig({
-      autoConnect: true,
-      publicClient,
-      connectors,
+  const config = useMemo(() => {
+    const chains = Object.values(formattedProps.chains);
+    const transports: Record<number, Transport> = {};
+    chains.forEach((chain) => {
+      transports[chain.id] = fallback(
+        chain.rpcUrls.default.http.map((url) => http(url)),
+      );
     });
+
+    return {
+      wagmiConfig: createConfig({
+        chains: [
+          chains[formattedProps.defaultChainId || mainnet.id],
+          ...chains,
+        ],
+        connectors,
+        transports,
+      }),
+      queryClient: new QueryClient(),
+    };
   }, []);
 
   return (
-    <Child
-      useStore={useStore}
-      connectors={mappedConnectors}
-      connectorsInitProps={connectorsInitProps}
-    />
+    <BaseWagmiProvider config={config.wagmiConfig}>
+      <QueryClientProvider client={config.queryClient}>
+        <Child
+          wagmiConfig={config.wagmiConfig}
+          useStore={useStore}
+          connectors={mappedConnectors}
+          connectorsInitProps={formattedProps}
+        />
+      </QueryClientProvider>
+    </BaseWagmiProvider>
   );
 }

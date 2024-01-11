@@ -1,7 +1,6 @@
-import { PublicClient } from '@wagmi/core';
 import dayjs from 'dayjs';
 import { Draft, produce } from 'immer';
-import { Hex, isHex } from 'viem';
+import { Hex, isHex, PublicClient } from 'viem';
 
 import { ClientsRecord } from '../../types/base';
 import { StoreSlice } from '../../types/store';
@@ -171,7 +170,10 @@ export function createTransactionsSlice<T extends BaseTx>({
         adapterType = TxAdapter.Gelato;
         newTxKey = txKey.taskId;
         get().setAdapter(TxAdapter.Gelato);
-      } else if (isSafeTxKey(txKey) || activeWallet.walletType === 'Safe') {
+      } else if (
+        isSafeTxKey(txKey) ||
+        activeWallet.walletType === WalletType.Safe
+      ) {
         adapterType = TxAdapter.Safe;
         if (isSafeTxKey(txKey)) {
           newTxKey = txKey.safeTxHash;
@@ -180,7 +182,7 @@ export function createTransactionsSlice<T extends BaseTx>({
         }
         get().setAdapter(TxAdapter.Safe);
       } else if (
-        activeWallet.walletType === 'WalletConnect' &&
+        activeWallet.walletType === WalletType.WalletConnect &&
         activeWallet.isContractAddress
       ) {
         // check if tx real on safe (only for safe + wallet connect)
