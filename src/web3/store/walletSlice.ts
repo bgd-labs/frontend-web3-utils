@@ -18,7 +18,6 @@ import {
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { mainnet } from 'viem/chains';
-import { CreateConnectorFn } from 'wagmi';
 
 import { StoreSlice } from '../../types/store';
 import { getChainByChainId } from '../../utils/getChainByChainId';
@@ -30,6 +29,7 @@ import {
   setLocalStorageWallet,
 } from '../../utils/localStorage';
 import { WalletType } from '../connectors';
+import { Connectors } from '../providers/WagmiProvider';
 import { TransactionsSliceBaseType } from './transactionsSlice';
 
 export interface Wallet {
@@ -48,8 +48,8 @@ export type IWalletSlice = {
   wagmiConfig?: Config;
   setWagmiConfig: (config: Config) => void;
 
-  connectors: CreateConnectorFn[];
-  setConnectors: (connectors: CreateConnectorFn[]) => void;
+  connectors: Connectors;
+  setConnectors: (connectors: Connectors) => void;
 
   defaultChainId: number;
   setDefaultChainId: (chainId: number) => void;
@@ -169,22 +169,26 @@ export function createWalletSlice({
 
       console.log('connectors', get().connectors);
       const connector = get().connectors.find(
-        (connector) => connector.name === walletType,
+        (connector) => connector.type === walletType,
       );
+      console.log('connector', connector);
 
       if (config) {
         try {
           if (connector) {
-            if (connector.name === WalletType.Impersonated) {
-              await connect(config, { connector, chainId });
+            if (connector.type === WalletType.Impersonated) {
+              await connect(config, {
+                connector: connector.connector,
+                chainId,
+              });
             } else {
-              if (connector.name === WalletType.WalletConnect) {
+              if (connector.type === WalletType.WalletConnect) {
                 await connect(config, {
-                  connector,
+                  connector: connector.connector,
                   chainId: get().defaultChainId,
                 });
               } else {
-                await connect(config, { connector });
+                await connect(config, { connector: connector.connector });
               }
               setLocalStorageWallet(walletType);
             }

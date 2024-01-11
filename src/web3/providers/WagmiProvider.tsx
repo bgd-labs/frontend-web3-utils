@@ -11,7 +11,13 @@ import { mainnet } from 'viem/chains';
 import { CreateConnectorFn, WagmiProvider as BaseWagmiProvider } from 'wagmi';
 import { StoreApi, UseBoundStore } from 'zustand';
 
-import { AllConnectorsInitProps, initAllConnectors } from '../connectors';
+import {
+  AllConnectorsInitProps,
+  initAllConnectors,
+  WalletType,
+} from '../connectors';
+
+export type Connectors = { connector: CreateConnectorFn; type: WalletType }[];
 
 interface WagmiProviderProps {
   useStore: UseBoundStore<
@@ -20,7 +26,7 @@ interface WagmiProviderProps {
       changeActiveWalletAccount: (
         account?: GetAccountReturnType,
       ) => Promise<void>;
-      setConnectors: (connectors: CreateConnectorFn[]) => void;
+      setConnectors: (connectors: Connectors) => void;
       setDefaultChainId: (chainId: number) => void;
       getImpersonatedAddress?: () => Hex | undefined;
     }>
@@ -35,7 +41,7 @@ function Child({
   connectorsInitProps,
 }: WagmiProviderProps & {
   wagmiConfig: Config;
-  connectors: CreateConnectorFn[];
+  connectors: Connectors;
 }) {
   const {
     setConnectors,
@@ -84,7 +90,7 @@ export function WagmiProvider({
   };
 
   const [connectors] = useState(initAllConnectors(formattedProps));
-  const [mappedConnectors] = useState<CreateConnectorFn[]>(
+  const [mappedConnectors] = useState<Connectors>(
     connectors.map((connector) => connector),
   );
 
@@ -105,7 +111,7 @@ export function WagmiProvider({
           chains[formattedProps.defaultChainId || 0] || mainnet,
           ...chains,
         ],
-        connectors,
+        connectors: connectors.map((connector) => connector.connector),
         transports,
       }),
       queryClient: new QueryClient(),
