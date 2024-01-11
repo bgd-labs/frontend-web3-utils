@@ -14,7 +14,6 @@ import { StoreApi, UseBoundStore } from 'zustand';
 import { AllConnectorsInitProps, initAllConnectors } from '../connectors';
 
 interface WagmiProviderProps {
-  wagmiConfig: Config;
   useStore: UseBoundStore<
     StoreApi<{
       setWagmiConfig: (config: Config) => void;
@@ -35,6 +34,7 @@ function Child({
   connectors,
   connectorsInitProps,
 }: WagmiProviderProps & {
+  wagmiConfig: Config;
   connectors: CreateConnectorFn[];
 }) {
   const {
