@@ -116,7 +116,10 @@ export function createWalletSlice({
       const config = get().wagmiConfig;
 
       if (wallet.isActive && config) {
-        if (wallet.chain) {
+        if (
+          wallet.chain &&
+          config.chains.some((chain) => chain.id === wallet.chain?.id)
+        ) {
           set({ isActiveWalletSetting: true });
           const publicClient = getPublicClient(config);
           const walletClient = await getWalletClient(config);
