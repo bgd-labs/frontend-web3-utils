@@ -35,8 +35,8 @@ export interface Wallet {
   walletType: WalletType;
   address: Hex;
   chain?: Chain;
-  publicClient: PublicClient;
-  walletClient: WalletClient;
+  publicClient?: PublicClient;
+  walletClient?: WalletClient;
   // isActive is added, because Wallet can be connected but not active, i.e. wrong network
   isActive: boolean;
   // isContractAddress is added, to check if wallet address is contract (mostly fo safe)
@@ -121,9 +121,6 @@ export function createWalletSlice({
           const publicClient = getPublicClient(config);
           const walletClient = await getWalletClient(config);
 
-          console.log('publicClient', publicClient);
-          console.log('walletClient', walletClient);
-
           if (publicClient && walletClient) {
             const walletWithClients = {
               ...wallet,
@@ -140,6 +137,12 @@ export function createWalletSlice({
             walletConnected(activeWallet);
             set({ isActiveWalletSetting: false });
           }
+        } else {
+          set({ isActiveWalletSetting: true });
+          const activeWallet = { ...wallet, isContractAddress: false };
+          set({ activeWallet });
+          walletConnected(activeWallet);
+          set({ isActiveWalletSetting: false });
         }
       }
     },
@@ -228,7 +231,12 @@ export function createWalletSlice({
     },
     checkAndSwitchNetwork: async (chainId) => {
       const activeWallet = get().activeWallet;
-      if (chainId && activeWallet && activeWallet?.chain?.id !== chainId) {
+      if (
+        chainId &&
+        activeWallet &&
+        activeWallet?.chain?.id !== chainId &&
+        activeWallet.walletClient
+      ) {
         set({ isActiveWalletSetting: true });
         try {
           await activeWallet.walletClient.switchChain({
@@ -329,16 +337,20 @@ export function createWalletSlice({
       if (walletRecord !== undefined) {
         return walletRecord;
       }
-      const codeOfWalletAddress = await wallet.publicClient.getBytecode({
-        address: wallet.address,
-      });
-      const isContractWallet = !!codeOfWalletAddress;
-      set((state) =>
-        produce(state, (draft) => {
-          draft.isContractWalletRecord[address] = isContractWallet;
-        }),
-      );
-      return isContractWallet;
+      if (wallet.publicClient) {
+        const codeOfWalletAddress = await wallet.publicClient.getBytecode({
+          address: wallet.address,
+        });
+        const isContractWallet = !!codeOfWalletAddress;
+        set((state) =>
+          produce(state, (draft) => {
+            draft.isContractWalletRecord[address] = isContractWallet;
+          }),
+        );
+
+        return isContractWallet;
+      }
+      return false;
     },
   });
 }
