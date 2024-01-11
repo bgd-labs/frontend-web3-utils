@@ -97,10 +97,12 @@ export function WagmiProvider({
       );
     });
 
+    console.log('chains in config', chains);
+
     return {
       wagmiConfig: createConfig({
         chains: [
-          chains[formattedProps.defaultChainId || mainnet.id],
+          chains[formattedProps.defaultChainId || 0] || mainnet,
           ...chains,
         ],
         connectors,
