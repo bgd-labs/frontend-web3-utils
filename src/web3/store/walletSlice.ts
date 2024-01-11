@@ -71,8 +71,6 @@ export type IWalletSlice = {
 
   isActiveWalletAccountChanging: boolean;
   changeActiveWalletAccount: (account?: GetAccountReturnType) => Promise<void>;
-  // isActiveWalletChainChanging: boolean;
-  // changeActiveWalletChain: (chain?: Chain) => Promise<void>;
 
   impersonated?: {
     account?: Account;
@@ -194,11 +192,14 @@ export function createWalletSlice({
             }
 
             const account = getAccount(config);
+
+            console.log('account in connect wallet', account);
+
             if (account?.isConnected && account?.address) {
               await get().setActiveWallet({
                 walletType,
                 address: account.address,
-                chain: account.chain,
+                chain: account.chain || getChainByChainId(chainId || 1),
                 isActive: account.isConnected,
                 isContractAddress: false,
               });
@@ -294,27 +295,6 @@ export function createWalletSlice({
         set({ isActiveWalletAccountChanging: false });
       }
     },
-    // isActiveWalletChainChanging: false,
-    // changeActiveWalletChain: async (chain) => {
-    //   const activeWallet = get().activeWallet;
-    //   if (
-    //     !!chain &&
-    //     activeWallet &&
-    //     activeWallet.isActive &&
-    //     activeWallet?.chain?.id !== chain.id &&
-    //     !get().isActiveWalletChainChanging
-    //   ) {
-    //     set({ isActiveWalletChainChanging: true });
-    //     await get().setActiveWallet({
-    //       walletType: activeWallet.walletType,
-    //       address: activeWallet.address,
-    //       isActive: activeWallet.isActive,
-    //       isContractAddress: activeWallet.isContractAddress,
-    //       chain: chain,
-    //     });
-    //     set({ isActiveWalletChainChanging: false });
-    //   }
-    // },
 
     setImpersonated: (privateKeyOrAddress) => {
       if (isAddress(privateKeyOrAddress)) {
