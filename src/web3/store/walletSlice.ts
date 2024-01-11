@@ -223,12 +223,15 @@ export function createWalletSlice({
     },
     disconnectActiveWallet: async () => {
       const config = get().wagmiConfig;
-      if (config && !!config.connectors.length) {
-        await disconnect(config);
-        set({ activeWallet: undefined });
-        deleteLocalStorageWallet();
-        clearWalletLinkLocalStorage();
-        clearWalletConnectV2LocalStorage();
+      if (config) {
+        const account = getAccount(config);
+        if (account.isConnected) {
+          await disconnect(config);
+          set({ activeWallet: undefined });
+          deleteLocalStorageWallet();
+          clearWalletLinkLocalStorage();
+          clearWalletConnectV2LocalStorage();
+        }
       }
     },
     resetWalletConnectionError: () => {
@@ -318,6 +321,8 @@ export function createWalletSlice({
     },
     getImpersonatedAddress: () => {
       const impersonated = get().impersonated;
+
+      console.log('getImpersonatedAddress', impersonated);
 
       if (impersonated) {
         if (impersonated.isViewOnly) {

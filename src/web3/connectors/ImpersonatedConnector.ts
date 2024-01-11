@@ -119,7 +119,10 @@ export function impersonated(parameters: ImpersonatedParameters) {
       connected = false;
     },
     async getProvider({ chainId }: { chainId?: number } = {}) {
-      accountAddress = parameters.getAccountAddress() || zeroAddress;
+      accountAddress =
+        (!!parameters.getAccountAddress()
+          ? parameters.getAccountAddress()
+          : zeroAddress) || zeroAddress;
       const chain =
         config.chains.find((x) => x.id === chainId) ?? config.chains[0];
       const url = chain.rpcUrls.default.http[0]!;
