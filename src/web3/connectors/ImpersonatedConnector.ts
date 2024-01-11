@@ -42,7 +42,7 @@ export function impersonated(parameters: ImpersonatedParameters) {
   >;
   let connected = false;
   let connectedChainId: number;
-  let accountAddress: Hex | undefined = undefined;
+  let accountAddress: Hex[] | undefined = undefined;
 
   return createConnector<Provider>((config) => ({
     id: 'impersonated',
@@ -50,7 +50,7 @@ export function impersonated(parameters: ImpersonatedParameters) {
     type: impersonated.type,
     async setup() {
       connectedChainId = config.chains[0].id;
-      accountAddress = parameters.getAccountAddress();
+      accountAddress = [parameters.getAccountAddress() || zeroAddress];
     },
     async connect({ chainId } = {}) {
       if (features.connectError) {
@@ -119,10 +119,7 @@ export function impersonated(parameters: ImpersonatedParameters) {
       connected = false;
     },
     async getProvider({ chainId }: { chainId?: number } = {}) {
-      accountAddress =
-        (!!parameters.getAccountAddress()
-          ? parameters.getAccountAddress()
-          : zeroAddress) || zeroAddress;
+      accountAddress = [parameters.getAccountAddress() || zeroAddress];
       const chain =
         config.chains.find((x) => x.id === chainId) ?? config.chains[0];
       const url = chain.rpcUrls.default.http[0]!;
