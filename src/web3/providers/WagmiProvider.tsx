@@ -23,7 +23,7 @@ interface WagmiProviderProps {
       ) => Promise<void>;
       setConnectors: (connectors: CreateConnectorFn[]) => void;
       setDefaultChainId: (chainId: number) => void;
-      getImpersonatedAddress?: () => Hex;
+      getImpersonatedAddress?: () => Hex | undefined;
     }>
   >;
   connectorsInitProps: AllConnectorsInitProps;

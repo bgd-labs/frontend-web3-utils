@@ -22,7 +22,7 @@ export type AllConnectorsInitProps = {
       icons: string[];
     };
   };
-  getImpersonatedAccount?: () => Hex;
+  getImpersonatedAccount?: () => Hex | undefined;
 };
 
 export enum WalletType {

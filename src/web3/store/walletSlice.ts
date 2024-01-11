@@ -15,7 +15,6 @@ import {
   isAddress,
   PublicClient,
   WalletClient,
-  zeroAddress,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { mainnet } from 'viem/chains';
@@ -81,7 +80,7 @@ export type IWalletSlice = {
     isViewOnly?: boolean;
   };
   setImpersonated: (privateKeyOrAddress: string) => void;
-  getImpersonatedAddress: () => void;
+  getImpersonatedAddress: () => Hex | undefined;
 
   isContractWalletRecord: Record<string, boolean>;
   checkIsContractWallet: (
@@ -332,15 +331,16 @@ export function createWalletSlice({
     },
     getImpersonatedAddress: () => {
       const impersonated = get().impersonated;
+
       if (impersonated) {
         if (impersonated.isViewOnly) {
           return impersonated.address;
         } else {
           return impersonated.account?.address;
         }
-      } else {
-        return zeroAddress;
       }
+
+      return;
     },
 
     isContractWalletRecord: {},

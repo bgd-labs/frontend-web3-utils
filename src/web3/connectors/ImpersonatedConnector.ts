@@ -11,6 +11,7 @@ import {
   type Transport,
   UserRejectedRequestError,
   type WalletRpcSchema,
+  zeroAddress,
 } from 'viem';
 import { rpc } from 'viem/utils';
 import {
@@ -20,7 +21,7 @@ import {
 } from 'wagmi';
 
 export type ImpersonatedParameters = {
-  getAccountAddress: () => Hex;
+  getAccountAddress: () => Hex | undefined;
   features?:
     | {
         connectError?: boolean | Error | undefined;
@@ -118,7 +119,7 @@ export function impersonated(parameters: ImpersonatedParameters) {
       connected = false;
     },
     async getProvider({ chainId }: { chainId?: number } = {}) {
-      accountAddress = parameters.getAccountAddress();
+      accountAddress = parameters.getAccountAddress() || zeroAddress;
       const chain =
         config.chains.find((x) => x.id === chainId) ?? config.chains[0];
       const url = chain.rpcUrls.default.http[0]!;
