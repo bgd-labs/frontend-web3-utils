@@ -6,6 +6,7 @@ import {
   GetAccountReturnType,
   getConnectorClient,
   getPublicClient,
+  switchChain,
 } from '@wagmi/core';
 import { produce } from 'immer';
 import {
@@ -302,8 +303,10 @@ export function createWalletSlice({
       set({ walletConnectionError: '' });
     },
     checkAndSwitchNetwork: async (chainId) => {
+      const config = get().wagmiConfig;
       const activeWallet = get().activeWallet;
       if (
+        config &&
         chainId &&
         activeWallet &&
         activeWallet?.chain?.id !== chainId &&
@@ -311,9 +314,10 @@ export function createWalletSlice({
       ) {
         set({ isActiveWalletSetting: true });
         try {
-          await activeWallet.walletClient.switchChain({
-            id: chainId,
-          });
+          await switchChain(config, { chainId });
+          // await activeWallet.walletClient.switchChain({
+          //   id: chainId,
+          // });
         } catch (e) {
           try {
             const chain = getChainByChainId(chainId);
@@ -321,9 +325,10 @@ export function createWalletSlice({
               await activeWallet.walletClient.addChain({
                 chain,
               });
-              await activeWallet.walletClient.switchChain({
-                id: chainId,
-              });
+              await switchChain(config, { chainId });
+              // await activeWallet.walletClient.switchChain({
+              //   id: chainId,
+              // });
             } else {
               console.error(e);
             }
