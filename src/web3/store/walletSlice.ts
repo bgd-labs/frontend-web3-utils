@@ -119,20 +119,20 @@ export function createWalletSlice({
     isActiveWalletSetting: false,
     setActiveWallet: async (wallet) => {
       let config = get().wagmiConfig;
-      // if (
-      //   config &&
-      //   config.chains.every((chain) => chain.id !== wallet.chainId)
-      // ) {
-      //   config = {
-      //     ...config,
-      //     chains: [
-      //       getChainByChainId(wallet.chainId) || mainnet,
-      //       ...config.chains,
-      //     ],
-      //   };
-      //
-      //   set({ wagmiConfig: config });
-      // }
+      if (
+        config &&
+        config.chains.every((chain) => chain.id !== wallet.chainId)
+      ) {
+        config = {
+          ...config,
+          chains: [
+            getChainByChainId(wallet.chainId) || mainnet,
+            ...config.chains,
+          ],
+        };
+
+        set({ wagmiConfig: config });
+      }
 
       const getPublicClientLocal = (localConf: Config, chain: Chain) => {
         let publicClient = undefined;
@@ -352,17 +352,17 @@ export function createWalletSlice({
       const activeWallet = get().activeWallet;
       const config = get().wagmiConfig;
 
-      // if (config) {
-      //   set({
-      //     wagmiConfig: {
-      //       ...config,
-      //       state: {
-      //         ...config.state,
-      //         chainId: account?.chainId || get().defaultChainId || mainnet.id,
-      //       },
-      //     },
-      //   });
-      // }
+      if (config) {
+        set({
+          wagmiConfig: {
+            ...config,
+            state: {
+              ...config.state,
+              chainId: account?.chainId || get().defaultChainId || mainnet.id,
+            },
+          },
+        });
+      }
 
       if (
         account?.address &&
@@ -401,8 +401,7 @@ export function createWalletSlice({
             ?.connector.type as WalletType,
           address: account.address,
           chainId: account.chainId || 1,
-          // chain: account.chain || getChainByChainId(account.chainId || 1),
-          chain: account.chain,
+          chain: account.chain || getChainByChainId(account.chainId || 1),
           isActive: true,
           isContractAddress: false,
         });

@@ -43,7 +43,7 @@ function Child({
 
   useEffect(() => {
     setWagmiConfig(wagmiConfig);
-  }, [wagmiConfig]);
+  }, []);
 
   useEffect(() => {
     if (defaultChainId) {
