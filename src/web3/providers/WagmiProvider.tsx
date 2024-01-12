@@ -22,6 +22,7 @@ export type Connectors = { connector: CreateConnectorFn; type: WalletType }[];
 interface WagmiProviderProps {
   useStore: UseBoundStore<
     StoreApi<{
+      wagmiConfig: Config;
       setWagmiConfig: (config: Config) => void;
       changeActiveWalletAccount: (
         account?: GetAccountReturnType,
@@ -52,7 +53,7 @@ function Child({
 
   useEffect(() => {
     setWagmiConfig(wagmiConfig);
-  }, [wagmiConfig]);
+  }, []);
 
   useEffect(() => {
     if (connectorsInitProps.defaultChainId) {
@@ -67,7 +68,7 @@ export function WagmiProvider({
   useStore,
   connectorsInitProps,
 }: WagmiProviderProps) {
-  const { getImpersonatedAddress } = useStore();
+  const { getImpersonatedAddress, wagmiConfig } = useStore();
 
   const formattedProps = {
     ...connectorsInitProps,
@@ -77,35 +78,51 @@ export function WagmiProvider({
   };
 
   const [connectors] = useState(initAllConnectors(formattedProps));
+  const queryClient = useMemo(() => new QueryClient(), []);
 
   const config = useMemo(() => {
-    const chains = Object.values(formattedProps.chains);
+    const chains = formattedProps.chains;
+    if (wagmiConfig) {
+      wagmiConfig.chains.forEach((chain) => {
+        chains[chain.id] = chain;
+      });
+    }
+
     const transports: Record<number, Transport> = {};
-    chains.forEach((chain) => {
+    Object.values(chains).forEach((chain) => {
       transports[chain.id] = fallback(
         chain.rpcUrls.default.http.map((url) => http(url)),
       );
     });
 
-    return {
-      wagmiConfig: createConfig({
+    if (wagmiConfig) {
+      return createConfig({
         chains: [
-          chains[formattedProps.defaultChainId || 0] || mainnet,
-          ...chains,
+          chains[wagmiConfig.state.chainId] || mainnet,
+          ...Object.values(chains),
         ],
         batch: { multicall: true },
         connectors,
         transports,
-      }),
-      queryClient: new QueryClient(),
-    };
-  }, []);
+      });
+    } else {
+      return createConfig({
+        chains: [
+          chains[formattedProps.defaultChainId || 1] || mainnet,
+          ...Object.values(chains),
+        ],
+        batch: { multicall: true },
+        connectors,
+        transports,
+      });
+    }
+  }, [wagmiConfig]);
 
   return (
-    <BaseWagmiProvider config={config.wagmiConfig}>
-      <QueryClientProvider client={config.queryClient}>
+    <BaseWagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
         <Child
-          wagmiConfig={config.wagmiConfig}
+          wagmiConfig={config}
           useStore={useStore}
           connectorsInitProps={formattedProps}
         />
