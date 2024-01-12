@@ -34,22 +34,13 @@ export enum WalletType {
 }
 
 export const initAllConnectors = (props: AllConnectorsInitProps) => {
-  const injectedConnector = {
-    connector: injected(),
-    type: WalletType.Injected,
-  };
-  const coinbaseConnector = {
-    connector: coinbaseWallet({
-      appName: props.appName,
-    }),
-    type: WalletType.Coinbase,
-  };
-  const gnosisSafeConnector = {
-    connector: safe({
-      ...safeSdkOptions,
-    }),
-    type: WalletType.Safe,
-  };
+  const injectedConnector = injected();
+  const coinbaseConnector = coinbaseWallet({
+    appName: props.appName,
+  });
+  const gnosisSafeConnector = safe({
+    ...safeSdkOptions,
+  });
 
   const connectors = [
     injectedConnector,
@@ -59,36 +50,24 @@ export const initAllConnectors = (props: AllConnectorsInitProps) => {
 
   const wcParams = props.wcParams;
   if (wcParams && !props.getImpersonatedAccount) {
-    const walletConnectConnector = {
-      connector: walletConnect({
-        projectId: wcParams.projectId,
-        metadata: wcParams.metadata,
-      }),
-      type: WalletType.WalletConnect,
-    };
+    const walletConnectConnector = walletConnect({
+      projectId: wcParams.projectId,
+      metadata: wcParams.metadata,
+    });
     return [walletConnectConnector, ...connectors];
   } else if (!wcParams && !!props.getImpersonatedAccount) {
-    const impersonatedConnector = {
-      connector: impersonated({
-        getAccountAddress: props.getImpersonatedAccount,
-      }),
-      type: WalletType.Impersonated,
-    };
+    const impersonatedConnector = impersonated({
+      getAccountAddress: props.getImpersonatedAccount,
+    });
     return [impersonatedConnector, ...connectors];
   } else if (wcParams && !!props.getImpersonatedAccount) {
-    const walletConnectConnector = {
-      connector: walletConnect({
-        projectId: wcParams.projectId,
-        metadata: wcParams.metadata,
-      }),
-      type: WalletType.WalletConnect,
-    };
-    const impersonatedConnector = {
-      connector: impersonated({
-        getAccountAddress: props.getImpersonatedAccount,
-      }),
-      type: WalletType.Impersonated,
-    };
+    const walletConnectConnector = walletConnect({
+      projectId: wcParams.projectId,
+      metadata: wcParams.metadata,
+    });
+    const impersonatedConnector = impersonated({
+      getAccountAddress: props.getImpersonatedAccount,
+    });
     return [walletConnectConnector, impersonatedConnector, ...connectors];
   } else {
     return connectors;

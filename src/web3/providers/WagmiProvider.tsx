@@ -87,15 +87,13 @@ export function WagmiProvider({
       );
     });
 
-    console.log('chains in config', chains);
-
     return {
       wagmiConfig: createConfig({
         chains: [
           chains[formattedProps.defaultChainId || 0] || mainnet,
           ...chains,
         ],
-        connectors: connectors.map((connector) => connector.connector),
+        connectors,
         transports,
       }),
       queryClient: new QueryClient(),
