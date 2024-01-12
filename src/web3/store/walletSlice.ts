@@ -251,11 +251,14 @@ export function createWalletSlice({
     disconnectActiveWallet: async () => {
       const config = get().wagmiConfig;
       if (!!config?.state.current) {
-        await disconnect(config);
-        set({ activeWallet: undefined });
-        deleteLocalStorageWallet();
-        clearWalletLinkLocalStorage();
-        clearWalletConnectV2LocalStorage();
+        const account = getAccount(config);
+        if (account.isConnected) {
+          await disconnect(config);
+          set({ activeWallet: undefined });
+          deleteLocalStorageWallet();
+          clearWalletLinkLocalStorage();
+          clearWalletConnectV2LocalStorage();
+        }
       }
     },
     resetWalletConnectionError: () => {
