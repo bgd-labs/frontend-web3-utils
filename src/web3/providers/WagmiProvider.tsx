@@ -96,8 +96,9 @@ export function WagmiProvider({
     });
 
     const chainsArray = [
-      chains[wagmiConfig.state.chainId || formattedProps.defaultChainId || 1] ||
-        mainnet,
+      chains[
+        wagmiConfig?.state.chainId || formattedProps.defaultChainId || 1
+      ] || mainnet,
       ...Object.values(chains),
     ];
 
