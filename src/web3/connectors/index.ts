@@ -1,4 +1,4 @@
-import { Chain, Hex } from 'viem';
+import { Hex } from 'viem';
 import {
   coinbaseWallet,
   injected,
@@ -11,7 +11,6 @@ import { impersonated } from './ImpersonatedConnector';
 
 export type AllConnectorsInitProps = {
   appName: string;
-  chains: Record<number, Chain>;
   defaultChainId?: number;
   wcParams?: {
     projectId: string;

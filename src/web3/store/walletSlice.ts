@@ -6,7 +6,6 @@ import {
   GetAccountReturnType,
   getConnectorClient,
   getPublicClient,
-  switchChain,
 } from '@wagmi/core';
 import { produce } from 'immer';
 import {
@@ -120,20 +119,20 @@ export function createWalletSlice({
     isActiveWalletSetting: false,
     setActiveWallet: async (wallet) => {
       let config = get().wagmiConfig;
-      if (
-        config &&
-        config.chains.every((chain) => chain.id !== wallet.chainId)
-      ) {
-        config = {
-          ...config,
-          chains: [
-            getChainByChainId(wallet.chainId) || mainnet,
-            ...config.chains,
-          ],
-        };
-
-        set({ wagmiConfig: config });
-      }
+      // if (
+      //   config &&
+      //   config.chains.every((chain) => chain.id !== wallet.chainId)
+      // ) {
+      //   config = {
+      //     ...config,
+      //     chains: [
+      //       getChainByChainId(wallet.chainId) || mainnet,
+      //       ...config.chains,
+      //     ],
+      //   };
+      //
+      //   set({ wagmiConfig: config });
+      // }
 
       const getPublicClientLocal = (localConf: Config, chain: Chain) => {
         let publicClient = undefined;
@@ -195,13 +194,6 @@ export function createWalletSlice({
         } else {
           set({ isActiveWalletSetting: true });
           let walletData = wallet;
-
-          if (!wallet.chain) {
-            walletData = {
-              ...walletData,
-              chain: getChainByChainId(walletData.chainId),
-            };
-          }
 
           if (
             walletData.chain &&
@@ -267,7 +259,8 @@ export function createWalletSlice({
                 walletType,
                 address: account.address,
                 chainId: chainId || 1,
-                chain: account.chain || getChainByChainId(chainId || 1),
+                // chain: account.chain || getChainByChainId(chainId || 1),
+                chain: account.chain,
                 isActive: account.isConnected,
                 isContractAddress: false,
               });
@@ -314,10 +307,10 @@ export function createWalletSlice({
       ) {
         set({ isActiveWalletSetting: true });
         try {
-          await switchChain(config, { chainId });
-          // await activeWallet.walletClient.switchChain({
-          //   id: chainId,
-          // });
+          // await switchChain(config, { chainId });
+          await activeWallet.walletClient.switchChain({
+            id: chainId,
+          });
         } catch (e) {
           try {
             const chain = getChainByChainId(chainId);
@@ -325,10 +318,10 @@ export function createWalletSlice({
               await activeWallet.walletClient.addChain({
                 chain,
               });
-              await switchChain(config, { chainId });
-              // await activeWallet.walletClient.switchChain({
-              //   id: chainId,
-              // });
+              // await switchChain(config, { chainId });
+              await activeWallet.walletClient.switchChain({
+                id: chainId,
+              });
             } else {
               console.error(e);
             }
@@ -359,17 +352,17 @@ export function createWalletSlice({
       const activeWallet = get().activeWallet;
       const config = get().wagmiConfig;
 
-      if (config) {
-        set({
-          wagmiConfig: {
-            ...config,
-            state: {
-              ...config.state,
-              chainId: account?.chainId || get().defaultChainId || mainnet.id,
-            },
-          },
-        });
-      }
+      // if (config) {
+      //   set({
+      //     wagmiConfig: {
+      //       ...config,
+      //       state: {
+      //         ...config.state,
+      //         chainId: account?.chainId || get().defaultChainId || mainnet.id,
+      //       },
+      //     },
+      //   });
+      // }
 
       if (
         account?.address &&
@@ -408,7 +401,8 @@ export function createWalletSlice({
             ?.connector.type as WalletType,
           address: account.address,
           chainId: account.chainId || 1,
-          chain: account.chain || getChainByChainId(account.chainId || 1),
+          // chain: account.chain || getChainByChainId(account.chainId || 1),
+          chain: account.chain,
           isActive: true,
           isContractAddress: false,
         });
