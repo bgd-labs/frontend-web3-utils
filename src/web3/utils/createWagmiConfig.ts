@@ -2,6 +2,7 @@ import { createClient, fallback, Hex, Transport } from 'viem';
 import { Chain, mainnet } from 'viem/chains';
 import { Config, createConfig, http } from 'wagmi';
 
+import { fallBackConfig } from '../../utils/chainInfoHelpers';
 import { AllConnectorsInitProps, initAllConnectors } from '../connectors';
 
 interface ICreateWagmiConfig {
@@ -43,7 +44,6 @@ export function createWagmiConfig({
     ...Object.values(chains),
   ];
 
-  // TODO:
   const chainsArrayUnique = [
     ...new Map(chainsArray.map((item) => [item['id'], item])).values(),
   ];
@@ -60,6 +60,7 @@ export function createWagmiConfig({
         },
         transport: fallback(
           chain.rpcUrls.default.http.map((url: string) => http(url)),
+          fallBackConfig,
         ),
       });
     },

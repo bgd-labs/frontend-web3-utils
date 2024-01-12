@@ -11,6 +11,12 @@ import {
 
 import { ClientsRecord } from '../types/base';
 
+export const fallBackConfig = {
+  rank: false,
+  retryDelay: 100,
+  retryCount: 5,
+};
+
 export const initialChains: Record<number, Chain> = {
   [mainnet.id]: mainnet,
   [polygon.id]: polygon,
@@ -44,6 +50,7 @@ export const initChainInformationConfig = (chains?: Record<number, Chain>) => {
             chain,
             transport: fallback(
               chain.rpcUrls.default.http.map((url) => http(url)),
+              fallBackConfig,
             ),
           });
           initalizedClients[numberChainId] = client;
