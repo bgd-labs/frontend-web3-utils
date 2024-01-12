@@ -95,27 +95,22 @@ export function WagmiProvider({
       );
     });
 
-    if (wagmiConfig) {
-      return createConfig({
-        chains: [
-          chains[wagmiConfig.state.chainId] || mainnet,
-          ...Object.values(chains),
-        ],
-        batch: { multicall: true },
-        connectors,
-        transports,
-      });
-    } else {
-      return createConfig({
-        chains: [
-          chains[formattedProps.defaultChainId || 1] || mainnet,
-          ...Object.values(chains),
-        ],
-        batch: { multicall: true },
-        connectors,
-        transports,
-      });
-    }
+    const chainsArray = [
+      chains[wagmiConfig.state.chainId || formattedProps.defaultChainId || 1] ||
+        mainnet,
+      ...Object.values(chains),
+    ];
+
+    const chainsArrayUnique = [
+      ...new Map(chainsArray.map((item) => [item['id'], item])).values(),
+    ];
+
+    return createConfig({
+      chains: [chainsArray[0], ...chainsArrayUnique],
+      batch: { multicall: true },
+      connectors,
+      transports,
+    });
   }, [wagmiConfig]);
 
   return (

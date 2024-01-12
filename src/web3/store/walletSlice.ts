@@ -8,7 +8,7 @@ import {
   getPublicClient,
   switchChain,
 } from '@wagmi/core';
-import { produce } from 'immer';
+import { Draft, produce } from 'immer';
 import {
   Account,
   Chain,
@@ -359,6 +359,20 @@ export function createWalletSlice({
       const activeWallet = get().activeWallet;
       const config = get().wagmiConfig;
 
+      if (config) {
+        set((state) =>
+          produce(state, (draft) => {
+            draft.wagmiConfig = {
+              ...draft.wagmiConfig,
+              state: {
+                ...draft.wagmiConfig?.state,
+                chainId: account?.chainId || get().defaultChainId || mainnet.id,
+              },
+            } as Draft<Config>;
+          }),
+        );
+      }
+
       if (
         account?.address &&
         activeWallet &&
@@ -392,7 +406,8 @@ export function createWalletSlice({
 
         set({ isActiveWalletAccountChanging: true });
         await get().setActiveWallet({
-          walletType: config.state.current as WalletType,
+          walletType: config.state.connections.get(config.state.current || '')
+            ?.connector.type as WalletType,
           address: account.address,
           chainId: account.chainId || 1,
           chain: account.chain || getChainByChainId(account.chainId || 1),

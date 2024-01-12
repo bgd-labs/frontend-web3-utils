@@ -28,7 +28,7 @@ export type AllConnectorsInitProps = {
 export enum WalletType {
   Injected = 'injected',
   WalletConnect = 'walletConnect',
-  Coinbase = 'coinbase',
+  Coinbase = 'coinbaseWallet',
   Safe = 'safe',
   Impersonated = 'impersonated',
 }
