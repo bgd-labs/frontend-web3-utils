@@ -119,7 +119,7 @@ export function WagmiProvider({
       connectors,
       transports,
     });
-  }, [wagmiConfig.chains]);
+  }, [wagmiConfig?.chains]);
 
   return (
     <BaseWagmiProvider config={config}>
