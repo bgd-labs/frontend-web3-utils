@@ -6,7 +6,7 @@ import {
   watchAccount,
 } from '@wagmi/core';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Chain, fallback, Hex, http, Transport } from 'viem';
+import { fallback, Hex, http, Transport } from 'viem';
 import { mainnet } from 'viem/chains';
 import { CreateConnectorFn, WagmiProvider as BaseWagmiProvider } from 'wagmi';
 import { StoreApi, UseBoundStore } from 'zustand';
@@ -102,13 +102,16 @@ export function WagmiProvider({
       ...Object.values(chains),
     ];
 
-    const chainsArrayFlags: Record<number, boolean> = {};
-    const chainsArrayUnique: Chain[] = [];
-    for (let i = 0; i < chainsArray.length; i++) {
-      if (chainsArrayFlags[chainsArray[i].id]) continue;
-      chainsArrayFlags[chainsArray[i].id] = true;
-      chainsArrayUnique.push(chainsArray[i]);
-    }
+    // const chainsArrayFlags: Record<number, boolean> = {};
+    // const chainsArrayUnique: Chain[] = [];
+    // for (let i = 0; i < chainsArray.length; i++) {
+    //   if (chainsArrayFlags[chainsArray[i].id]) continue;
+    //   chainsArrayFlags[chainsArray[i].id] = true;
+    //   chainsArrayUnique.push(chainsArray[i]);
+    // }
+    const chainsArrayUnique = [
+      ...new Map(chainsArray.map((item) => [item['id'], item])).values(),
+    ];
 
     return createConfig({
       chains: [chainsArray[0], ...chainsArrayUnique],
