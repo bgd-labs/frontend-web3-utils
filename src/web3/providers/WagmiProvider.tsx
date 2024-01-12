@@ -93,6 +93,7 @@ export function WagmiProvider({
           chains[formattedProps.defaultChainId || 0] || mainnet,
           ...chains,
         ],
+        batch: { multicall: true },
         connectors,
         transports,
       }),

@@ -4,16 +4,20 @@ import {
   disconnect,
   getAccount,
   GetAccountReturnType,
+  getConnectorClient,
   getPublicClient,
-  getWalletClient,
 } from '@wagmi/core';
 import { produce } from 'immer';
 import {
   Account,
   Chain,
+  createPublicClient,
+  fallback,
   Hex,
+  http,
   isAddress,
   PublicClient,
+  walletActions,
   WalletClient,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
@@ -130,6 +134,25 @@ export function createWalletSlice({
         set({ wagmiConfig: config });
       }
 
+      const getPublicClientLocal = (localConf: Config, chain: Chain) => {
+        let publicClient = undefined;
+        try {
+          publicClient = getPublicClient(localConf);
+        } catch {
+          publicClient = createPublicClient({
+            batch: {
+              multicall: true,
+            },
+            chain: chain,
+            transport: fallback(
+              chain.rpcUrls.default.http.map((url) => http(url)),
+            ),
+          });
+        }
+
+        return publicClient;
+      };
+
       const setWallet = async (
         walletData: Omit<Wallet, 'publicClient' | 'walletClient'>,
         publicClient: PublicClient,
@@ -161,8 +184,9 @@ export function createWalletSlice({
           config.chains.some((chain) => chain.id === wallet.chainId)
         ) {
           set({ isActiveWalletSetting: true });
-          const publicClient = getPublicClient(config);
-          const walletClient = await getWalletClient(config);
+          const client = await getConnectorClient(config);
+          const walletClient = client.extend(walletActions);
+          const publicClient = getPublicClientLocal(config, wallet.chain);
 
           if (publicClient && walletClient) {
             await setWallet(wallet, publicClient, walletClient);
@@ -182,8 +206,9 @@ export function createWalletSlice({
             walletData.chain &&
             config.chains.some((chain) => chain.id === wallet.chainId)
           ) {
-            const publicClient = getPublicClient(config);
-            const walletClient = await getWalletClient(config);
+            const client = await getConnectorClient(config);
+            const walletClient = client.extend(walletActions);
+            const publicClient = getPublicClientLocal(config, walletData.chain);
 
             if (publicClient && walletClient) {
               await setWallet(walletData, publicClient, walletClient);
