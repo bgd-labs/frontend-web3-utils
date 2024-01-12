@@ -1,3 +1,5 @@
+// TODO: getChainByChainId
+
 import {
   Config,
   connect,
@@ -6,6 +8,7 @@ import {
   GetAccountReturnType,
   getConnectorClient,
   getPublicClient,
+  switchChain,
 } from '@wagmi/core';
 import { produce } from 'immer';
 import {
@@ -49,6 +52,7 @@ export interface Wallet {
 }
 
 export type IWalletSlice = {
+  // should set only once and not change from zustand[set]
   wagmiConfig?: Config;
   setWagmiConfig: (config: Config) => Promise<void>;
 
@@ -121,7 +125,7 @@ export function createWalletSlice({
       const config = get().wagmiConfig;
       if (
         config &&
-        config.chains.every((chain) => chain.id !== wallet.chainId)
+        config.chains.some((chain) => chain.id !== wallet.chainId)
       ) {
         // TODO: need take a look
         config.setState((state) => ({
@@ -151,60 +155,28 @@ export function createWalletSlice({
         return publicClient;
       };
 
-      const setWallet = async (
-        walletData: Omit<Wallet, 'publicClient' | 'walletClient'>,
-        publicClient: PublicClient,
-        walletClient: WalletClient,
-      ) => {
-        const walletWithClients = {
-          ...walletData,
-          publicClient,
-          walletClient,
-        };
+      if (wallet.isActive && config && wallet.chain) {
+        set({ isActiveWalletSetting: true });
 
-        const isContractAddress =
-          await get().checkIsContractWallet(walletWithClients);
-        const activeWallet = { ...walletWithClients, isContractAddress };
+        const client = await getConnectorClient(config);
+        const walletClient = client.extend(walletActions);
+        const publicClient = getPublicClientLocal(config, wallet.chain);
 
-        set({ activeWallet });
-
-        if (walletData.chain?.id) {
-          get().setClient(walletData.chain.id, publicClient);
+        if (publicClient && walletClient) {
+          const walletWithClients = {
+            ...wallet,
+            publicClient,
+            walletClient,
+          };
+          const isContractAddress =
+            await get().checkIsContractWallet(walletWithClients);
+          const activeWallet = { ...walletWithClients, isContractAddress };
+          set({ activeWallet });
+          get().setClient(wallet.chain.id, publicClient);
+          walletConnected(activeWallet);
         }
 
-        walletConnected(activeWallet);
         set({ isActiveWalletSetting: false });
-      };
-
-      if (wallet.isActive && config) {
-        if (
-          wallet.chain &&
-          config.chains.some((chain) => chain.id === wallet.chainId)
-        ) {
-          set({ isActiveWalletSetting: true });
-          const client = await getConnectorClient(config);
-          const walletClient = client.extend(walletActions);
-          const publicClient = getPublicClientLocal(config, wallet.chain);
-
-          if (publicClient && walletClient) {
-            await setWallet(wallet, publicClient, walletClient);
-          }
-        } else {
-          set({ isActiveWalletSetting: true });
-
-          if (
-            wallet.chain &&
-            config.chains.some((chain) => chain.id === wallet.chainId)
-          ) {
-            const client = await getConnectorClient(config);
-            const walletClient = client.extend(walletActions);
-            const publicClient = getPublicClientLocal(config, wallet.chain);
-
-            if (publicClient && walletClient) {
-              await setWallet(wallet, publicClient, walletClient);
-            }
-          }
-        }
       }
     },
 
@@ -223,11 +195,11 @@ export function createWalletSlice({
       set({ walletActivating: true });
       set({ walletConnectionError: '' });
 
-      const connector = get().wagmiConfig?.connectors.find(
-        (connector) => connector.type === walletType,
-      );
-
       if (config) {
+        const connector = config.connectors.find(
+          (connector) => connector.type === walletType,
+        );
+
         try {
           if (connector) {
             if (connector.type === WalletType.Impersonated) {
@@ -255,9 +227,9 @@ export function createWalletSlice({
               await get().setActiveWallet({
                 walletType,
                 address: account.address,
-                chainId: chainId || 1,
-                // chain: account.chain || getChainByChainId(chainId || 1),
-                chain: account.chain,
+                chainId: chainId || mainnet.id,
+                chain:
+                  account.chain || getChainByChainId(chainId || mainnet.id),
                 isActive: account.isConnected,
                 isContractAddress: false,
               });
@@ -270,7 +242,7 @@ export function createWalletSlice({
               walletConnectionError: errorMessage,
             });
           }
-          console.error('Wallet connect error', e);
+          console.error('Error when try to connect wallet:', e);
         }
       }
 
@@ -278,15 +250,12 @@ export function createWalletSlice({
     },
     disconnectActiveWallet: async () => {
       const config = get().wagmiConfig;
-      if (config) {
-        const account = getAccount(config);
-        if (account.isConnected) {
-          await disconnect(config);
-          set({ activeWallet: undefined });
-          deleteLocalStorageWallet();
-          clearWalletLinkLocalStorage();
-          clearWalletConnectV2LocalStorage();
-        }
+      if (!!config?.state.current) {
+        await disconnect(config);
+        set({ activeWallet: undefined });
+        deleteLocalStorageWallet();
+        clearWalletLinkLocalStorage();
+        clearWalletConnectV2LocalStorage();
       }
     },
     resetWalletConnectionError: () => {
@@ -295,6 +264,7 @@ export function createWalletSlice({
     checkAndSwitchNetwork: async (chainId) => {
       const config = get().wagmiConfig;
       const activeWallet = get().activeWallet;
+
       if (
         config &&
         chainId &&
@@ -304,10 +274,7 @@ export function createWalletSlice({
       ) {
         set({ isActiveWalletSetting: true });
         try {
-          // await switchChain(config, { chainId });
-          await activeWallet.walletClient.switchChain({
-            id: chainId,
-          });
+          await switchChain(config, { chainId });
         } catch (e) {
           try {
             const chain = getChainByChainId(chainId);
@@ -315,10 +282,7 @@ export function createWalletSlice({
               await activeWallet.walletClient.addChain({
                 chain,
               });
-              // await switchChain(config, { chainId });
-              await activeWallet.walletClient.switchChain({
-                id: chainId,
-              });
+              await switchChain(config, { chainId });
             } else {
               console.error(e);
             }
@@ -350,6 +314,7 @@ export function createWalletSlice({
       const config = get().wagmiConfig;
 
       if (config) {
+        // update wagmi config state chain id
         config.setState((state) => ({
           ...state,
           chainId: state.current
@@ -359,6 +324,7 @@ export function createWalletSlice({
       }
 
       if (
+        // when account info update
         account?.address &&
         activeWallet &&
         (activeWallet.address !== account.address ||
@@ -373,13 +339,16 @@ export function createWalletSlice({
           address: account.address,
           chainId: account.chainId || mainnet.id,
           chain:
-            account.chain || activeWallet.chain === account.chainId
+            activeWallet.chain?.id === account.chainId
               ? activeWallet.chain
-              : getChainByChainId(account.chainId || mainnet.id),
+              : !!account.chain
+                ? account.chain
+                : getChainByChainId(account.chainId || mainnet.id),
           isActive: activeWallet.isActive,
           isContractAddress: activeWallet.isContractAddress,
         });
         set({ isActiveWalletAccountChanging: false });
+        // on initial connection
       } else if (
         account &&
         account.address &&
@@ -387,16 +356,16 @@ export function createWalletSlice({
         config &&
         !get().isActiveWalletAccountChanging
       ) {
-        // TODO: need take a look
-        console.log('changed acc when non active wallet', account);
+        console.log('changed acc on initial', account);
 
         set({ isActiveWalletAccountChanging: true });
         await get().setActiveWallet({
           walletType: config.state.connections.get(config.state.current || '')
             ?.connector.type as WalletType,
           address: account.address,
-          chainId: account.chainId || 1,
-          chain: account.chain || getChainByChainId(account.chainId || 1),
+          chainId: account.chainId || mainnet.id,
+          chain:
+            account.chain || getChainByChainId(account.chainId || mainnet.id),
           isActive: true,
           isContractAddress: false,
         });
