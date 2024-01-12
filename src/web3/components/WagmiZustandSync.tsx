@@ -33,7 +33,6 @@ export function WagmiZustandSync({
 
   watchAccount(wagmiConfig, {
     onChange: async (account) => {
-      console.log('account changed', account);
       await changeActiveWalletAccount(account);
     },
   });
