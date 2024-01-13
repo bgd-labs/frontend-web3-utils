@@ -87,7 +87,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
       this.stopPollingGelatoTXStatus(tx.taskId);
 
-      let retryCount = 5;
+      let retryCount = 10;
       const newGelatoInterval = setInterval(async () => {
         if (retryCount > 0) {
           const response = await this.fetchGelatoTXStatus(tx.taskId);

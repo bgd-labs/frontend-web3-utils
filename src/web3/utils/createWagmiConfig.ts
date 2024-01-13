@@ -35,12 +35,14 @@ export function createWagmiConfig({
   Object.values(chains).forEach((chain) => {
     transports[chain.id] = fallback(
       chain.rpcUrls.default.http.map((url) => http(url)),
+      fallBackConfig,
     );
   });
 
   const chainsArray = [
-    chains[wagmiConfig?.state.chainId || formattedProps.defaultChainId || 1] ||
-      mainnet,
+    chains[
+      wagmiConfig?.state.chainId || formattedProps.defaultChainId || mainnet.id
+    ] || mainnet,
     ...Object.values(chains),
   ];
 
@@ -49,7 +51,10 @@ export function createWagmiConfig({
   ];
 
   return createConfig({
-    chains: [chainsArray[0], ...chainsArrayUnique],
+    chains: [
+      chainsArray[0],
+      ...chainsArrayUnique.filter((chain) => chain.id !== chainsArray[0].id),
+    ],
     multiInjectedProviderDiscovery: false,
     connectors,
     client({ chain }) {

@@ -1,5 +1,3 @@
-// TODO: getChainByChainId
-
 import {
   Config,
   connect,
@@ -27,7 +25,8 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { mainnet } from 'viem/chains';
 
 import { StoreSlice } from '../../types/store';
-import { getChainByChainId } from '../../utils/getChainByChainId';
+import { fallBackConfig } from '../../utils/chainInfoHelpers';
+import { VIEM_CHAINS } from '../../utils/chains';
 import {
   clearWalletConnectV2LocalStorage,
   clearWalletLinkLocalStorage,
@@ -127,11 +126,10 @@ export function createWalletSlice({
         config &&
         config.chains.some((chain) => chain.id !== wallet.chainId)
       ) {
-        // TODO: need take a look
         config.setState((state) => ({
           ...state,
           chains: state.current
-            ? [getChainByChainId(state.chainId), ...config.chains]
+            ? [VIEM_CHAINS[state.chainId], ...config.chains]
             : [],
         }));
       }
@@ -148,6 +146,7 @@ export function createWalletSlice({
             chain: chain,
             transport: fallback(
               chain.rpcUrls.default.http.map((url) => http(url)),
+              fallBackConfig,
             ),
           });
         }
@@ -155,7 +154,7 @@ export function createWalletSlice({
         return publicClient;
       };
 
-      if (wallet.isActive && config && wallet.chain) {
+      if (config && wallet.isActive && wallet.chain) {
         set({ isActiveWalletSetting: true });
 
         const client = await getConnectorClient(config);
@@ -211,7 +210,7 @@ export function createWalletSlice({
               if (connector.type === WalletType.WalletConnect) {
                 await connect(config, {
                   connector,
-                  chainId: get().defaultChainId,
+                  chainId: chainId || get().defaultChainId,
                 });
               } else {
                 await connect(config, { connector });
@@ -223,13 +222,12 @@ export function createWalletSlice({
 
             console.log('account in connect wallet', account);
 
-            if (account?.isConnected && account?.address) {
+            if (account?.isConnected && account?.address && account.chainId) {
               await get().setActiveWallet({
                 walletType,
                 address: account.address,
-                chainId: chainId || mainnet.id,
-                chain:
-                  account.chain || getChainByChainId(chainId || mainnet.id),
+                chainId: chainId || account.chainId,
+                chain: account.chain || VIEM_CHAINS[chainId || account.chainId],
                 isActive: account.isConnected,
                 isContractAddress: false,
               });
@@ -280,7 +278,7 @@ export function createWalletSlice({
           await switchChain(config, { chainId });
         } catch (e) {
           try {
-            const chain = getChainByChainId(chainId);
+            const chain = VIEM_CHAINS[chainId];
             if (!!chain) {
               await activeWallet.walletClient.addChain({
                 chain,
@@ -329,6 +327,7 @@ export function createWalletSlice({
       if (
         // when account info update
         account?.address &&
+        account?.chainId &&
         activeWallet &&
         (activeWallet.address !== account.address ||
           activeWallet.chainId !== account.chainId) &&
@@ -340,13 +339,11 @@ export function createWalletSlice({
         await get().setActiveWallet({
           walletType: activeWallet.walletType,
           address: account.address,
-          chainId: account.chainId || mainnet.id,
+          chainId: account.chainId,
           chain:
-            activeWallet.chain?.id === account.chainId
+            activeWallet.chainId === account.chainId
               ? activeWallet.chain
-              : !!account.chain
-                ? account.chain
-                : getChainByChainId(account.chainId || mainnet.id),
+              : account.chain,
           isActive: activeWallet.isActive,
           isContractAddress: activeWallet.isContractAddress,
         });
@@ -355,6 +352,7 @@ export function createWalletSlice({
       } else if (
         account &&
         account.address &&
+        account.chainId &&
         !activeWallet &&
         config &&
         !get().isActiveWalletAccountChanging
@@ -366,9 +364,8 @@ export function createWalletSlice({
           walletType: config.state.connections.get(config.state.current || '')
             ?.connector.type as WalletType,
           address: account.address,
-          chainId: account.chainId || mainnet.id,
-          chain:
-            account.chain || getChainByChainId(account.chainId || mainnet.id),
+          chainId: account.chainId,
+          chain: account.chain || VIEM_CHAINS[account.chainId],
           isActive: true,
           isContractAddress: false,
         });
@@ -395,7 +392,6 @@ export function createWalletSlice({
     },
     getImpersonatedAddress: () => {
       const impersonated = get().impersonated;
-
       if (impersonated) {
         if (impersonated.isViewOnly) {
           return impersonated.address;
@@ -403,7 +399,6 @@ export function createWalletSlice({
           return impersonated.account?.address;
         }
       }
-
       return;
     },
 
