@@ -54,8 +54,8 @@ export function createWagmiConfig({
   console.log('chainsArrayUnique', chainsArrayUnique);
   console.log(
     'chainsArrayTotal',
-    Object.values(VIEM_CHAINS).filter((chain) =>
-      chainsArrayUnique.forEach((c) => chain.id !== c.id),
+    Object.values(VIEM_CHAINS).filter(
+      (chain) => !!chainsArrayUnique.find((c) => chain.id !== c.id),
     ),
   );
 
