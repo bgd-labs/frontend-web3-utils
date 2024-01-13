@@ -3,6 +3,7 @@ import { Chain, mainnet } from 'viem/chains';
 import { Config, createConfig, http } from 'wagmi';
 
 import { fallBackConfig } from '../../utils/chainInfoHelpers';
+import { VIEM_CHAINS } from '../../utils/chains';
 import { AllConnectorsInitProps, initAllConnectors } from '../connectors';
 
 interface ICreateWagmiConfig {
@@ -48,12 +49,23 @@ export function createWagmiConfig({
 
   const chainsArrayUnique = [
     ...new Map(chainsArray.map((item) => [item['id'], item])).values(),
-  ];
+  ].filter((chain) => chain.id !== chainsArray[0].id);
+
+  console.log('chainsArrayUnique', chainsArrayUnique);
+  console.log(
+    'chainsArrayTotal',
+    Object.values(VIEM_CHAINS).filter((chain) =>
+      chainsArrayUnique.forEach((c) => chain.id !== c.id),
+    ),
+  );
 
   return createConfig({
     chains: [
       chainsArray[0],
-      ...chainsArrayUnique.filter((chain) => chain.id !== chainsArray[0].id),
+      ...chainsArrayUnique,
+      ...Object.values(VIEM_CHAINS).filter((chain) =>
+        chainsArrayUnique.forEach((c) => chain.id !== c.id),
+      ),
     ],
     multiInjectedProviderDiscovery: false,
     connectors,

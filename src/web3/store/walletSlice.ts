@@ -122,18 +122,6 @@ export function createWalletSlice({
     isActiveWalletSetting: false,
     setActiveWallet: async (wallet) => {
       const config = get().wagmiConfig;
-      if (
-        config &&
-        config.chains.some((chain) => chain.id !== wallet.chainId)
-      ) {
-        config.setState((state) => ({
-          ...state,
-          chains: state.current
-            ? [VIEM_CHAINS[state.chainId], ...config.chains]
-            : [],
-        }));
-      }
-
       const getPublicClientLocal = (localConf: Config, chain: Chain) => {
         let publicClient = undefined;
         try {
@@ -346,28 +334,6 @@ export function createWalletSlice({
               : account.chain,
           isActive: activeWallet.isActive,
           isContractAddress: activeWallet.isContractAddress,
-        });
-        set({ isActiveWalletAccountChanging: false });
-        // on initial connection
-      } else if (
-        account &&
-        account.address &&
-        account.chainId &&
-        !activeWallet &&
-        config &&
-        !get().isActiveWalletAccountChanging
-      ) {
-        console.log('changed acc on initial', account);
-
-        set({ isActiveWalletAccountChanging: true });
-        await get().setActiveWallet({
-          walletType: config.state.connections.get(config.state.current || '')
-            ?.connector.type as WalletType,
-          address: account.address,
-          chainId: account.chainId,
-          chain: account.chain || VIEM_CHAINS[account.chainId],
-          isActive: true,
-          isContractAddress: false,
         });
         set({ isActiveWalletAccountChanging: false });
       }

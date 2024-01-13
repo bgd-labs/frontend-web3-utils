@@ -50,7 +50,6 @@ export function impersonated(parameters: ImpersonatedParameters) {
     type: impersonated.type,
     async setup() {
       connectedChainId = config.chains[0].id;
-      accountAddress = [parameters.getAccountAddress() || zeroAddress];
     },
     async connect({ chainId } = {}) {
       if (features.connectError) {
@@ -117,9 +116,12 @@ export function impersonated(parameters: ImpersonatedParameters) {
     async onDisconnect(_error) {
       config.emitter.emit('disconnect');
       connected = false;
+      accountAddress = undefined;
     },
     async getProvider({ chainId }: { chainId?: number } = {}) {
-      accountAddress = [parameters.getAccountAddress() || zeroAddress];
+      accountAddress = parameters.getAccountAddress()
+        ? [parameters.getAccountAddress() || zeroAddress]
+        : undefined;
       const chain =
         config.chains.find((x) => x.id === chainId) ?? config.chains[0];
       const url = chain.rpcUrls.default.http[0]!;
@@ -173,7 +175,7 @@ export function impersonated(parameters: ImpersonatedParameters) {
 
         return result;
       };
-      return custom({ request })({ retryCount: 0 });
+      return custom({ request })({ retryCount: 1 });
     },
   }));
 }
