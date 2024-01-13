@@ -55,7 +55,7 @@ export function createWagmiConfig({
   console.log(
     'chainsArrayTotal',
     Object.values(VIEM_CHAINS).filter(
-      (chain) => !!chainsArrayUnique.find((c) => chain.id !== c.id),
+      (chain) => !chainsArrayUnique.find((c) => chain.id === c.id)?.id,
     ),
   );
 
@@ -63,8 +63,8 @@ export function createWagmiConfig({
     chains: [
       chainsArray[0],
       ...chainsArrayUnique,
-      ...Object.values(VIEM_CHAINS).filter((chain) =>
-        chainsArrayUnique.forEach((c) => chain.id !== c.id),
+      ...Object.values(VIEM_CHAINS).filter(
+        (chain) => !chainsArrayUnique.find((c) => chain.id === c.id)?.id,
       ),
     ],
     multiInjectedProviderDiscovery: false,
