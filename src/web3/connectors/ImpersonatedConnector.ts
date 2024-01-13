@@ -74,7 +74,7 @@ export function impersonated(parameters: ImpersonatedParameters) {
       return { accounts, chainId: currentChainId };
     },
     async disconnect() {
-      connected = false;
+      this.onDisconnect();
     },
     async getAccounts() {
       if (!connected) throw new Error('Not connected connector');

@@ -49,20 +49,12 @@ export function createWagmiConfig({
 
   const chainsArrayUnique = [
     ...new Map(chainsArray.map((item) => [item['id'], item])).values(),
-  ].filter((chain) => chain.id !== chainsArray[0].id);
-
-  console.log('chainsArrayUnique', chainsArrayUnique);
-  console.log(
-    'chainsArrayTotal',
-    Object.values(VIEM_CHAINS).filter(
-      (chain) => !chainsArrayUnique.find((c) => chain.id === c.id)?.id,
-    ),
-  );
+  ];
 
   return createConfig({
     chains: [
       chainsArray[0],
-      ...chainsArrayUnique,
+      ...chainsArrayUnique.filter((chain) => chain.id !== chainsArray[0].id),
       ...Object.values(VIEM_CHAINS).filter(
         (chain) => !chainsArrayUnique.find((c) => chain.id === c.id)?.id,
       ),
