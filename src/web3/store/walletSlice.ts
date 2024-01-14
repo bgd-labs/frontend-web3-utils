@@ -236,7 +236,7 @@ export function createWalletSlice({
     },
     disconnectActiveWallet: async () => {
       const config = get().wagmiConfig;
-      if (!!config?.state.current) {
+      if (config) {
         const account = getAccount(config);
         if (account.isConnected) {
           await disconnect(config);

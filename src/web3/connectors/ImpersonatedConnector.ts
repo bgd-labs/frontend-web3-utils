@@ -74,7 +74,8 @@ export function impersonated(parameters: ImpersonatedParameters) {
       return { accounts, chainId: currentChainId };
     },
     async disconnect() {
-      this.onDisconnect();
+      connected = false;
+      accountAddress = undefined;
     },
     async getAccounts() {
       if (!connected) throw new Error('Not connected connector');
@@ -88,7 +89,6 @@ export function impersonated(parameters: ImpersonatedParameters) {
       return fromHex(hexChainId, 'number');
     },
     async isAuthorized() {
-      if (!features.reconnect) return false;
       if (!connected) return false;
       const accounts = await this.getAccounts();
       return !!accounts.length;
