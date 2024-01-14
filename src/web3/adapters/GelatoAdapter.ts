@@ -73,7 +73,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
         return !!listOfRelays.relays.find((id) => +id === chainId);
       }
     } catch (e) {
-      console.error('Check gelato available error', e);
+      console.error('Check is gelato services available error:', e);
       return false;
     }
   };

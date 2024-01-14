@@ -2,8 +2,7 @@ import { createClient, fallback, Hex, Transport } from 'viem';
 import { Chain, mainnet } from 'viem/chains';
 import { Config, createConfig, http } from 'wagmi';
 
-import { fallBackConfig } from '../../utils/chainInfoHelpers';
-import { VIEM_CHAINS } from '../../utils/chains';
+import { fallBackConfig, VIEM_CHAINS } from '../../utils/chainInfoHelpers';
 import { AllConnectorsInitProps, initAllConnectors } from '../connectors';
 
 interface ICreateWagmiConfig {

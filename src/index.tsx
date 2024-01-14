@@ -2,7 +2,6 @@ export * from './hooks/useLastTxLocalStatus';
 export * from './types/base';
 export * from './types/store';
 export * from './utils/chainInfoHelpers';
-export * from './utils/chains';
 export * from './utils/constants';
 export * from './utils/localStorage';
 export * from './utils/wallets/getBrowserWalletLabelAndIcon';

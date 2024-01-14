@@ -25,8 +25,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { mainnet } from 'viem/chains';
 
 import { StoreSlice } from '../../types/store';
-import { fallBackConfig } from '../../utils/chainInfoHelpers';
-import { VIEM_CHAINS } from '../../utils/chains';
+import { fallBackConfig, VIEM_CHAINS } from '../../utils/chainInfoHelpers';
 import {
   clearWalletConnectV2LocalStorage,
   clearWalletLinkLocalStorage,
@@ -42,8 +41,8 @@ export interface Wallet {
   address: Hex;
   chainId: number;
   chain?: Chain;
-  publicClient?: PublicClient;
-  walletClient?: WalletClient;
+  publicClient: PublicClient;
+  walletClient: WalletClient;
   // isActive is added, because Wallet can be connected but not active, i.e. wrong network
   isActive: boolean;
   // isContractAddress is added, to check if wallet address is contract (mostly fo safe)
@@ -55,7 +54,7 @@ export type IWalletSlice = {
   wagmiConfig?: Config;
   setWagmiConfig: (config: Config) => Promise<void>;
 
-  defaultChainId: number;
+  defaultChainId?: number;
   setDefaultChainId: (chainId: number) => void;
 
   initDefaultWallet: () => Promise<void>;
@@ -104,7 +103,6 @@ export function createWalletSlice({
       }
     },
 
-    defaultChainId: mainnet.id,
     setDefaultChainId: (chainId) => {
       set({ defaultChainId: chainId });
     },
