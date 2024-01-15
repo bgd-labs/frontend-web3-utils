@@ -10,6 +10,7 @@ interface ICreateWagmiConfig {
   connectorsInitProps: AllConnectorsInitProps;
   wagmiConfig?: Config;
   getImpersonatedAccount?: () => Hex | undefined;
+  ssr?: boolean;
 }
 
 export function createWagmiConfig({
@@ -17,6 +18,7 @@ export function createWagmiConfig({
   wagmiConfig,
   connectorsInitProps,
   getImpersonatedAccount,
+  ssr,
 }: ICreateWagmiConfig) {
   const formattedProps = {
     ...connectorsInitProps,
@@ -51,6 +53,7 @@ export function createWagmiConfig({
   ];
 
   return createConfig({
+    ssr,
     chains: [
       chainsArray[0],
       ...chainsArrayUnique.filter((chain) => chain.id !== chainsArray[0].id),

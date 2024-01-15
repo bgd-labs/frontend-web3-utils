@@ -96,11 +96,9 @@ export function createWalletSlice({
 }): StoreSlice<IWalletSlice, TransactionsSliceBaseType> {
   return (set, get) => ({
     setWagmiConfig: async (config) => {
-      if (!get().wagmiConfig) {
-        set({ wagmiConfig: config });
-        await get().initDefaultWallet();
-        get().initTxPool();
-      }
+      set({ wagmiConfig: config });
+      await get().initDefaultWallet();
+      get().initTxPool();
     },
 
     setDefaultChainId: (chainId) => {
