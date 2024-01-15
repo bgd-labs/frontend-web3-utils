@@ -61,8 +61,8 @@
   "peerDependencies": {
     "immer": "^10.0.3",
     "react": "^18.2.0",
-    "viem": "^2.0.6",
-    "wagmi": "^2.2.0",
+    "viem": "^2.0.10",
+    "wagmi": "^2.2.1",
     "zustand": "^4.4.7"
   },
   "devDependencies": {
@@ -83,14 +83,14 @@
     "immer": "^10.0.3",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
-    "prettier": "^3.2.1",
+    "prettier": "^3.2.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "size-limit": "^11.0.1",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3",
-    "viem": "^2.0.6",
-    "wagmi": "^2.2.0",
+    "viem": "^2.0.10",
+    "wagmi": "^2.2.1",
     "zustand": "^4.4.7"
   },
   "dependencies": {
