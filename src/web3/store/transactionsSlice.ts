@@ -63,7 +63,7 @@ export interface ITransactionsActions<T extends BaseTx> {
     },
   ) => void;
   executeTx: (params: {
-    body: () => Promise<TxKey>;
+    body: () => Promise<TxKey | undefined>;
     params: {
       type: T['type'];
       payload: T['payload'];
@@ -154,6 +154,9 @@ export function createTransactionsSlice<T extends BaseTx>({
     executeTx: async ({ body, params }) => {
       await get().checkAndSwitchNetwork(params.desiredChainID);
       const txKey = await body();
+      if (!txKey) {
+        throw new Error("Can't get tx key");
+      }
 
       const { desiredChainID, payload, type } = params;
 
