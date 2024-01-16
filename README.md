@@ -104,7 +104,7 @@ export default function WagmiConfigProviderWrapper() {
     return createWagmiConfig({
       chains: CHAINS,
       connectorsInitProps: {
-        appName: 'Test',
+        appName: 'YourAppName',
         defaultChainId: DESIRED_CHAIN_ID,
         wcParams: {
           projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID || '',
