@@ -5,27 +5,15 @@ import {
   getAccount,
   GetAccountReturnType,
   getConnectorClient,
-  getPublicClient,
   switchChain,
 } from '@wagmi/core';
 import { produce } from 'immer';
-import {
-  Account,
-  Chain,
-  createPublicClient,
-  fallback,
-  Hex,
-  http,
-  isAddress,
-  PublicClient,
-  walletActions,
-  WalletClient,
-} from 'viem';
+import { Account, Chain, Client, Hex, isAddress, walletActions } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { mainnet } from 'viem/chains';
+import { getBytecode } from 'viem/actions';
 
 import { StoreSlice } from '../../types/store';
-import { fallBackConfig, VIEM_CHAINS } from '../../utils/chainInfoHelpers';
+import { VIEM_CHAINS } from '../../utils/chainInfoHelpers';
 import {
   clearWalletConnectV2LocalStorage,
   clearWalletLinkLocalStorage,
@@ -41,8 +29,7 @@ export interface Wallet {
   address: Hex;
   chainId: number;
   chain?: Chain;
-  publicClient: PublicClient;
-  walletClient: WalletClient;
+  connectorClient?: Client;
   // isActive is added, because Wallet can be connected but not active, i.e. wrong network
   isActive: boolean;
   // isContractAddress is added, to check if wallet address is contract (mostly fo safe)
@@ -50,7 +37,7 @@ export interface Wallet {
 }
 
 export type IWalletSlice = {
-  // should set only once and not change from zustand[set]
+  // should not change from zustand[set]
   wagmiConfig?: Config;
   setWagmiConfig: (config: Config) => Promise<void>;
 
@@ -118,44 +105,22 @@ export function createWalletSlice({
     isActiveWalletSetting: false,
     setActiveWallet: async (wallet) => {
       const config = get().wagmiConfig;
-      const getPublicClientLocal = (localConf: Config, chain: Chain) => {
-        let publicClient = undefined;
-        try {
-          publicClient = getPublicClient(localConf);
-        } catch {
-          publicClient = createPublicClient({
-            batch: {
-              multicall: true,
-            },
-            chain: chain,
-            transport: fallback(
-              chain.rpcUrls.default.http.map((url) => http(url)),
-              fallBackConfig,
-            ),
-          });
-        }
-
-        return publicClient;
-      };
-
       if (config && wallet.isActive && wallet.chain) {
         set({ isActiveWalletSetting: true });
 
-        const client = await getConnectorClient(config);
-        const walletClient = client.extend(walletActions);
-        const publicClient = getPublicClientLocal(config, wallet.chain);
+        const connectorClient = await getConnectorClient(config);
 
-        if (publicClient && walletClient) {
+        if (connectorClient) {
           const walletWithClients = {
             ...wallet,
-            publicClient,
-            walletClient,
+            connectorClient,
           };
+
           const isContractAddress =
             await get().checkIsContractWallet(walletWithClients);
           const activeWallet = { ...walletWithClients, isContractAddress };
           set({ activeWallet });
-          get().setClient(wallet.chain.id, publicClient);
+          get().setClient(wallet.chain.id, connectorClient);
           walletConnected(activeWallet);
         }
 
@@ -255,7 +220,7 @@ export function createWalletSlice({
         chainId &&
         activeWallet &&
         activeWallet?.chain?.id !== chainId &&
-        activeWallet.walletClient
+        activeWallet.connectorClient
       ) {
         set({ isActiveWalletSetting: true });
         try {
@@ -264,9 +229,11 @@ export function createWalletSlice({
           try {
             const chain = VIEM_CHAINS[chainId];
             if (!!chain) {
-              await activeWallet.walletClient.addChain({
-                chain,
-              });
+              await activeWallet.connectorClient
+                .extend(walletActions)
+                .addChain({
+                  chain,
+                });
               await switchChain(config, { chainId });
             } else {
               console.error(e);
@@ -296,17 +263,17 @@ export function createWalletSlice({
     isActiveWalletAccountChanging: false,
     changeActiveWalletAccount: async (account) => {
       const activeWallet = get().activeWallet;
-      const config = get().wagmiConfig;
+      // const config = get().wagmiConfig;
 
-      if (config) {
-        // update wagmi config state chain id
-        config.setState((state) => ({
-          ...state,
-          chainId: state.current
-            ? account?.chainId || get().defaultChainId || mainnet.id
-            : mainnet.id,
-        }));
-      }
+      // if (config) {
+      //   // update wagmi config state chain id
+      //   config.setState((state) => ({
+      //     ...state,
+      //     chainId: state.current
+      //       ? account?.chainId || get().defaultChainId || mainnet.id
+      //       : mainnet.id,
+      //   }));
+      // }
 
       if (
         // when account info update
@@ -371,8 +338,8 @@ export function createWalletSlice({
       if (walletRecord !== undefined) {
         return walletRecord;
       }
-      if (wallet.publicClient) {
-        const codeOfWalletAddress = await wallet.publicClient.getBytecode({
+      if (wallet.connectorClient) {
+        const codeOfWalletAddress = await getBytecode(wallet.connectorClient, {
           address: wallet.address,
         });
         const isContractWallet = !!codeOfWalletAddress;

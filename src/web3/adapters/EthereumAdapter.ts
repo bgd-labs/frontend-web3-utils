@@ -1,5 +1,10 @@
 import { produce } from 'immer';
 import { Hex, isHex, ReplacementReturnType } from 'viem';
+import {
+  getBlock,
+  getTransaction,
+  waitForTransactionReceipt,
+} from 'viem/actions';
 
 import { setLocalStorageTxPool } from '../../utils/localStorage';
 import {
@@ -46,7 +51,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
         // Find the transaction in the waiting pool
         for (let i = 0; i < retryCount; i++) {
           try {
-            const tx = await client.getTransaction({ hash: txData.hash });
+            const tx = await getTransaction(client, { hash: txData.hash });
             // If the transaction is found, wait for the receipt
             await this.waitForTxReceipt(txData.hash, tx.nonce);
             return;
@@ -73,7 +78,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     let txWasReplaced = false;
 
     try {
-      const txn = await client.waitForTransactionReceipt({
+      const txn = await waitForTransactionReceipt(client, {
         hash: txHash,
         onReplaced: (replacement: ReplacementReturnType) => {
           this.updateTXStatus(txHash, {
@@ -99,7 +104,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
       });
 
       const updatedTX = this.get().transactionsPool[txHash];
-      const txBlock = await client.getBlock({ blockNumber: txn.blockNumber });
+      const txBlock = await getBlock(client, { blockNumber: txn.blockNumber });
       const timestamp = txBlock.timestamp;
 
       this.get().txStatusChangedCallback({

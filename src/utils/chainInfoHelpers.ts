@@ -1,4 +1,4 @@
-import { Chain, createPublicClient, fallback, http, PublicClient } from 'viem';
+import { Chain, Client, createClient, fallback, http } from 'viem';
 import * as viemChains from 'viem/chains';
 
 import { ClientsRecord } from '../types/base';
@@ -32,7 +32,7 @@ export const initChainInformationConfig = (chains?: Record<number, Chain>) => {
   const initalizedClients: ClientsRecord = {};
   const clientInstances = Object.values(CHAINS).reduce<{
     [chainId: number]: {
-      instance: PublicClient;
+      instance: Client;
     };
   }>((accumulator, chain) => {
     const numberChainId = Number(chain.id);
@@ -41,7 +41,7 @@ export const initChainInformationConfig = (chains?: Record<number, Chain>) => {
         if (initalizedClients[numberChainId]) {
           return initalizedClients[numberChainId];
         } else {
-          const client = createPublicClient({
+          const client = createClient({
             batch: {
               multicall: true,
             },

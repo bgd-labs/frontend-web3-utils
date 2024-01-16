@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { Draft, produce } from 'immer';
-import { Hex, isHex, PublicClient } from 'viem';
+import { Client, Hex, isHex } from 'viem';
 
 import { ClientsRecord } from '../../types/base';
 import { StoreSlice } from '../../types/store';
@@ -36,7 +36,7 @@ export type TransactionPool<T extends BaseTx> = Record<string, T>;
 
 export type TransactionsSliceBaseType = {
   clients: ClientsRecord;
-  setClient: (chainId: number, client: PublicClient) => void;
+  setClient: (chainId: number, client: Client) => void;
   initTxPool: () => void;
 };
 
@@ -98,7 +98,7 @@ export function createTransactionsSlice<T extends BaseTx>({
     setClient: (chainId, client) => {
       set((state) =>
         produce(state, (draft) => {
-          draft.clients[chainId] = client as Draft<PublicClient>;
+          draft.clients[chainId] = client as Draft<Client>;
         }),
       );
     },

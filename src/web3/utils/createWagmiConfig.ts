@@ -62,6 +62,7 @@ export function createWagmiConfig({
       ),
     ],
     multiInjectedProviderDiscovery: false,
+    syncConnectedChain: true,
     connectors,
     client({ chain }) {
       return createClient({
