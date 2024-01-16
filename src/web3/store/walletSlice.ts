@@ -169,8 +169,6 @@ export function createWalletSlice({
 
             const account = getAccount(config);
 
-            console.log('account in connect wallet', account);
-
             if (account?.isConnected && account?.address && account.chainId) {
               await get().setActiveWallet({
                 walletType,
@@ -263,20 +261,9 @@ export function createWalletSlice({
     isActiveWalletAccountChanging: false,
     changeActiveWalletAccount: async (account) => {
       const activeWallet = get().activeWallet;
-      // const config = get().wagmiConfig;
 
-      // if (config) {
-      //   // update wagmi config state chain id
-      //   config.setState((state) => ({
-      //     ...state,
-      //     chainId: state.current
-      //       ? account?.chainId || get().defaultChainId || mainnet.id
-      //       : mainnet.id,
-      //   }));
-      // }
-
+      // when account info update
       if (
-        // when account info update
         account?.address &&
         account?.chainId &&
         activeWallet &&
@@ -284,8 +271,6 @@ export function createWalletSlice({
           activeWallet.chainId !== account.chainId) &&
         !get().isActiveWalletAccountChanging
       ) {
-        console.log('changed acc when active wallet', account);
-
         set({ isActiveWalletAccountChanging: true });
         await get().setActiveWallet({
           walletType: activeWallet.walletType,

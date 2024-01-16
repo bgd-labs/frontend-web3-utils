@@ -6800,10 +6800,10 @@ viem@^1.0.0, viem@^1.1.4:
     isows "1.0.3"
     ws "8.13.0"
 
-viem@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-2.1.0.tgz#70e3b64e9dcb6539e556a463a9bf9b5d581648ee"
-  integrity sha512-C3qOgbuJh3yl4xBtyqLV0jPR+ctRbL/i9dGb4rV47Z7ojWxGBoB9XtOOM9xVGxdhUYtiEXSk0NIZRz/y+JAh4Q==
+viem@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-2.1.1.tgz#8ab73c84d66369e80b9090626a0a8010d681e2d4"
+  integrity sha512-gJiwYceD7Dsjioglr+85GQS3u5Gp9XGG8oJqGsauBaEPFlkmbRx7cxD2Q5RZXFToVvEbarOWtITZtGHBsGv4MQ==
   dependencies:
     "@adraffy/ens-normalize" "1.10.0"
     "@noble/curves" "1.2.0"
