@@ -10,19 +10,20 @@ import {
 import { isGelatoBaseTx, isGelatoTXPending } from './helpers';
 import { AdapterInterface, BaseTx, BasicTx, TransactionStatus } from './types';
 
-export type GelatoTXState =
-  | 'WaitingForConfirmation'
-  | 'CheckPending'
-  | 'ExecSuccess'
-  | 'Cancelled'
-  | 'ExecPending'
-  | 'ExecReverted';
+export enum GelatoTaskState {
+  CheckPending = 'CheckPending',
+  ExecPending = 'ExecPending',
+  WaitingForConfirmation = 'WaitingForConfirmation',
+  ExecSuccess = 'ExecSuccess',
+  ExecReverted = 'ExecReverted',
+  Cancelled = 'Cancelled',
+}
 
 export type GelatoTaskStatusResponse = {
   task: {
     chainId: number;
     taskId: string;
-    taskState: GelatoTXState;
+    taskState: GelatoTaskState;
     creationDate?: string;
     executionDate?: string;
     transactionHash?: Hex;
@@ -34,7 +35,7 @@ export type GelatoTaskStatusResponse = {
 export type GelatoBaseTx = BasicTx & {
   taskId: string;
   hash?: Hex;
-  gelatoStatus?: GelatoTXState;
+  gelatoStatus?: GelatoTaskState;
 };
 
 export type GelatoTx = {
@@ -72,7 +73,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
         return !!listOfRelays.relays.find((id) => +id === chainId);
       }
     } catch (e) {
-      console.error('Check gelato available error', e);
+      console.error('Check is gelato services available error:', e);
       return false;
     }
   };
@@ -86,7 +87,7 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
       this.stopPollingGelatoTXStatus(tx.taskId);
 
-      let retryCount = 5;
+      let retryCount = 10;
       const newGelatoInterval = setInterval(async () => {
         if (retryCount > 0) {
           const response = await this.fetchGelatoTXStatus(tx.taskId);
@@ -155,8 +156,8 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
             statusResponse.task.taskState === 'ExecSuccess'
               ? TransactionStatus.Success
               : pending
-              ? undefined
-              : TransactionStatus.Reverted;
+                ? undefined
+                : TransactionStatus.Reverted;
 
           draft.transactionsPool[taskId] = {
             ...draft.transactionsPool[taskId],
@@ -167,7 +168,11 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
             timestamp: statusResponse.task.executionDate
               ? dayjs(statusResponse.task.executionDate).unix()
               : undefined,
-            errorMessage: statusResponse.task.lastCheckMessage,
+            errorMessage:
+              statusResponse.task.taskState >
+              GelatoTaskState.WaitingForConfirmation
+                ? statusResponse.task.lastCheckMessage
+                : undefined,
             isError: !pending && status !== TransactionStatus.Success,
           };
         }

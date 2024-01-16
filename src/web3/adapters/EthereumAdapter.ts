@@ -1,5 +1,10 @@
 import { produce } from 'immer';
-import { Hex, isHex } from 'viem';
+import { Hex, isHex, ReplacementReturnType } from 'viem';
+import {
+  getBlock,
+  getTransaction,
+  waitForTransactionReceipt,
+} from 'viem/actions';
 
 import { setLocalStorageTxPool } from '../../utils/localStorage';
 import {
@@ -37,7 +42,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
   }
 
   startTxTracking = async (tx: PoolTx<T>) => {
-    const retryCount = 5;
+    const retryCount = 10;
     const txData = tx.hash ? this.get().transactionsPool[tx.hash] : undefined;
     // check if tx is in local storage
     if (txData) {
@@ -46,13 +51,13 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
         // Find the transaction in the waiting pool
         for (let i = 0; i < retryCount; i++) {
           try {
-            const tx = await client.getTransaction({ hash: txData.hash });
+            const tx = await getTransaction(client, { hash: txData.hash });
             // If the transaction is found, wait for the receipt
             await this.waitForTxReceipt(txData.hash, tx.nonce);
             return;
           } catch (e) {
             if (i === retryCount - 1) {
-              console.error('Error when tracking eth tx', e);
+              console.error('Error when tracking ETH TX:', e);
               // If the transaction is not found after the last retry, set the status to unknownError (it could be replaced with completely new one or lost in mempool)
               this.updateTXStatus(txData.hash, {
                 status: TransactionStatus.Failed,
@@ -62,7 +67,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
           }
         }
         // Wait before the next retry
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, 3000));
       }
     }
   };
@@ -73,17 +78,18 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
     let txWasReplaced = false;
 
     try {
-      const txn = await client.waitForTransactionReceipt({
-        pollingInterval: 8_000,
+      const txn = await waitForTransactionReceipt(client, {
         hash: txHash,
-        onReplaced: (replacement) => {
+        onReplaced: (replacement: ReplacementReturnType) => {
           this.updateTXStatus(txHash, {
             status: TransactionStatus.Replaced,
             replacedTxHash: replacement.transaction.hash,
           });
           txWasReplaced = true;
         },
+        pollingInterval: 10_000,
       });
+
       if (txWasReplaced) {
         return;
       }
@@ -98,8 +104,9 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
       });
 
       const updatedTX = this.get().transactionsPool[txHash];
-      const txBlock = await client.getBlock({ blockNumber: txn.blockNumber });
+      const txBlock = await getBlock(client, { blockNumber: txn.blockNumber });
       const timestamp = txBlock.timestamp;
+
       this.get().txStatusChangedCallback({
         ...updatedTX,
         timestamp,
@@ -108,7 +115,7 @@ export class EthereumAdapter<T extends BaseTx> implements AdapterInterface<T> {
       this.updateTXStatus(txHash, {
         status: TransactionStatus.Failed,
       });
-      console.error('Error when check tx receipt', e);
+      console.error('Error when check TX receipt:', e);
     }
   };
 

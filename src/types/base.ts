@@ -1,3 +1,4 @@
-import { PublicClient } from '@wagmi/core';
+import { Client, PublicClient } from 'viem';
 
-export type ClientsRecord = Record<number, PublicClient>;
+export type ClientsRecord = Record<number, Client>;
+export type PublicClientsRecord = Record<number, PublicClient>;

@@ -1,5 +1,5 @@
 import { EthPoolTx, GelatoPoolTx } from '../store/transactionsSlice';
-import { GelatoBaseTx, GelatoTx } from './GelatoAdapter';
+import { GelatoBaseTx, GelatoTaskState, GelatoTx } from './GelatoAdapter';
 import { SafeTx } from './SafeAdapter';
 import { BaseTx, TxAdapter, TxKey } from './types';
 
@@ -21,8 +21,8 @@ export function isGelatoBaseTx(tx: BaseTx): tx is GelatoBaseTx {
 export function isGelatoTXPending(gelatoStatus?: GelatoBaseTx['gelatoStatus']) {
   return (
     gelatoStatus === undefined ||
-    gelatoStatus === 'CheckPending' ||
-    gelatoStatus === 'WaitingForConfirmation' ||
-    gelatoStatus === 'ExecPending'
+    gelatoStatus === GelatoTaskState.CheckPending ||
+    gelatoStatus === GelatoTaskState.ExecPending ||
+    gelatoStatus === GelatoTaskState.WaitingForConfirmation
   );
 }

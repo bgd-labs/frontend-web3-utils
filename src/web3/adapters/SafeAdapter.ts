@@ -62,7 +62,7 @@ export class SafeAdapter<T extends BaseTx> implements AdapterInterface<T> {
 
       this.stopPollingSafeTXStatus(tx.hash);
 
-      let retryCount = 5;
+      let retryCount = 10;
       const newGnosisInterval = setInterval(async () => {
         if (retryCount > 0) {
           const response = await this.fetchSafeTxStatus(tx.hash);

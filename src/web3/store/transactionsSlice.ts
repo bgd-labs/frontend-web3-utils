@@ -1,7 +1,6 @@
-import { PublicClient } from '@wagmi/core';
 import dayjs from 'dayjs';
 import { Draft, produce } from 'immer';
-import { Hex, isHex } from 'viem';
+import { Client, Hex, isHex } from 'viem';
 
 import { ClientsRecord } from '../../types/base';
 import { StoreSlice } from '../../types/store';
@@ -37,7 +36,7 @@ export type TransactionPool<T extends BaseTx> = Record<string, T>;
 
 export type TransactionsSliceBaseType = {
   clients: ClientsRecord;
-  setClient: (chainId: number, client: PublicClient) => void;
+  setClient: (chainId: number, client: Client) => void;
   initTxPool: () => void;
 };
 
@@ -64,7 +63,7 @@ export interface ITransactionsActions<T extends BaseTx> {
     },
   ) => void;
   executeTx: (params: {
-    body: () => Promise<TxKey>;
+    body: () => Promise<TxKey | undefined>;
     params: {
       type: T['type'];
       payload: T['payload'];
@@ -99,7 +98,7 @@ export function createTransactionsSlice<T extends BaseTx>({
     setClient: (chainId, client) => {
       set((state) =>
         produce(state, (draft) => {
-          draft.clients[chainId] = client as Draft<PublicClient>;
+          draft.clients[chainId] = client as Draft<Client>;
         }),
       );
     },
@@ -155,6 +154,9 @@ export function createTransactionsSlice<T extends BaseTx>({
     executeTx: async ({ body, params }) => {
       await get().checkAndSwitchNetwork(params.desiredChainID);
       const txKey = await body();
+      if (!txKey) {
+        throw new Error("Can't get tx key");
+      }
 
       const { desiredChainID, payload, type } = params;
 
@@ -171,7 +173,10 @@ export function createTransactionsSlice<T extends BaseTx>({
         adapterType = TxAdapter.Gelato;
         newTxKey = txKey.taskId;
         get().setAdapter(TxAdapter.Gelato);
-      } else if (isSafeTxKey(txKey) || activeWallet.walletType === 'Safe') {
+      } else if (
+        isSafeTxKey(txKey) ||
+        activeWallet.walletType === WalletType.Safe
+      ) {
         adapterType = TxAdapter.Safe;
         if (isSafeTxKey(txKey)) {
           newTxKey = txKey.safeTxHash;
@@ -180,7 +185,7 @@ export function createTransactionsSlice<T extends BaseTx>({
         }
         get().setAdapter(TxAdapter.Safe);
       } else if (
-        activeWallet.walletType === 'WalletConnect' &&
+        activeWallet.walletType === WalletType.WalletConnect &&
         activeWallet.isContractAddress
       ) {
         // check if tx real on safe (only for safe + wallet connect)

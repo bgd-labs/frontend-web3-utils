@@ -1,25 +1,28 @@
-import { PublicClient } from '@wagmi/core';
-import { Chain, createPublicClient, http } from 'viem';
-import {
-  avalanche,
-  avalancheFuji,
-  goerli,
-  mainnet,
-  polygon,
-  polygonMumbai,
-  sepolia,
-} from 'viem/chains';
+import { Chain, Client, createClient, fallback, http } from 'viem';
+import * as viemChains from 'viem/chains';
 
 import { ClientsRecord } from '../types/base';
 
+export const fallBackConfig = {
+  rank: false,
+  retryDelay: 100,
+  retryCount: 5,
+};
+
+export const VIEM_CHAINS: Record<number, Chain> = Object.values(
+  viemChains,
+).reduce((acc, chain) => {
+  return { ...acc, [chain.id]: chain };
+}, {});
+
 export const initialChains: Record<number, Chain> = {
-  [mainnet.id]: mainnet,
-  [polygon.id]: polygon,
-  [polygonMumbai.id]: polygonMumbai,
-  [avalanche.id]: avalanche,
-  [avalancheFuji.id]: avalancheFuji,
-  [goerli.id]: goerli,
-  [sepolia.id]: sepolia,
+  [viemChains.mainnet.id]: viemChains.mainnet,
+  [viemChains.polygon.id]: viemChains.polygon,
+  [viemChains.polygonMumbai.id]: viemChains.polygonMumbai,
+  [viemChains.avalanche.id]: viemChains.avalanche,
+  [viemChains.avalancheFuji.id]: viemChains.avalancheFuji,
+  [viemChains.goerli.id]: viemChains.goerli,
+  [viemChains.sepolia.id]: viemChains.sepolia,
 };
 
 export const initChainInformationConfig = (chains?: Record<number, Chain>) => {
@@ -29,7 +32,7 @@ export const initChainInformationConfig = (chains?: Record<number, Chain>) => {
   const initalizedClients: ClientsRecord = {};
   const clientInstances = Object.values(CHAINS).reduce<{
     [chainId: number]: {
-      instance: PublicClient;
+      instance: Client;
     };
   }>((accumulator, chain) => {
     const numberChainId = Number(chain.id);
@@ -38,12 +41,15 @@ export const initChainInformationConfig = (chains?: Record<number, Chain>) => {
         if (initalizedClients[numberChainId]) {
           return initalizedClients[numberChainId];
         } else {
-          const client = createPublicClient({
+          const client = createClient({
             batch: {
               multicall: true,
             },
             chain,
-            transport: http(),
+            transport: fallback(
+              chain.rpcUrls.default.http.map((url) => http(url)),
+              fallBackConfig,
+            ),
           });
           initalizedClients[numberChainId] = client;
           return client;
@@ -60,7 +66,7 @@ export const initChainInformationConfig = (chains?: Record<number, Chain>) => {
     } else {
       // this case can only ever occure when a wallet is connected with an unknown chainId which will not allow interaction
       return {
-        ...mainnet,
+        ...viemChains.mainnet,
         id: chainId,
         name: `unknown network: ${chainId}`,
       };
