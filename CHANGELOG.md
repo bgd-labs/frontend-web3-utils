@@ -1,5 +1,48 @@
 # Changelog
 
+## [1.1.0](https://github.com/bgd-labs/fe-shared/compare/v1.0.4...v1.1.0) (2024-01-16)
+
+
+### Features
+
+* finished migration to viem v2 and wagmi v2 ([5987562](https://github.com/bgd-labs/fe-shared/commit/5987562a48a0d12df3b1b7d3d84b905e033d1aab))
+* migrated to viem and wagmi v2 ([69a742a](https://github.com/bgd-labs/fe-shared/commit/69a742af2c77c63f6e2c7e7a949c9f8db420e933))
+
+
+### Bug Fixes
+
+* active wallet chain ([9fce527](https://github.com/bgd-labs/fe-shared/commit/9fce527d243c100dbb4ceab8c38376a8df2288b4))
+* added console logs ([8001408](https://github.com/bgd-labs/fe-shared/commit/800140837574e788f1bc9fb153350bcad6abb60b))
+* added fallback config ([d59d4bf](https://github.com/bgd-labs/fe-shared/commit/d59d4bf92358b537f52be74607ab231ac57a9e11))
+* chains ([cac73ea](https://github.com/bgd-labs/fe-shared/commit/cac73eac41ff36d351bec9e93fed21c54d1c08fe))
+* clients ([88d6d87](https://github.com/bgd-labs/fe-shared/commit/88d6d87314111f9739f6bd53e2b2e048b1f0f536))
+* connectors ([e5c4f43](https://github.com/bgd-labs/fe-shared/commit/e5c4f433b76371c126c5a27ebd1b89b646aaa55a))
+* connectors type ([5def7e5](https://github.com/bgd-labs/fe-shared/commit/5def7e5b7cff72d56d7566160241f14d40672ceb))
+* disconnect account ([501209c](https://github.com/bgd-labs/fe-shared/commit/501209c490d6c03142a02664f0b22b1b144fd27a))
+* gelato tx status and tx error message ([ed054de](https://github.com/bgd-labs/fe-shared/commit/ed054de3436a84e2ab69e119a6d0d81387334675))
+* impersonated ([d02e711](https://github.com/bgd-labs/fe-shared/commit/d02e711dd70862c5b15c8dc83f7bdb8c2d210adb))
+* impersonated ([fd8b414](https://github.com/bgd-labs/fe-shared/commit/fd8b41444e6b82914da49c5808b69950f8e81425))
+* impersonated connector ([b1c71a4](https://github.com/bgd-labs/fe-shared/commit/b1c71a421117d440993285b494e95a411dee92db))
+* impersonated connector ([de6c943](https://github.com/bgd-labs/fe-shared/commit/de6c943762f8fb97598445e7ac426af35c92bab5))
+* impersonated connector and wagmi config chains ([036b7f0](https://github.com/bgd-labs/fe-shared/commit/036b7f0a57af7bc137ab6f9f5637b3c7156acedc))
+* not supported chain ([de5f52f](https://github.com/bgd-labs/fe-shared/commit/de5f52f482addaccafc908ed9034ff1194533bf4))
+* readme ([572f26c](https://github.com/bgd-labs/fe-shared/commit/572f26c547beced83d9d3a177f9a6c26ed9748cf))
+* readme and code styles ([20ecc6e](https://github.com/bgd-labs/fe-shared/commit/20ecc6edd131d12cbe84d818a4835ccb7e50bd64))
+* removed console logs and commented code ([e254f61](https://github.com/bgd-labs/fe-shared/commit/e254f61a02d67a4fd639c1a26bf89d10cbd8563a))
+* tx execute type ([2459454](https://github.com/bgd-labs/fe-shared/commit/245945493dea0e2f19a8e7042ea6010bf6af6a9f))
+* update packages ([6ed8c2a](https://github.com/bgd-labs/fe-shared/commit/6ed8c2a3e05373c3629e595d246037a0f825b96c))
+* wagmi config ([9eced72](https://github.com/bgd-labs/fe-shared/commit/9eced72b2ae8d6c7dbdee64b47aa6aae5cdcd2e2))
+* wagmi config ([c995d1f](https://github.com/bgd-labs/fe-shared/commit/c995d1f921f3f8e57d966e4096a5fddd7a1865cd))
+* wagmi config ([e4977ce](https://github.com/bgd-labs/fe-shared/commit/e4977ce30ada5d774a52a531f1b74f5fed40d1bf))
+* wagmi config to store init ([c991b8d](https://github.com/bgd-labs/fe-shared/commit/c991b8dab790d50d45afe3cc77224f2b906a6e34))
+* wagmi provider ([e129d97](https://github.com/bgd-labs/fe-shared/commit/e129d974974bb2560633eedaf686e72a3acab4ba))
+* wallet clients ([81809e2](https://github.com/bgd-labs/fe-shared/commit/81809e260ed6d0b928e02af802e6f8df8856a94a))
+* wallet connect ([e9b0a9b](https://github.com/bgd-labs/fe-shared/commit/e9b0a9bb7909e1112a18f9369c46d169a51e5751))
+* wallet connect ([39ac46b](https://github.com/bgd-labs/fe-shared/commit/39ac46b9ba814de622ca4a42cbb6737d02647611))
+* wallet connect ([e1833aa](https://github.com/bgd-labs/fe-shared/commit/e1833aa4e46da29b4b4df73138a59dc0d0867041))
+* wallet slice ([9233aee](https://github.com/bgd-labs/fe-shared/commit/9233aee03cd0058d5d5f11728f393cd611200e55))
+* wallet slice logic ([01a3205](https://github.com/bgd-labs/fe-shared/commit/01a3205fb29686d2776ed4e5494536353a846927))
+
 ## [1.0.4](https://github.com/bgd-labs/fe-shared/compare/v1.0.3...v1.0.4) (2024-01-07)
 
 
