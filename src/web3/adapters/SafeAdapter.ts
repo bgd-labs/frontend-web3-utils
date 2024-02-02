@@ -91,7 +91,7 @@ export class SafeAdapter<T extends BaseTx> implements AdapterInterface<T> {
     if (response.ok) {
       const safeStatus = (await response.json()) as SafeTxStatusResponse;
 
-      if (safeStatus.nonce) {
+      if (!!safeStatus.nonce || safeStatus.nonce === 0) {
         const allTxWithSameNonceResponse = await fetch(
           `${SafeTransactionServiceUrls[tx.chainId]}/safes/${this.get()
             .activeWallet?.address}/multisig-transactions/?nonce=${
