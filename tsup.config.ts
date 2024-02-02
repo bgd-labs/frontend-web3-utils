@@ -4,8 +4,8 @@ const config: Options = {
   entry: ['src/index.tsx'],
   sourcemap: true,
   clean: true,
-  // bundle: true,
-  format: ['cjs'],
+  bundle: true,
+  format: ['iife', 'cjs', 'esm'],
   dts: {
     compilerOptions: {
       moduleResolution: 'node',
