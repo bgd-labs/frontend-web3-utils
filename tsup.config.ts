@@ -5,7 +5,7 @@ const config: Options = {
   sourcemap: true,
   clean: true,
   // bundle: true,
-  format: ['iife', 'cjs', 'esm'],
+  format: ['cjs'],
   dts: {
     compilerOptions: {
       moduleResolution: 'node',
