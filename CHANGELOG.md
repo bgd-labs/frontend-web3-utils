@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.1](https://github.com/bgd-labs/fe-shared/compare/v1.1.0...v1.1.1) (2024-02-06)
+
+
+### Bug Fixes
+
+* package build ([f125c8f](https://github.com/bgd-labs/fe-shared/commit/f125c8fb9d4c92de8163067194cf7f9d07689a2d))
+* package build ([8613e27](https://github.com/bgd-labs/fe-shared/commit/8613e276046aaf31a19295a19e56011d7a0855cc))
+* safe tx tracking when tx nonce === 0 ([58694fb](https://github.com/bgd-labs/fe-shared/commit/58694fb86ac41f1403eb0f6465573ac9a4ccea09))
+* update packages ([eb06ea1](https://github.com/bgd-labs/fe-shared/commit/eb06ea16da6fff868ef5d212b39cfab39436b1d6))
+
 ## [1.1.0](https://github.com/bgd-labs/fe-shared/compare/v1.0.4...v1.1.0) (2024-01-16)
 
 
