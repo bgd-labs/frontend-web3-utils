@@ -86,8 +86,9 @@ export const selectTxExplorerLink = <T extends BaseTx>(
 
   const returnValue = (hash: string) => {
     if (tx.adapter !== TxAdapter.Safe) {
-      return `${getChainParameters(tx.chainId).blockExplorers?.default
-        .url}/tx/${hash}`;
+      return `${
+        getChainParameters(tx.chainId).blockExplorers?.default.url
+      }/tx/${hash}`;
     } else {
       return `${gnosisSafeLinksHelper[tx.chainId]}${
         tx.from
