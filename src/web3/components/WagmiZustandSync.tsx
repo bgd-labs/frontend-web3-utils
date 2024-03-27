@@ -23,8 +23,11 @@ export function WagmiZustandSync({
 }: WagmiZustandSyncProps & {
   wagmiConfig: Config;
 }) {
-  const { setDefaultChainId, setWagmiConfig, changeActiveWalletAccount } =
-    useStore();
+  const setDefaultChainId = useStore((store) => store.setDefaultChainId);
+  const setWagmiConfig = useStore((store) => store.setWagmiConfig);
+  const changeActiveWalletAccount = useStore(
+    (store) => store.changeActiveWalletAccount,
+  );
 
   useEffect(() => {
     if (defaultChainId) {
