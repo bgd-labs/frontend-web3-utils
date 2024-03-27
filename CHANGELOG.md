@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.2](https://github.com/bgd-labs/fe-shared/compare/v1.1.1...v1.1.2) (2024-03-27)
+
+
+### Bug Fixes
+
+* update packages ([8c17530](https://github.com/bgd-labs/fe-shared/commit/8c17530c999cc02e687f5d71ef0fd0b38de01215))
+* update packages ([c1bde55](https://github.com/bgd-labs/fe-shared/commit/c1bde557eeaa8036c56d15efc90183f75f94b486))
+
 ## [1.1.1](https://github.com/bgd-labs/fe-shared/compare/v1.1.0...v1.1.1) (2024-02-06)
 
 
