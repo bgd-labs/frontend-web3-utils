@@ -39,7 +39,7 @@ export interface Wallet {
 export type IWalletSlice = {
   // should not change from zustand[set]
   wagmiConfig?: Config;
-  setWagmiConfig: (config: Config) => Promise<void>;
+  setWagmiConfig: (config: Config, withAutoConnect?: boolean) => Promise<void>;
 
   defaultChainId?: number;
   setDefaultChainId: (chainId: number) => void;
@@ -82,9 +82,11 @@ export function createWalletSlice({
   walletConnected: (wallet: Wallet) => void;
 }): StoreSlice<IWalletSlice, TransactionsSliceBaseType> {
   return (set, get) => ({
-    setWagmiConfig: async (config) => {
+    setWagmiConfig: async (config, withAutoConnect) => {
       set({ wagmiConfig: config });
-      await get().initDefaultWallet();
+      if (withAutoConnect) {
+        await get().initDefaultWallet();
+      }
       get().initTxPool();
     },
 

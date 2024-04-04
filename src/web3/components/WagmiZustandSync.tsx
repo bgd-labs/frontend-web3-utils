@@ -4,8 +4,12 @@ import { useEffect } from 'react';
 interface WagmiZustandSyncProps {
   wagmiConfig: Config;
   defaultChainId?: number;
+  withAutoConnect?: boolean;
   store: {
-    setWagmiConfig: (config: Config) => Promise<void>;
+    setWagmiConfig: (
+      config: Config,
+      withAutoConnect?: boolean,
+    ) => Promise<void>;
     changeActiveWalletAccount: (
       account?: GetAccountReturnType,
     ) => Promise<void>;
@@ -16,10 +20,9 @@ interface WagmiZustandSyncProps {
 export function WagmiZustandSync({
   wagmiConfig,
   defaultChainId,
+  withAutoConnect,
   store,
-}: WagmiZustandSyncProps & {
-  wagmiConfig: Config;
-}) {
+}: WagmiZustandSyncProps) {
   useEffect(() => {
     if (defaultChainId) {
       store.setDefaultChainId(defaultChainId);
@@ -27,7 +30,7 @@ export function WagmiZustandSync({
   }, [defaultChainId]);
 
   useEffect(() => {
-    store.setWagmiConfig(wagmiConfig);
+    store.setWagmiConfig(wagmiConfig, withAutoConnect);
   }, [wagmiConfig]);
 
   watchAccount(wagmiConfig, {
