@@ -86,7 +86,7 @@ export function createTransactionsSlice<T extends BaseTx>({
   txStatusChangedCallback,
   defaultClients,
 }: {
-  txStatusChangedCallback: (tx: T) => void;
+  txStatusChangedCallback: (tx: T) => Promise<void>;
   defaultClients: ClientsRecord;
 }): StoreSlice<
   ITransactionsSlice<T>,
