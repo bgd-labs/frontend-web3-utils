@@ -68,10 +68,10 @@
   "devDependencies": {
     "@size-limit/preset-small-lib": "^11.1.2",
     "@types/lodash": "^4.17.0",
-    "@types/react": "^18.2.72",
-    "@types/react-dom": "^18.2.22",
-    "@typescript-eslint/eslint-plugin": "^7.4.0",
-    "@typescript-eslint/parser": "^7.4.0",
+    "@types/react": "^18.2.74",
+    "@types/react-dom": "^18.2.24",
+    "@typescript-eslint/eslint-plugin": "^7.5.0",
+    "@typescript-eslint/parser": "^7.5.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-react-app": "^7.0.1",
@@ -89,12 +89,12 @@
     "size-limit": "^11.1.2",
     "tsup": "^8.0.2",
     "typescript": "^5.4.3",
-    "viem": "^2.9.3",
-    "wagmi": "^2.5.13",
+    "viem": "^2.9.9",
+    "wagmi": "^2.5.18",
     "zustand": "^4.5.2"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.28.9",
+    "@tanstack/react-query": "^5.28.14",
     "dayjs": "^1.11.10"
   },
   "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"

@@ -1,4 +1,4 @@
-# Frontend Web3 Shared repo
+# Frontend web3 utilities from [BGD labs](https://github.com/bgd-labs/).
 
 The purpose of this repo is to have shared solutions for typical web3 related problems.
 
@@ -36,23 +36,65 @@ It will add, wait, save them to `localstorage` and do all the necessary logic to
 First we need to define callbackObserver - the component which will be called after tx got broadcast into a blockchain, like so:
 
 ```tsx
- ...createTransactionsSlice<TransactionsUnion>({
-    txStatusChangedCallback: (tx) => {
-      switch (tx.type) {
-        case "somethingNotVeryImportantHappened":
-          console.log(tx.payload.buzz);
-          return;
-        case "somethingImportantHappened":
-          console.log(tx.payload.fuzz);
-          return;
+import {
+  type BaseTx as BT,
+  createTransactionsSlice as createBaseTransactionsSlice,
+  type ITransactionsSlice,
+  type IWalletSlice,
+  type StoreSlice,
+  type TransactionStatus,
+  type WalletType,
+} from "@bgd-labs/frontend-web3-utils";
+import { type Hex } from "viem";
+
+export enum TxType {
+  test = "test",
+}
+
+type BaseTx = BT & {
+  status?: TransactionStatus;
+  pending: boolean;
+  walletType: WalletType;
+};
+
+type TestTX = BaseTx & {
+  type: TxType.test;
+  payload: NonNullable<unknown>;
+};
+
+export type TransactionUnion = TxType.test;
+
+export type TransactionsSlice = ITransactionsSlice<TransactionUnion>;
+
+export type TxWithStatus = TransactionUnion & {
+  status?: TransactionStatus;
+  pending: boolean;
+  replacedTxHash?: Hex;
+};
+
+export type AllTransactions = TxWithStatus[];
+
+export const createTransactionsSlice: StoreSlice<
+  TransactionsSlice,
+  IWeb3Slice & IWalletSlice
+> = (set, get) => ({
+  ...createBaseTransactionsSlice<TransactionUnion>({
+    txStatusChangedCallback: async (data: TransactionUnion) => {
+      switch (data.type) {
+        case TxType.test:
+          console.log('action after tx executed')
+          break;
       }
     },
-  })(set, get)
+    defaultClients: {},
+  })(set, get),
+});
+
 ```
 
 `TransactionUnion`  will be different for each application and is used to associate payload type by transaction type
 
-and `clients: Record<number, PublicClient>;`
+and `defaultClients: Record<number, Client>;`
 
 Clients will be used to watch tx on multiple chains if needed.
 
@@ -86,33 +128,48 @@ Example of how to use `<WagmiZustandSync />` in your own app
 
 `yourapp/WagmiProvider.tsx` →
 ```tsx
+"use client";
+
 import {
   createWagmiConfig,
   WagmiZustandSync,
-} from '@bgd-labs/frontend-web3-utils';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React, { useMemo } from 'react';
-import { WagmiProvider } from 'wagmi';
+} from "@bgd-labs/frontend-web3-utils";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import React, { useEffect, useMemo } from "react";
+import { mainnet } from "viem/chains";
+import { WagmiProvider as BaseWagmiProvider } from "wagmi";
 
-import { CHAINS } from '../../utils/chains';
-import { DESIRED_CHAIN_ID } from '../../utils/constants';
+import { useStore } from "zustand";
 
 const queryClient = new QueryClient();
 
-export default function WagmiConfigProviderWrapper() {
+export function WagmiProvider() {
+  const setWagmiConfig = useStore((store) => store.setWagmiConfig);
+  const setDefaultChainId = useStore((store) => store.setDefaultChainId);
+  const changeActiveWalletAccount = useStore(
+    (store) => store.changeActiveWalletAccount,
+  );
+
+  const setWagmiProviderInitialize = useStore(
+    (store) => store.setWagmiProviderInitialize,
+  );
+  useEffect(() => {
+    setWagmiProviderInitialize(true);
+  }, []);
+
   const config = useMemo(() => {
     return createWagmiConfig({
-      chains: CHAINS,
+      chains: { [mainnet.id]: mainnet },
       connectorsInitProps: {
-        appName: 'YourAppName',
-        defaultChainId: DESIRED_CHAIN_ID,
+        appName: "AppBoilerplate",
+        defaultChainId: mainnet.id,
         wcParams: {
-          projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID || '',
+          projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID ?? "",
           metadata: {
-            name: 'wagmi',
-            description: 'my wagmi app',
-            url: 'https://wagmi.sh',
-            icons: ['https://wagmi.sh/icon.png'],
+            name: "wagmi",
+            description: "my wagmi app",
+            url: "https://wagmi.sh",
+            icons: ["https://wagmi.sh/icon.png"],
           },
         },
       },
@@ -120,15 +177,20 @@ export default function WagmiConfigProviderWrapper() {
   }, []);
 
   return (
-    <WagmiProvider config={config}>
+    <BaseWagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <WagmiZustandSync
+          withAutoConnect={true}
           wagmiConfig={config}
-          defaultChainId={DESIRED_CHAIN_ID}
-          useStore={useStore}
+          defaultChainId={mainnet.id}
+          store={{
+            setWagmiConfig,
+            setDefaultChainId,
+            changeActiveWalletAccount,
+          }}
         />
       </QueryClientProvider>
-    </WagmiProvider>
+    </BaseWagmiProvider>
   );
 }
 ```
@@ -154,7 +216,34 @@ export default MyApp;
 Once the setup is done you can finally initialize web3Slice
 
 ```tsx
-export const createWeb3Slice: StoreSlice<IWeb3Slice> = (
+import {
+  createWalletSlice,
+  initChainInformationConfig,
+  type IWalletSlice,
+  type StoreSlice,
+} from "@bgd-labs/frontend-web3-utils";
+import { produce } from "immer";
+import { sepolia } from "viem/chains";
+
+import { type TransactionsSlice } from "@/store/transactionsSlice";
+
+/**
+ * web3Slice is required only to have a better control over providers state i.e
+ * change provider, trigger data refetch if provider changed and have globally available instances of rpcs and data providers
+ */
+
+export type IWeb3Slice = IWalletSlice & {
+  wagmiProviderInitialize: boolean;
+  setWagmiProviderInitialize: (value: boolean) => void;
+
+  // need for connect wallet button to not show last tx status always after connected wallet (if we want to do tx loader on wallet connect button)
+  walletConnectedTimeLock: boolean;
+  connectSigner: () => void;
+
+  // tx's services
+};
+
+export const createWeb3Slice: StoreSlice<IWeb3Slice, TransactionsSlice> = (
   set,
   get,
 ) => ({
@@ -163,7 +252,31 @@ export const createWeb3Slice: StoreSlice<IWeb3Slice> = (
       get().connectSigner();
     },
   })(set, get),
+
+  wagmiProviderInitialize: false,
+  setWagmiProviderInitialize: (value) => {
+    set((state) =>
+      // !!! important, should be produce from immer, and we need to set value to zustand store when app initialize to work properly with wagmi
+      produce(state, (draft) => {
+        draft.wagmiProviderInitialize = value;
+      }),
+    );
+  },
+
+  walletConnectedTimeLock: false,
+  connectSigner() {
+    const config = get().wagmiConfig;
+    set({ walletConnectedTimeLock: true });
+    if (config) {
+      get().counterDataService.connectSigner(config);
+    }
+    setTimeout(() => set({ walletConnectedTimeLock: false }), 1000);
+  },
+
+  // tx's services
+  ...
 });
+
 ```
 
 `walletConnected` is a callback which will be executed once wallet is connected, meaning get().activeWallet is set.

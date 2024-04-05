@@ -3,10 +3,10 @@ import { Hex } from 'viem';
 
 import { BaseTx, TransactionStatus } from '../web3/adapters/types';
 import { selectLastTxByTypeAndPayload } from '../web3/store/transactionsSelectors';
-import { ITransactionsState, PoolTx } from '../web3/store/transactionsSlice';
+import { PoolTx, TransactionPool } from '../web3/store/transactionsSlice';
 
 interface LastTxStatusesParams<T extends BaseTx> {
-  state: ITransactionsState<T>;
+  transactionsPool: TransactionPool<PoolTx<T>>;
   activeAddress: Hex;
   type: T['type'];
   payload: T['payload'];
@@ -39,12 +39,17 @@ export interface TxLocalStatus<T extends BaseTx> {
 }
 
 export const useLastTxLocalStatus = <T extends BaseTx>({
-  state,
+  transactionsPool,
   activeAddress,
   type,
   payload,
 }: LastTxStatusesParams<T>) => {
-  const tx = selectLastTxByTypeAndPayload(state, activeAddress, type, payload);
+  const tx = selectLastTxByTypeAndPayload(
+    transactionsPool,
+    activeAddress,
+    type,
+    payload,
+  );
 
   const [isTxStart, setIsTxStart] = useState(false);
   const [loading, setLoading] = useState(false);

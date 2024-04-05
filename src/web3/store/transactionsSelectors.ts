@@ -3,61 +3,65 @@ import { Chain, Hex } from 'viem';
 
 import { gnosisSafeLinksHelper } from '../../utils/constants';
 import { BaseTx, TxAdapter } from '../adapters/types';
-import { ITransactionsState } from './transactionsSlice';
+import { PoolTx, TransactionPool } from './transactionsSlice';
 
 export const selectAllTransactions = <T extends BaseTx>(
-  state: ITransactionsState<T>,
+  transactionsPool: TransactionPool<PoolTx<T>>,
 ) => {
-  return Object.values(state.transactionsPool).sort(
+  return Object.values(transactionsPool).sort(
     (a, b) => Number(a.localTimestamp) - Number(b.localTimestamp),
   );
 };
 
 export const selectPendingTransactions = <T extends BaseTx>(
-  state: ITransactionsState<T>,
+  transactionsPool: TransactionPool<PoolTx<T>>,
 ) => {
-  return selectAllTransactions(state).filter((tx) => tx.pending);
+  return selectAllTransactions(transactionsPool).filter((tx) => tx.pending);
 };
 
 export const selectTXByKey = <T extends BaseTx>(
-  state: ITransactionsState<T>,
+  transactionsPool: TransactionPool<PoolTx<T>>,
   key: string,
 ) => {
-  return state.transactionsPool[key];
+  return transactionsPool[key];
 };
 
 export const selectTXByHash = <T extends BaseTx>(
-  state: ITransactionsState<T>,
+  transactionsPool: TransactionPool<PoolTx<T>>,
   hash: Hex,
 ) => {
-  const txByKey = selectTXByKey<T>(state, hash);
+  const txByKey = selectTXByKey<T>(transactionsPool, hash);
   if (txByKey) {
     return txByKey;
   }
-  return selectAllTransactions(state).find((tx) => tx.hash === hash);
+  return selectAllTransactions(transactionsPool).find((tx) => tx.hash === hash);
 };
 
 export const selectAllTransactionsByWallet = <T extends BaseTx>(
-  state: ITransactionsState<T>,
+  transactionsPool: TransactionPool<PoolTx<T>>,
   from: Hex,
 ) => {
-  return selectAllTransactions(state).filter((tx) => tx.from === from);
+  return selectAllTransactions(transactionsPool).filter(
+    (tx) => tx.from === from,
+  );
 };
 
 export const selectPendingTransactionByWallet = <T extends BaseTx>(
-  state: ITransactionsState<T>,
+  transactionsPool: TransactionPool<PoolTx<T>>,
   from: Hex,
 ) => {
-  return selectPendingTransactions(state).filter((tx) => tx.from === from);
+  return selectPendingTransactions(transactionsPool).filter(
+    (tx) => tx.from === from,
+  );
 };
 
 export const selectLastTxByTypeAndPayload = <T extends BaseTx>(
-  state: ITransactionsState<T>,
+  transactionsPool: TransactionPool<PoolTx<T>>,
   from: Hex,
   type: T['type'],
   payload: T['payload'],
 ) => {
-  const allTransactions = selectAllTransactionsByWallet(state, from);
+  const allTransactions = selectAllTransactionsByWallet(transactionsPool, from);
 
   const filteredTransactions = allTransactions.filter(
     (tx) => tx.type === type && isEqual(tx.payload, payload),
@@ -67,19 +71,19 @@ export const selectLastTxByTypeAndPayload = <T extends BaseTx>(
     filteredTransactions[filteredTransactions.length - 1];
 
   if (lastFilteredTransaction) {
-    return selectTXByKey(state, lastFilteredTransaction.txKey);
+    return selectTXByKey(transactionsPool, lastFilteredTransaction.txKey);
   } else {
     return undefined;
   }
 };
 
 export const selectTxExplorerLink = <T extends BaseTx>(
-  state: ITransactionsState<T>,
+  transactionsPool: TransactionPool<PoolTx<T>>,
   getChainParameters: (chainId: number) => Chain,
   txHash: Hex,
   replacedTxHash?: Hex,
 ) => {
-  const tx = selectTXByHash(state, txHash);
+  const tx = selectTXByHash(transactionsPool, txHash);
   if (!tx) {
     return '';
   }
