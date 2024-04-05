@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.0](https://github.com/bgd-labs/fe-shared/compare/v1.1.2...v1.2.0) (2024-04-05)
+
+
+### Features
+
+* added auto connect flag ([4d9d089](https://github.com/bgd-labs/fe-shared/commit/4d9d0897ec3c871db36c8e7412c68e4239907e3e))
+
+
+### Bug Fixes
+
+* transactions selectors ([c149fe6](https://github.com/bgd-labs/fe-shared/commit/c149fe61a125f97c2f2c79f536ee3b2142809bed))
+* typing ([cb087b6](https://github.com/bgd-labs/fe-shared/commit/cb087b639d1833b44bd50fcde1cd6d2e3f4d55b3))
+* update readme ([2af93b7](https://github.com/bgd-labs/fe-shared/commit/2af93b7fe1a5712e66c86e90b42484539151dc0c))
+* wagmi zustand sync ([3465797](https://github.com/bgd-labs/fe-shared/commit/34657973435529c16c20fdc4bfe886aba0d77e27))
+
 ## [1.1.2](https://github.com/bgd-labs/fe-shared/compare/v1.1.1...v1.1.2) (2024-03-27)
 
 
