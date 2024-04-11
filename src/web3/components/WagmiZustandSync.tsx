@@ -1,5 +1,6 @@
-import { Config, GetAccountReturnType, watchAccount } from '@wagmi/core';
+import { GetAccountReturnType, watchAccount } from '@wagmi/core';
 import { useEffect } from 'react';
+import { Config } from 'wagmi';
 
 interface WagmiZustandSyncProps {
   wagmiConfig: Config;
