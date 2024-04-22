@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.1](https://github.com/bgd-labs/fe-shared/compare/v1.2.0...v1.2.1) (2024-04-22)
+
+
+### Bug Fixes
+
+* create wagmi config ([1a79be2](https://github.com/bgd-labs/fe-shared/commit/1a79be218ffb5ac439cf5e6c1149fd6f9c5cc47d))
+* wagmi config type ([f14c41f](https://github.com/bgd-labs/fe-shared/commit/f14c41f8e41fc71fae99a33256f5fc98f35e27f5))
+
 ## [1.2.0](https://github.com/bgd-labs/fe-shared/compare/v1.1.2...v1.2.0) (2024-04-05)
 
 
