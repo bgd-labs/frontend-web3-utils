@@ -1,6 +1,6 @@
+import { Config, createConfig, http } from '@wagmi/core';
 import { createClient, fallback, Hex, Transport } from 'viem';
 import { Chain, mainnet } from 'viem/chains';
-import { Config, createConfig, http } from 'wagmi';
 
 import { fallBackConfig, VIEM_CHAINS } from '../../utils/chainInfoHelpers';
 import { AllConnectorsInitProps, initAllConnectors } from '../connectors';
