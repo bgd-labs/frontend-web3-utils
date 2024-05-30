@@ -58,7 +58,11 @@ export function impersonated(parameters: ImpersonatedParameters) {
         throw features.connectError;
       }
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       const provider = await this.getProvider();
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       const accounts = await provider.request({
         method: 'eth_requestAccounts',
       });
