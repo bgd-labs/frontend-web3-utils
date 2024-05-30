@@ -228,7 +228,7 @@ export function createWalletSlice({
         } catch (e) {
           try {
             const chain = VIEM_CHAINS[chainId];
-            if (!!chain) {
+            if (chain) {
               await activeWallet.connectorClient
                 .extend(walletActions)
                 .addChain({

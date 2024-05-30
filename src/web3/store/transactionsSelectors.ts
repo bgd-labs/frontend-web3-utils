@@ -100,7 +100,7 @@ export const selectTxExplorerLink = <T extends BaseTx>(
     }
   };
 
-  if (!!replacedTxHash) {
+  if (replacedTxHash) {
     return returnValue(replacedTxHash);
   } else {
     return returnValue(txHash);

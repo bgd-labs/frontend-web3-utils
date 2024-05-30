@@ -157,7 +157,7 @@ export class SafeAdapter<T extends BaseTx> implements AdapterInterface<T> {
         if (statusResponse.isExecuted || !!replacedHash) {
           if (statusResponse.isSuccessful) {
             status = TransactionStatus.Success;
-          } else if (!!replacedHash) {
+          } else if (replacedHash) {
             status = TransactionStatus.Replaced;
           } else {
             status = TransactionStatus.Reverted;

@@ -38,7 +38,7 @@ export function impersonated(parameters: ImpersonatedParameters) {
   const features = parameters.features ?? {};
 
   type Provider = ReturnType<
-    Transport<'custom', {}, EIP1193RequestFn<WalletRpcSchema>>
+    Transport<'custom', NonNullable<unknown>, EIP1193RequestFn<WalletRpcSchema>>
   >;
   let connected = false;
   let connectedChainId: number;
@@ -113,6 +113,7 @@ export function impersonated(parameters: ImpersonatedParameters) {
       const chainId = normalizeChainId(chain);
       config.emitter.emit('change', { chainId });
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async onDisconnect(_error) {
       config.emitter.emit('disconnect');
       connected = false;

@@ -8,7 +8,7 @@ export function getBrowserWalletLabelAndIcon() {
   };
 
   if (typeof window !== 'undefined') {
-    if (!!window.ethereum) {
+    if (window.ethereum) {
       const userBrowserWallets = wallets.filter(
         (wallet) => !!window.ethereum[wallet.identityFlag],
       );

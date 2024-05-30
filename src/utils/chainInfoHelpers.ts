@@ -26,8 +26,7 @@ export const initialChains: Record<number, Chain> = {
 };
 
 export const initChainInformationConfig = (chains?: Record<number, Chain>) => {
-  const CHAINS = { ...initialChains, ...chains } || {};
-
+  const CHAINS = { ...initialChains, ...chains };
   // init clients instances from chain config
   const initalizedClients: ClientsRecord = {};
   const clientInstances = Object.values(CHAINS).reduce<{
