@@ -38,6 +38,13 @@ export interface TxLocalStatus<T extends BaseTx> {
   tx: TxLocalStatusTxParams<T>;
 }
 
+/**
+ * useLastTxLocalStatus function
+ * @param transactionsPool All transactions data from local storage or zustand store
+ * @param activeAddress Connected wallet address
+ * @param type Transaction type
+ * @param payload Transaction payload data
+ */
 export const useLastTxLocalStatus = <T extends BaseTx>({
   transactionsPool,
   activeAddress,
@@ -112,5 +119,5 @@ export const useLastTxLocalStatus = <T extends BaseTx>({
       isSuccess,
       isReplaced,
     },
-  } as TxLocalStatus<T>;
+  } as unknown as TxLocalStatus<T>;
 };

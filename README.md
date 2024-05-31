@@ -28,12 +28,6 @@ Each solution should provide a complete flow with clear boundaries and entry poi
 #### pnpm
 <code>pnpm add @bgd-labs/frontend-web3-utils</code>
 
-----
-
-## About what we have in library
-
-Information about all functions in the library you can find here: WIP
-
 -----------------
 
 ## How to set up

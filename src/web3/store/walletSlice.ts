@@ -230,10 +230,10 @@ export function createWalletSlice({
             const chain = VIEM_CHAINS[chainId];
             if (chain) {
               await activeWallet.connectorClient
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error
                 .extend(walletActions)
-                .addChain({
-                  chain,
-                });
+                .addChain({ chain });
               await switchChain(config, { chainId });
             } else {
               console.error(e);
