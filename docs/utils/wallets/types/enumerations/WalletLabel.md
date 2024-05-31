@@ -1,8 +1,8 @@
-[**Default Options Example**](../../../../README.md) • **Docs**
+[**Library functions**](../../../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../../../modules.md) / [utils/wallets/types](../README.md) / WalletLabel
+[Library functions](../../../../modules.md) / [utils/wallets/types](../README.md) / WalletLabel
 
 # Enumeration: WalletLabel
 
@@ -14,7 +14,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:54](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L54)
+[src/utils/wallets/types.ts:54](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L54)
 
 ***
 
@@ -24,7 +24,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:53](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L53)
+[src/utils/wallets/types.ts:53](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L53)
 
 ***
 
@@ -34,7 +34,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:55](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L55)
+[src/utils/wallets/types.ts:55](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L55)
 
 ***
 
@@ -44,7 +44,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:86](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L86)
+[src/utils/wallets/types.ts:86](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L86)
 
 ***
 
@@ -54,7 +54,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:56](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L56)
+[src/utils/wallets/types.ts:56](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L56)
 
 ***
 
@@ -64,7 +64,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:57](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L57)
+[src/utils/wallets/types.ts:57](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L57)
 
 ***
 
@@ -74,7 +74,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:58](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L58)
+[src/utils/wallets/types.ts:58](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L58)
 
 ***
 
@@ -84,7 +84,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:59](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L59)
+[src/utils/wallets/types.ts:59](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L59)
 
 ***
 
@@ -94,7 +94,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:60](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L60)
+[src/utils/wallets/types.ts:60](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L60)
 
 ***
 
@@ -104,7 +104,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:88](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L88)
+[src/utils/wallets/types.ts:88](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L88)
 
 ***
 
@@ -114,7 +114,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:61](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L61)
+[src/utils/wallets/types.ts:61](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L61)
 
 ***
 
@@ -124,7 +124,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:96](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L96)
+[src/utils/wallets/types.ts:96](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L96)
 
 ***
 
@@ -134,7 +134,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:89](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L89)
+[src/utils/wallets/types.ts:89](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L89)
 
 ***
 
@@ -144,7 +144,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:62](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L62)
+[src/utils/wallets/types.ts:62](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L62)
 
 ***
 
@@ -154,7 +154,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:63](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L63)
+[src/utils/wallets/types.ts:63](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L63)
 
 ***
 
@@ -164,7 +164,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:64](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L64)
+[src/utils/wallets/types.ts:64](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L64)
 
 ***
 
@@ -174,7 +174,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:85](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L85)
+[src/utils/wallets/types.ts:85](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L85)
 
 ***
 
@@ -184,7 +184,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:65](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L65)
+[src/utils/wallets/types.ts:65](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L65)
 
 ***
 
@@ -194,7 +194,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:66](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L66)
+[src/utils/wallets/types.ts:66](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L66)
 
 ***
 
@@ -204,7 +204,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:67](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L67)
+[src/utils/wallets/types.ts:67](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L67)
 
 ***
 
@@ -214,7 +214,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:68](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L68)
+[src/utils/wallets/types.ts:68](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L68)
 
 ***
 
@@ -224,7 +224,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:84](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L84)
+[src/utils/wallets/types.ts:84](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L84)
 
 ***
 
@@ -234,7 +234,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:69](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L69)
+[src/utils/wallets/types.ts:69](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L69)
 
 ***
 
@@ -244,7 +244,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:70](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L70)
+[src/utils/wallets/types.ts:70](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L70)
 
 ***
 
@@ -254,7 +254,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:71](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L71)
+[src/utils/wallets/types.ts:71](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L71)
 
 ***
 
@@ -264,7 +264,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:92](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L92)
+[src/utils/wallets/types.ts:92](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L92)
 
 ***
 
@@ -274,7 +274,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:80](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L80)
+[src/utils/wallets/types.ts:80](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L80)
 
 ***
 
@@ -284,7 +284,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:72](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L72)
+[src/utils/wallets/types.ts:72](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L72)
 
 ***
 
@@ -294,7 +294,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:73](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L73)
+[src/utils/wallets/types.ts:73](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L73)
 
 ***
 
@@ -304,7 +304,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:91](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L91)
+[src/utils/wallets/types.ts:91](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L91)
 
 ***
 
@@ -314,7 +314,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:83](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L83)
+[src/utils/wallets/types.ts:83](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L83)
 
 ***
 
@@ -324,7 +324,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:94](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L94)
+[src/utils/wallets/types.ts:94](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L94)
 
 ***
 
@@ -334,7 +334,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:95](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L95)
+[src/utils/wallets/types.ts:95](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L95)
 
 ***
 
@@ -344,7 +344,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:87](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L87)
+[src/utils/wallets/types.ts:87](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L87)
 
 ***
 
@@ -354,7 +354,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:74](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L74)
+[src/utils/wallets/types.ts:74](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L74)
 
 ***
 
@@ -364,7 +364,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:77](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L77)
+[src/utils/wallets/types.ts:77](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L77)
 
 ***
 
@@ -374,7 +374,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:82](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L82)
+[src/utils/wallets/types.ts:82](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L82)
 
 ***
 
@@ -384,7 +384,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:76](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L76)
+[src/utils/wallets/types.ts:76](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L76)
 
 ***
 
@@ -394,7 +394,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:81](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L81)
+[src/utils/wallets/types.ts:81](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L81)
 
 ***
 
@@ -404,7 +404,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:75](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L75)
+[src/utils/wallets/types.ts:75](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L75)
 
 ***
 
@@ -414,7 +414,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:78](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L78)
+[src/utils/wallets/types.ts:78](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L78)
 
 ***
 
@@ -424,7 +424,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:79](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L79)
+[src/utils/wallets/types.ts:79](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L79)
 
 ***
 
@@ -434,7 +434,7 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:90](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L90)
+[src/utils/wallets/types.ts:90](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L90)
 
 ***
 
@@ -444,4 +444,4 @@
 
 #### Source
 
-[src/utils/wallets/types.ts:93](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L93)
+[src/utils/wallets/types.ts:93](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L93)

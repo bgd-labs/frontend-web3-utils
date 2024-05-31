@@ -1,8 +1,8 @@
-[**Default Options Example**](../../../README.md) • **Docs**
+[**Library functions**](../../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../../modules.md) / [utils/localStorage](../README.md) / setLocalStorageTxPool
+[Library functions](../../../modules.md) / [utils/localStorage](../README.md) / setLocalStorageTxPool
 
 # Function: setLocalStorageTxPool()
 
@@ -22,4 +22,4 @@
 
 ## Source
 
-[src/utils/localStorage.ts:10](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/localStorage.ts#L10)
+[src/utils/localStorage.ts:10](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/localStorage.ts#L10)

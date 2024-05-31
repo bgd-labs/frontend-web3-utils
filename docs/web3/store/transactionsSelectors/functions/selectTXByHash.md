@@ -1,8 +1,8 @@
-[**Default Options Example**](../../../../README.md) • **Docs**
+[**Library functions**](../../../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../../../modules.md) / [web3/store/transactionsSelectors](../README.md) / selectTXByHash
+[Library functions](../../../../modules.md) / [web3/store/transactionsSelectors](../README.md) / selectTXByHash
 
 # Function: selectTXByHash()
 
@@ -24,4 +24,4 @@
 
 ## Source
 
-[src/web3/store/transactionsSelectors.ts:29](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/store/transactionsSelectors.ts#L29)
+[src/web3/store/transactionsSelectors.ts:29](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/store/transactionsSelectors.ts#L29)

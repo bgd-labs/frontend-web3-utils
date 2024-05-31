@@ -1,8 +1,8 @@
-[**Default Options Example**](../../../../README.md) • **Docs**
+[**Library functions**](../../../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../../../modules.md) / [web3/adapters/EthereumAdapter](../README.md) / EthereumAdapter
+[Library functions](../../../../modules.md) / [web3/adapters/EthereumAdapter](../README.md) / EthereumAdapter
 
 # Class: EthereumAdapter\<T\>
 
@@ -32,7 +32,7 @@
 
 #### Source
 
-[src/web3/adapters/EthereumAdapter.ts:32](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/EthereumAdapter.ts#L32)
+[src/web3/adapters/EthereumAdapter.ts:32](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/EthereumAdapter.ts#L32)
 
 ## Properties
 
@@ -50,7 +50,7 @@
 
 #### Source
 
-[src/web3/adapters/EthereumAdapter.ts:24](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/EthereumAdapter.ts#L24)
+[src/web3/adapters/EthereumAdapter.ts:24](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/EthereumAdapter.ts#L24)
 
 ***
 
@@ -72,7 +72,7 @@
 
 #### Source
 
-[src/web3/adapters/EthereumAdapter.ts:25](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/EthereumAdapter.ts#L25)
+[src/web3/adapters/EthereumAdapter.ts:25](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/EthereumAdapter.ts#L25)
 
 ***
 
@@ -82,7 +82,7 @@
 
 #### Source
 
-[src/web3/adapters/EthereumAdapter.ts:30](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/EthereumAdapter.ts#L30)
+[src/web3/adapters/EthereumAdapter.ts:30](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/EthereumAdapter.ts#L30)
 
 ## Methods
 
@@ -104,7 +104,7 @@
 
 #### Source
 
-[src/web3/adapters/EthereumAdapter.ts:44](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/EthereumAdapter.ts#L44)
+[src/web3/adapters/EthereumAdapter.ts:44](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/EthereumAdapter.ts#L44)
 
 ***
 
@@ -132,7 +132,7 @@
 
 #### Source
 
-[src/web3/adapters/EthereumAdapter.ts:122](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/EthereumAdapter.ts#L122)
+[src/web3/adapters/EthereumAdapter.ts:122](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/EthereumAdapter.ts#L122)
 
 ***
 
@@ -152,4 +152,4 @@
 
 #### Source
 
-[src/web3/adapters/EthereumAdapter.ts:75](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/EthereumAdapter.ts#L75)
+[src/web3/adapters/EthereumAdapter.ts:75](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/EthereumAdapter.ts#L75)

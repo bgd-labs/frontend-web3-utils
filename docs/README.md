@@ -1,4 +1,4 @@
-**Default Options Example** • [**Docs**](modules.md)
+**Library functions** • [**Docs**](modules.md)
 
 ***
 

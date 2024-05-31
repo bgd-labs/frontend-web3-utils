@@ -1,8 +1,8 @@
-[**Default Options Example**](../../../../README.md) • **Docs**
+[**Library functions**](../../../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../../../modules.md) / utils/wallets/wallets/bitpie
+[Library functions](../../../../modules.md) / utils/wallets/wallets/bitpie
 
 # utils/wallets/wallets/bitpie
 

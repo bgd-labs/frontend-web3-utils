@@ -1,8 +1,8 @@
-[**Default Options Example**](../../../../README.md) • **Docs**
+[**Library functions**](../../../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../../../modules.md) / [web3/utils/createWagmiConfig](../README.md) / createWagmiConfig
+[Library functions](../../../../modules.md) / [web3/utils/createWagmiConfig](../README.md) / createWagmiConfig
 
 # Function: createWagmiConfig()
 
@@ -18,4 +18,4 @@
 
 ## Source
 
-[src/web3/utils/createWagmiConfig.ts:16](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/utils/createWagmiConfig.ts#L16)
+[src/web3/utils/createWagmiConfig.ts:16](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/utils/createWagmiConfig.ts#L16)

@@ -1,8 +1,8 @@
-[**Default Options Example**](../../../../README.md) • **Docs**
+[**Library functions**](../../../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../../../modules.md) / utils/wallets/wallets/xdefi
+[Library functions](../../../../modules.md) / utils/wallets/wallets/xdefi
 
 # utils/wallets/wallets/xdefi
 

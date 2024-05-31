@@ -14,9 +14,8 @@
   "exclude": ["node_modules", "docs"],
   "typedocOptions": {
     "entryPoints": ["src/**/*.ts", "src/**/*.tsx"],
-    "name": "Default Options Example",
+    "name": "Library functions",
     "plugin": ["typedoc-plugin-markdown"],
-    "readme": "./README.md",
     "skipErrorChecking": true,
     "compilerOptions": {
       "ignoreCompilerErrors": true

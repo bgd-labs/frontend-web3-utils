@@ -1,8 +1,8 @@
-[**Default Options Example**](../../README.md) • **Docs**
+[**Library functions**](../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../modules.md) / hooks/useLastTxLocalStatus
+[Library functions](../../modules.md) / hooks/useLastTxLocalStatus
 
 # hooks/useLastTxLocalStatus
 

@@ -1,8 +1,8 @@
-[**Default Options Example**](../../../README.md) • **Docs**
+[**Library functions**](../../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../../modules.md) / web3/utils/createWagmiConfig
+[Library functions](../../../modules.md) / web3/utils/createWagmiConfig
 
 # web3/utils/createWagmiConfig
 

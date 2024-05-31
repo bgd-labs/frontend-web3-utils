@@ -1,8 +1,8 @@
-[**Default Options Example**](../../README.md) • **Docs**
+[**Library functions**](../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../modules.md) / types/base
+[Library functions](../../modules.md) / types/base
 
 # types/base
 

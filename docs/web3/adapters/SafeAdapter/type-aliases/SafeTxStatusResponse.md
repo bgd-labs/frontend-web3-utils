@@ -1,8 +1,8 @@
-[**Default Options Example**](../../../../README.md) • **Docs**
+[**Library functions**](../../../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../../../modules.md) / [web3/adapters/SafeAdapter](../README.md) / SafeTxStatusResponse
+[Library functions](../../../../modules.md) / [web3/adapters/SafeAdapter](../README.md) / SafeTxStatusResponse
 
 # Type alias: SafeTxStatusResponse
 
@@ -44,4 +44,4 @@
 
 ## Source
 
-[src/web3/adapters/SafeAdapter.ts:14](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/SafeAdapter.ts#L14)
+[src/web3/adapters/SafeAdapter.ts:14](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/SafeAdapter.ts#L14)

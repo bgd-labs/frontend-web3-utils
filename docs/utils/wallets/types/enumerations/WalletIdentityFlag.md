@@ -1,8 +1,8 @@
-[**Default Options Example**](../../../../README.md) • **Docs**
+[**Library functions**](../../../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../../../modules.md) / [utils/wallets/types](../README.md) / WalletIdentityFlag
+[Library functions](../../../../modules.md) / [utils/wallets/types](../README.md) / WalletIdentityFlag
 
 # Enumeration: WalletIdentityFlag
 
@@ -16,7 +16,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:6](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L6)
+[src/utils/wallets/types.ts:6](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L6)
 
 ***
 
@@ -26,7 +26,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:5](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L5)
+[src/utils/wallets/types.ts:5](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L5)
 
 ***
 
@@ -36,7 +36,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:7](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L7)
+[src/utils/wallets/types.ts:7](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L7)
 
 ***
 
@@ -46,7 +46,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:37](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L37)
+[src/utils/wallets/types.ts:37](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L37)
 
 ***
 
@@ -56,7 +56,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:8](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L8)
+[src/utils/wallets/types.ts:8](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L8)
 
 ***
 
@@ -66,7 +66,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:41](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L41)
+[src/utils/wallets/types.ts:41](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L41)
 
 ***
 
@@ -76,7 +76,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:9](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L9)
+[src/utils/wallets/types.ts:9](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L9)
 
 ***
 
@@ -86,7 +86,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:33](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L33)
+[src/utils/wallets/types.ts:33](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L33)
 
 ***
 
@@ -96,7 +96,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:10](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L10)
+[src/utils/wallets/types.ts:10](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L10)
 
 ***
 
@@ -106,7 +106,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:11](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L11)
+[src/utils/wallets/types.ts:11](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L11)
 
 ***
 
@@ -116,7 +116,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:39](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L39)
+[src/utils/wallets/types.ts:39](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L39)
 
 ***
 
@@ -126,7 +126,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:12](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L12)
+[src/utils/wallets/types.ts:12](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L12)
 
 ***
 
@@ -136,7 +136,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:49](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L49)
+[src/utils/wallets/types.ts:49](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L49)
 
 ***
 
@@ -146,7 +146,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:42](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L42)
+[src/utils/wallets/types.ts:42](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L42)
 
 ***
 
@@ -156,7 +156,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:13](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L13)
+[src/utils/wallets/types.ts:13](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L13)
 
 ***
 
@@ -166,7 +166,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:15](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L15)
+[src/utils/wallets/types.ts:15](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L15)
 
 ***
 
@@ -176,7 +176,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:14](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L14)
+[src/utils/wallets/types.ts:14](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L14)
 
 ***
 
@@ -186,7 +186,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:36](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L36)
+[src/utils/wallets/types.ts:36](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L36)
 
 ***
 
@@ -196,7 +196,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:16](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L16)
+[src/utils/wallets/types.ts:16](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L16)
 
 ***
 
@@ -206,7 +206,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:17](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L17)
+[src/utils/wallets/types.ts:17](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L17)
 
 ***
 
@@ -216,7 +216,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:18](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L18)
+[src/utils/wallets/types.ts:18](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L18)
 
 ***
 
@@ -226,7 +226,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:19](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L19)
+[src/utils/wallets/types.ts:19](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L19)
 
 ***
 
@@ -236,7 +236,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:35](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L35)
+[src/utils/wallets/types.ts:35](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L35)
 
 ***
 
@@ -246,7 +246,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:20](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L20)
+[src/utils/wallets/types.ts:20](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L20)
 
 ***
 
@@ -256,7 +256,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:21](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L21)
+[src/utils/wallets/types.ts:21](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L21)
 
 ***
 
@@ -266,7 +266,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:22](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L22)
+[src/utils/wallets/types.ts:22](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L22)
 
 ***
 
@@ -276,7 +276,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:44](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L44)
+[src/utils/wallets/types.ts:44](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L44)
 
 ***
 
@@ -286,7 +286,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:30](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L30)
+[src/utils/wallets/types.ts:30](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L30)
 
 ***
 
@@ -296,7 +296,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:40](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L40)
+[src/utils/wallets/types.ts:40](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L40)
 
 ***
 
@@ -306,7 +306,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:23](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L23)
+[src/utils/wallets/types.ts:23](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L23)
 
 ***
 
@@ -316,7 +316,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:43](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L43)
+[src/utils/wallets/types.ts:43](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L43)
 
 ***
 
@@ -326,7 +326,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:34](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L34)
+[src/utils/wallets/types.ts:34](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L34)
 
 ***
 
@@ -336,7 +336,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:47](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L47)
+[src/utils/wallets/types.ts:47](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L47)
 
 ***
 
@@ -346,7 +346,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:48](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L48)
+[src/utils/wallets/types.ts:48](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L48)
 
 ***
 
@@ -356,7 +356,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:38](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L38)
+[src/utils/wallets/types.ts:38](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L38)
 
 ***
 
@@ -366,7 +366,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:24](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L24)
+[src/utils/wallets/types.ts:24](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L24)
 
 ***
 
@@ -376,7 +376,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:27](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L27)
+[src/utils/wallets/types.ts:27](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L27)
 
 ***
 
@@ -386,7 +386,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:32](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L32)
+[src/utils/wallets/types.ts:32](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L32)
 
 ***
 
@@ -396,7 +396,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:26](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L26)
+[src/utils/wallets/types.ts:26](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L26)
 
 ***
 
@@ -406,7 +406,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:31](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L31)
+[src/utils/wallets/types.ts:31](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L31)
 
 ***
 
@@ -416,7 +416,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:25](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L25)
+[src/utils/wallets/types.ts:25](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L25)
 
 ***
 
@@ -426,7 +426,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:28](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L28)
+[src/utils/wallets/types.ts:28](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L28)
 
 ***
 
@@ -436,7 +436,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:29](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L29)
+[src/utils/wallets/types.ts:29](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L29)
 
 ***
 
@@ -446,7 +446,7 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:45](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L45)
+[src/utils/wallets/types.ts:45](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L45)
 
 ***
 
@@ -456,4 +456,4 @@ The `WalletIdentityFlag` is a property on an etherium provider
 
 #### Source
 
-[src/utils/wallets/types.ts:46](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/types.ts#L46)
+[src/utils/wallets/types.ts:46](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/types.ts#L46)

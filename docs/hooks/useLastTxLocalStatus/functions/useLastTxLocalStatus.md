@@ -1,8 +1,8 @@
-[**Default Options Example**](../../../README.md) • **Docs**
+[**Library functions**](../../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../../modules.md) / [hooks/useLastTxLocalStatus](../README.md) / useLastTxLocalStatus
+[Library functions](../../../modules.md) / [hooks/useLastTxLocalStatus](../README.md) / useLastTxLocalStatus
 
 # Function: useLastTxLocalStatus()
 
@@ -24,4 +24,4 @@ useLastTxLocalStatus function
 
 ## Source
 
-[src/hooks/useLastTxLocalStatus.tsx:48](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/hooks/useLastTxLocalStatus.tsx#L48)
+[src/hooks/useLastTxLocalStatus.tsx:48](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/hooks/useLastTxLocalStatus.tsx#L48)

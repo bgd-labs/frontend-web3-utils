@@ -1,8 +1,8 @@
-[**Default Options Example**](../../../README.md) • **Docs**
+[**Library functions**](../../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../../modules.md) / [hooks/useLastTxLocalStatus](../README.md) / TxLocalStatus
+[Library functions](../../../modules.md) / [hooks/useLastTxLocalStatus](../README.md) / TxLocalStatus
 
 # Interface: TxLocalStatus\<T\>
 
@@ -18,7 +18,7 @@
 
 #### Source
 
-[src/hooks/useLastTxLocalStatus.tsx:33](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/hooks/useLastTxLocalStatus.tsx#L33)
+[src/hooks/useLastTxLocalStatus.tsx:33](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/hooks/useLastTxLocalStatus.tsx#L33)
 
 ***
 
@@ -36,7 +36,7 @@
 
 #### Source
 
-[src/hooks/useLastTxLocalStatus.tsx:35](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/hooks/useLastTxLocalStatus.tsx#L35)
+[src/hooks/useLastTxLocalStatus.tsx:35](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/hooks/useLastTxLocalStatus.tsx#L35)
 
 ***
 
@@ -46,7 +46,7 @@
 
 #### Source
 
-[src/hooks/useLastTxLocalStatus.tsx:31](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/hooks/useLastTxLocalStatus.tsx#L31)
+[src/hooks/useLastTxLocalStatus.tsx:31](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/hooks/useLastTxLocalStatus.tsx#L31)
 
 ***
 
@@ -56,7 +56,7 @@
 
 #### Source
 
-[src/hooks/useLastTxLocalStatus.tsx:27](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/hooks/useLastTxLocalStatus.tsx#L27)
+[src/hooks/useLastTxLocalStatus.tsx:27](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/hooks/useLastTxLocalStatus.tsx#L27)
 
 ***
 
@@ -66,7 +66,7 @@
 
 #### Source
 
-[src/hooks/useLastTxLocalStatus.tsx:29](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/hooks/useLastTxLocalStatus.tsx#L29)
+[src/hooks/useLastTxLocalStatus.tsx:29](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/hooks/useLastTxLocalStatus.tsx#L29)
 
 ***
 
@@ -84,7 +84,7 @@
 
 #### Source
 
-[src/hooks/useLastTxLocalStatus.tsx:34](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/hooks/useLastTxLocalStatus.tsx#L34)
+[src/hooks/useLastTxLocalStatus.tsx:34](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/hooks/useLastTxLocalStatus.tsx#L34)
 
 ***
 
@@ -102,7 +102,7 @@
 
 #### Source
 
-[src/hooks/useLastTxLocalStatus.tsx:32](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/hooks/useLastTxLocalStatus.tsx#L32)
+[src/hooks/useLastTxLocalStatus.tsx:32](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/hooks/useLastTxLocalStatus.tsx#L32)
 
 ***
 
@@ -120,7 +120,7 @@
 
 #### Source
 
-[src/hooks/useLastTxLocalStatus.tsx:28](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/hooks/useLastTxLocalStatus.tsx#L28)
+[src/hooks/useLastTxLocalStatus.tsx:28](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/hooks/useLastTxLocalStatus.tsx#L28)
 
 ***
 
@@ -138,7 +138,7 @@
 
 #### Source
 
-[src/hooks/useLastTxLocalStatus.tsx:30](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/hooks/useLastTxLocalStatus.tsx#L30)
+[src/hooks/useLastTxLocalStatus.tsx:30](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/hooks/useLastTxLocalStatus.tsx#L30)
 
 ***
 
@@ -148,4 +148,4 @@
 
 #### Source
 
-[src/hooks/useLastTxLocalStatus.tsx:38](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/hooks/useLastTxLocalStatus.tsx#L38)
+[src/hooks/useLastTxLocalStatus.tsx:38](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/hooks/useLastTxLocalStatus.tsx#L38)

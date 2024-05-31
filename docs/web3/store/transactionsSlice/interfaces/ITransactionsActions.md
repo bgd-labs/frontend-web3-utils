@@ -1,8 +1,8 @@
-[**Default Options Example**](../../../../README.md) • **Docs**
+[**Library functions**](../../../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../../../modules.md) / [web3/store/transactionsSlice](../README.md) / ITransactionsActions
+[Library functions](../../../../modules.md) / [web3/store/transactionsSlice](../README.md) / ITransactionsActions
 
 # Interface: ITransactionsActions\<T\>
 
@@ -26,7 +26,7 @@
 
 #### Source
 
-[src/web3/store/transactionsSlice.ts:73](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/store/transactionsSlice.ts#L73)
+[src/web3/store/transactionsSlice.ts:73](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/store/transactionsSlice.ts#L73)
 
 ***
 
@@ -54,7 +54,7 @@
 
 #### Source
 
-[src/web3/store/transactionsSlice.ts:65](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/store/transactionsSlice.ts#L65)
+[src/web3/store/transactionsSlice.ts:65](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/store/transactionsSlice.ts#L65)
 
 ***
 
@@ -72,7 +72,7 @@
 
 #### Source
 
-[src/web3/store/transactionsSlice.ts:74](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/store/transactionsSlice.ts#L74)
+[src/web3/store/transactionsSlice.ts:74](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/store/transactionsSlice.ts#L74)
 
 ***
 
@@ -90,4 +90,4 @@
 
 #### Source
 
-[src/web3/store/transactionsSlice.ts:59](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/store/transactionsSlice.ts#L59)
+[src/web3/store/transactionsSlice.ts:59](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/store/transactionsSlice.ts#L59)

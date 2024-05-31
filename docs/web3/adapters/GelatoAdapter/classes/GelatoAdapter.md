@@ -1,8 +1,8 @@
-[**Default Options Example**](../../../../README.md) • **Docs**
+[**Library functions**](../../../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../../../modules.md) / [web3/adapters/GelatoAdapter](../README.md) / GelatoAdapter
+[Library functions](../../../../modules.md) / [web3/adapters/GelatoAdapter](../README.md) / GelatoAdapter
 
 # Class: GelatoAdapter\<T\>
 
@@ -32,7 +32,7 @@
 
 #### Source
 
-[src/web3/adapters/GelatoAdapter.ts:54](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/GelatoAdapter.ts#L54)
+[src/web3/adapters/GelatoAdapter.ts:54](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/GelatoAdapter.ts#L54)
 
 ## Properties
 
@@ -50,7 +50,7 @@
 
 #### Source
 
-[src/web3/adapters/GelatoAdapter.ts:46](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/GelatoAdapter.ts#L46)
+[src/web3/adapters/GelatoAdapter.ts:46](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/GelatoAdapter.ts#L46)
 
 ***
 
@@ -72,7 +72,7 @@
 
 #### Source
 
-[src/web3/adapters/GelatoAdapter.ts:47](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/GelatoAdapter.ts#L47)
+[src/web3/adapters/GelatoAdapter.ts:47](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/GelatoAdapter.ts#L47)
 
 ***
 
@@ -82,7 +82,7 @@
 
 #### Source
 
-[src/web3/adapters/GelatoAdapter.ts:52](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/GelatoAdapter.ts#L52)
+[src/web3/adapters/GelatoAdapter.ts:52](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/GelatoAdapter.ts#L52)
 
 ## Methods
 
@@ -100,7 +100,7 @@
 
 #### Source
 
-[src/web3/adapters/GelatoAdapter.ts:66](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/GelatoAdapter.ts#L66)
+[src/web3/adapters/GelatoAdapter.ts:66](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/GelatoAdapter.ts#L66)
 
 ***
 
@@ -118,7 +118,7 @@
 
 #### Source
 
-[src/web3/adapters/GelatoAdapter.ts:108](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/GelatoAdapter.ts#L108)
+[src/web3/adapters/GelatoAdapter.ts:108](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/GelatoAdapter.ts#L108)
 
 ***
 
@@ -140,7 +140,7 @@
 
 #### Source
 
-[src/web3/adapters/GelatoAdapter.ts:81](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/GelatoAdapter.ts#L81)
+[src/web3/adapters/GelatoAdapter.ts:81](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/GelatoAdapter.ts#L81)
 
 ***
 
@@ -158,7 +158,7 @@
 
 #### Source
 
-[src/web3/adapters/GelatoAdapter.ts:141](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/GelatoAdapter.ts#L141)
+[src/web3/adapters/GelatoAdapter.ts:141](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/GelatoAdapter.ts#L141)
 
 ***
 
@@ -178,4 +178,4 @@
 
 #### Source
 
-[src/web3/adapters/GelatoAdapter.ts:147](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/GelatoAdapter.ts#L147)
+[src/web3/adapters/GelatoAdapter.ts:147](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/GelatoAdapter.ts#L147)

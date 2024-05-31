@@ -1,8 +1,8 @@
-[**Default Options Example**](../../../README.md) • **Docs**
+[**Library functions**](../../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../../modules.md) / [web3/connectors](../README.md) / WalletType
+[Library functions](../../../modules.md) / [web3/connectors](../README.md) / WalletType
 
 # Enumeration: WalletType
 
@@ -14,7 +14,7 @@
 
 #### Source
 
-[src/web3/connectors/index.ts:30](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/connectors/index.ts#L30)
+[src/web3/connectors/index.ts:30](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/connectors/index.ts#L30)
 
 ***
 
@@ -24,7 +24,7 @@
 
 #### Source
 
-[src/web3/connectors/index.ts:32](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/connectors/index.ts#L32)
+[src/web3/connectors/index.ts:32](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/connectors/index.ts#L32)
 
 ***
 
@@ -34,7 +34,7 @@
 
 #### Source
 
-[src/web3/connectors/index.ts:28](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/connectors/index.ts#L28)
+[src/web3/connectors/index.ts:28](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/connectors/index.ts#L28)
 
 ***
 
@@ -44,7 +44,7 @@
 
 #### Source
 
-[src/web3/connectors/index.ts:31](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/connectors/index.ts#L31)
+[src/web3/connectors/index.ts:31](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/connectors/index.ts#L31)
 
 ***
 
@@ -54,4 +54,4 @@
 
 #### Source
 
-[src/web3/connectors/index.ts:29](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/connectors/index.ts#L29)
+[src/web3/connectors/index.ts:29](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/connectors/index.ts#L29)

@@ -1,8 +1,8 @@
-[**Default Options Example**](../../../README.md) • **Docs**
+[**Library functions**](../../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../../modules.md) / [utils/constants](../README.md) / safeSdkOptions
+[Library functions](../../../modules.md) / [utils/constants](../README.md) / safeSdkOptions
 
 # Variable: safeSdkOptions
 
@@ -20,4 +20,4 @@
 
 ## Source
 
-[src/utils/constants.ts:13](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/constants.ts#L13)
+[src/utils/constants.ts:13](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/constants.ts#L13)

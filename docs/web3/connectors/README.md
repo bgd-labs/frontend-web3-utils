@@ -1,8 +1,8 @@
-[**Default Options Example**](../../README.md) • **Docs**
+[**Library functions**](../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../modules.md) / web3/connectors
+[Library functions](../../modules.md) / web3/connectors
 
 # web3/connectors
 

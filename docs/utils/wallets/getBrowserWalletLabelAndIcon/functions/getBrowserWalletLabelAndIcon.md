@@ -1,8 +1,8 @@
-[**Default Options Example**](../../../../README.md) • **Docs**
+[**Library functions**](../../../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../../../modules.md) / [utils/wallets/getBrowserWalletLabelAndIcon](../README.md) / getBrowserWalletLabelAndIcon
+[Library functions](../../../../modules.md) / [utils/wallets/getBrowserWalletLabelAndIcon](../README.md) / getBrowserWalletLabelAndIcon
 
 # Function: getBrowserWalletLabelAndIcon()
 
@@ -22,4 +22,4 @@
 
 ## Source
 
-[src/utils/wallets/getBrowserWalletLabelAndIcon.ts:4](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/utils/wallets/getBrowserWalletLabelAndIcon.ts#L4)
+[src/utils/wallets/getBrowserWalletLabelAndIcon.ts:4](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/getBrowserWalletLabelAndIcon.ts#L4)

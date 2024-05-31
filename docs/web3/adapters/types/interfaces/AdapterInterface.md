@@ -1,8 +1,8 @@
-[**Default Options Example**](../../../../README.md) • **Docs**
+[**Library functions**](../../../../README.md) • **Docs**
 
 ***
 
-[Default Options Example](../../../../modules.md) / [web3/adapters/types](../README.md) / AdapterInterface
+[Library functions](../../../../modules.md) / [web3/adapters/types](../README.md) / AdapterInterface
 
 # Interface: AdapterInterface\<T\>
 
@@ -22,7 +22,7 @@
 
 #### Source
 
-[src/web3/adapters/types.ts:55](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/types.ts#L55)
+[src/web3/adapters/types.ts:55](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/types.ts#L55)
 
 ***
 
@@ -40,7 +40,7 @@
 
 #### Source
 
-[src/web3/adapters/types.ts:56](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/types.ts#L56)
+[src/web3/adapters/types.ts:56](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/types.ts#L56)
 
 ***
 
@@ -58,4 +58,4 @@
 
 #### Source
 
-[src/web3/adapters/types.ts:61](https://github.com/bgd-labs/fe-shared/blob/022d31eeb7e61eeffe2ddf65992458f822122ffc/src/web3/adapters/types.ts#L61)
+[src/web3/adapters/types.ts:61](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/adapters/types.ts#L61)

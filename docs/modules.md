@@ -1,8 +1,8 @@
-[**Default Options Example**](README.md) • **Docs**
+[**Library functions**](README.md) • **Docs**
 
 ***
 
-# Default Options Example
+# Library functions
 
 ## Modules
 
