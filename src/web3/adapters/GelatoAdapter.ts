@@ -1,3 +1,8 @@
+/**
+ * GelatoAdapter
+ * @module TransactionAdapters/GelatoAdapter
+ */
+
 import dayjs from 'dayjs';
 import { produce } from 'immer';
 import { Hex } from 'viem';

@@ -1,41 +1,15 @@
-[**Library functions**](../../../../README.md) • **Docs**
-
-***
-
-[Library functions](../../../../modules.md) / [web3/store/transactionsSlice](../README.md) / TransactionsSliceBaseType
-
-# Type alias: TransactionsSliceBaseType
+[Modules](../../../../README.md) / [web3/store/transactionsSlice](../README.md) / TransactionsSliceBaseType
 
 > **TransactionsSliceBaseType**: `object`
 
 ## Type declaration
 
-### clients
-
-> **clients**: [`ClientsRecord`](../../../../types/base/type-aliases/ClientsRecord.md)
-
-### initTxPool()
-
-> **initTxPool**: () => `void`
-
-#### Returns
-
-`void`
-
-### setClient()
-
-> **setClient**: (`chainId`, `client`) => `void`
-
-#### Parameters
-
-• **chainId**: `number`
-
-• **client**: `Client`
-
-#### Returns
-
-`void`
+| Member | Type |
+| :------ | :------ |
+| `clients` | [`ClientsRecord`](../../../../GenericTypes/type-aliases/ClientsRecord.md) |
+| `initTxPool` | () => `void` |
+| `setClient` | (`chainId`, `client`) => `void` |
 
 ## Source
 
-[src/web3/store/transactionsSlice.ts:37](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/store/transactionsSlice.ts#L37)
+[src/web3/store/transactionsSlice.ts:36](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/store/transactionsSlice.ts#L36)

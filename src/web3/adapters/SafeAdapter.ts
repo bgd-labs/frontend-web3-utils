@@ -1,3 +1,8 @@
+/**
+ * SafeAdapter
+ * @module TransactionAdapters/SafeAdapter
+ */
+
 import dayjs from 'dayjs';
 import { produce } from 'immer';
 import { Hex, isHex } from 'viem';

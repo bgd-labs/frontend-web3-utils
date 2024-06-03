@@ -17,6 +17,10 @@ Outside this stack using BGD solutions will be a problem and repo is provided as
 
 Each solution should provide a complete flow with clear boundaries and entry point for custom logic.
 
+### Library module description
+
+[Here](./docs/README.md) you can look at the modules that are in the library..
+
 ### Installation
 
 #### npm
@@ -588,7 +592,7 @@ export const ExampleTxButton = () => {
     setIsTxStart,
     isTxStart,
     setError,
-    tx, // tx object with all statuses
+    tx,
   } = useLastTxLocalStatus({
     type: TxType.example,
     payload: {

@@ -1,6 +1,5 @@
 export * from './hooks/useLastTxLocalStatus';
-export * from './types/base';
-export * from './types/store';
+export * from './types';
 export * from './utils/chainInfoHelpers';
 export * from './utils/constants';
 export * from './utils/localStorage';

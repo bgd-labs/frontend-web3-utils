@@ -1,23 +1,18 @@
-[**Library functions**](../../../../README.md) • **Docs**
+[Modules](../../../../README.md) / [web3/store/walletSlice](../README.md) / createWalletSlice
 
-***
-
-[Library functions](../../../../modules.md) / [web3/store/walletSlice](../README.md) / createWalletSlice
-
-# Function: createWalletSlice()
-
-> **createWalletSlice**(`__namedParameters`): [`StoreSlice`](../../../../types/store/type-aliases/StoreSlice.md)\<[`IWalletSlice`](../type-aliases/IWalletSlice.md), [`TransactionsSliceBaseType`](../../transactionsSlice/type-aliases/TransactionsSliceBaseType.md)\>
+> **createWalletSlice**(`__namedParameters`): [`StoreSlice`](../../../../GenericTypes/type-aliases/StoreSlice.md)\<[`IWalletSlice`](../type-aliases/IWalletSlice.md), [`TransactionsSliceBaseType`](../../transactionsSlice/type-aliases/TransactionsSliceBaseType.md)\>
 
 ## Parameters
 
-• **\_\_namedParameters**
-
-• **\_\_namedParameters.walletConnected**
+| Parameter | Type |
+| :------ | :------ |
+| `__namedParameters` | `object` |
+| `__namedParameters.walletConnected` | (`wallet`) => `void` |
 
 ## Returns
 
-[`StoreSlice`](../../../../types/store/type-aliases/StoreSlice.md)\<[`IWalletSlice`](../type-aliases/IWalletSlice.md), [`TransactionsSliceBaseType`](../../transactionsSlice/type-aliases/TransactionsSliceBaseType.md)\>
+[`StoreSlice`](../../../../GenericTypes/type-aliases/StoreSlice.md)\<[`IWalletSlice`](../type-aliases/IWalletSlice.md), [`TransactionsSliceBaseType`](../../transactionsSlice/type-aliases/TransactionsSliceBaseType.md)\>
 
 ## Source
 
-[src/web3/store/walletSlice.ts:79](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/store/walletSlice.ts#L79)
+[src/web3/store/walletSlice.ts:79](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/store/walletSlice.ts#L79)

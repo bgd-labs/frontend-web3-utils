@@ -5,7 +5,7 @@ import { Chain, mainnet } from 'viem/chains';
 import { fallBackConfig, VIEM_CHAINS } from '../../utils/chainInfoHelpers';
 import { AllConnectorsInitProps, initAllConnectors } from '../connectors';
 
-interface ICreateWagmiConfig {
+export interface ICreateWagmiConfig {
   chains: Record<number, Chain>;
   connectorsInitProps: AllConnectorsInitProps;
   wagmiConfig?: Config;

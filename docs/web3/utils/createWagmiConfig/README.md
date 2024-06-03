@@ -1,13 +1,15 @@
-[**Library functions**](../../../README.md) • **Docs**
-
-***
-
-[Library functions](../../../modules.md) / web3/utils/createWagmiConfig
-
-# web3/utils/createWagmiConfig
+[Modules](../../../README.md) / web3/utils/createWagmiConfig
 
 ## Index
 
+### Interfaces
+
+| Interface | Description |
+| :------ | :------ |
+| [ICreateWagmiConfig](interfaces/ICreateWagmiConfig.md) | - |
+
 ### Functions
 
-- [createWagmiConfig](functions/createWagmiConfig.md)
+| Function | Description |
+| :------ | :------ |
+| [createWagmiConfig](functions/createWagmiConfig.md) | - |

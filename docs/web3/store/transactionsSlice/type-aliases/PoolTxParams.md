@@ -1,31 +1,16 @@
-[**Library functions**](../../../../README.md) • **Docs**
-
-***
-
-[Library functions](../../../../modules.md) / [web3/store/transactionsSlice](../README.md) / PoolTxParams
-
-# Type alias: PoolTxParams
+[Modules](../../../../README.md) / [web3/store/transactionsSlice](../README.md) / PoolTxParams
 
 > **PoolTxParams**: `object`
 
 ## Type declaration
 
-### pending
-
-> **pending**: `boolean`
-
-### replacedTxHash?
-
-> `optional` **replacedTxHash**: `Hex`
-
-### status?
-
-> `optional` **status**: [`TransactionStatus`](../../../adapters/types/enumerations/TransactionStatus.md)
-
-### walletType
-
-> **walletType**: [`WalletType`](../../../connectors/enumerations/WalletType.md)
+| Member | Type |
+| :------ | :------ |
+| `pending` | `boolean` |
+| `replacedTxHash` | `Hex` |
+| `status` | [`TransactionStatus`](../../../../TransactionAdapters/types/enumerations/TransactionStatus.md) |
+| `walletType` | [`WalletType`](../../../connectors/enumerations/WalletType.md) |
 
 ## Source
 
-[src/web3/store/transactionsSlice.ts:26](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/store/transactionsSlice.ts#L26)
+[src/web3/store/transactionsSlice.ts:25](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/store/transactionsSlice.ts#L25)

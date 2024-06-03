@@ -1,7 +1,7 @@
 import { Config, GetAccountReturnType, watchAccount } from '@wagmi/core';
 import { useEffect } from 'react';
 
-interface WagmiZustandSyncProps {
+export interface WagmiZustandSyncProps {
   wagmiConfig: Config;
   defaultChainId?: number;
   withAutoConnect?: boolean;

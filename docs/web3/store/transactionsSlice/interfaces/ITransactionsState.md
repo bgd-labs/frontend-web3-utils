@@ -1,99 +1,21 @@
-[**Library functions**](../../../../README.md) • **Docs**
-
-***
-
-[Library functions](../../../../modules.md) / [web3/store/transactionsSlice](../README.md) / ITransactionsState
-
-# Interface: ITransactionsState\<T\>
+[Modules](../../../../README.md) / [web3/store/transactionsSlice](../README.md) / ITransactionsState
 
 ## Type parameters
 
-• **T** *extends* [`BaseTx`](../../../adapters/types/type-aliases/BaseTx.md)
+| Type parameter |
+| :------ |
+| `T` *extends* [`BaseTx`](../../../../TransactionAdapters/types/type-aliases/BaseTx.md) |
 
 ## Properties
 
-### adapters
-
-> **adapters**: `object`
-
-#### ethereum
-
-> **ethereum**: [`EthereumAdapter`](../../../adapters/EthereumAdapter/classes/EthereumAdapter.md)\<`T`\>
-
-#### gelato?
-
-> `optional` **gelato**: [`GelatoAdapter`](../../../adapters/GelatoAdapter/classes/GelatoAdapter.md)\<`T`\>
-
-#### safe?
-
-> `optional` **safe**: [`SafeAdapter`](../../../adapters/SafeAdapter/classes/SafeAdapter.md)\<`T`\>
-
-#### Source
-
-[src/web3/store/transactionsSlice.ts:44](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/store/transactionsSlice.ts#L44)
-
-***
-
-### checkIsGelatoAvailable()
-
-> **checkIsGelatoAvailable**: (`chainId`) => `Promise`\<`void`\>
-
-#### Parameters
-
-• **chainId**: `number`
-
-#### Returns
-
-`Promise`\<`void`\>
-
-#### Source
-
-[src/web3/store/transactionsSlice.ts:55](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/store/transactionsSlice.ts#L55)
-
-***
-
-### isGelatoAvailable
-
-> **isGelatoAvailable**: `boolean`
-
-#### Source
-
-[src/web3/store/transactionsSlice.ts:54](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/store/transactionsSlice.ts#L54)
-
-***
-
-### setAdapter()
-
-> **setAdapter**: (`adapter`) => `void`
-
-#### Parameters
-
-• **adapter**: [`TxAdapter`](../../../adapters/types/enumerations/TxAdapter.md)
-
-#### Returns
-
-`void`
-
-#### Source
-
-[src/web3/store/transactionsSlice.ts:49](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/store/transactionsSlice.ts#L49)
-
-***
-
-### transactionsIntervalsMap
-
-> **transactionsIntervalsMap**: `Record`\<`string`, `number`\>
-
-#### Source
-
-[src/web3/store/transactionsSlice.ts:52](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/store/transactionsSlice.ts#L52)
-
-***
-
-### transactionsPool
-
-> **transactionsPool**: [`TransactionPool`](../type-aliases/TransactionPool.md)\<[`PoolTx`](../type-aliases/PoolTx.md)\<`T`\>\>
-
-#### Source
-
-[src/web3/store/transactionsSlice.ts:51](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/store/transactionsSlice.ts#L51)
+| Property | Type |
+| :------ | :------ |
+| `adapters` | `object` |
+| `adapters.ethereum` | [`EthereumAdapter`](../../../../TransactionAdapters/EthereumAdapter/classes/EthereumAdapter.md)\<`T`\> |
+| `adapters.gelato?` | [`GelatoAdapter`](../../../../TransactionAdapters/GelatoAdapter/classes/GelatoAdapter.md)\<`T`\> |
+| `adapters.safe?` | [`SafeAdapter`](../../../../TransactionAdapters/SafeAdapter/classes/SafeAdapter.md)\<`T`\> |
+| `checkIsGelatoAvailable` | (`chainId`: `number`) => `Promise`\<`void`\> |
+| `isGelatoAvailable` | `boolean` |
+| `setAdapter` | (`adapter`: [`TxAdapter`](../../../../TransactionAdapters/types/enumerations/TxAdapter.md)) => `void` |
+| `transactionsIntervalsMap` | `Record`\<`string`, `number`\> |
+| `transactionsPool` | [`TransactionPool`](../type-aliases/TransactionPool.md)\<[`PoolTx`](../type-aliases/PoolTx.md)\<`T`\>\> |

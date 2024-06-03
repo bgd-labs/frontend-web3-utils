@@ -1,3 +1,8 @@
+/**
+ * Additional module for convenient viewing of transactions with statuses.
+ * @module CheckTxFromPool
+ */
+
 import { useEffect, useState } from 'react';
 import { Hex } from 'viem';
 
@@ -5,14 +10,14 @@ import { BaseTx, TransactionStatus } from '../web3/adapters/types';
 import { selectLastTxByTypeAndPayload } from '../web3/store/transactionsSelectors';
 import { PoolTx, TransactionPool } from '../web3/store/transactionsSlice';
 
-interface LastTxStatusesParams<T extends BaseTx> {
+export interface LastTxStatusesParams<T extends BaseTx> {
   transactionsPool: TransactionPool<PoolTx<T>>;
   activeAddress: Hex;
   type: T['type'];
   payload: T['payload'];
 }
 
-type ExecuteTxWithLocalStatusesParams = {
+export type ExecuteTxWithLocalStatusesParams = {
   customErrorMessage?: string;
   callbackFunction: () => Promise<void>;
 };
@@ -39,11 +44,7 @@ export interface TxLocalStatus<T extends BaseTx> {
 }
 
 /**
- * useLastTxLocalStatus function
- * @param transactionsPool All transactions data from local storage or zustand store
- * @param activeAddress Connected wallet address
- * @param type Transaction type
- * @param payload Transaction payload data
+ * React hook for check last executed tx with statuses.
  */
 export const useLastTxLocalStatus = <T extends BaseTx>({
   transactionsPool,

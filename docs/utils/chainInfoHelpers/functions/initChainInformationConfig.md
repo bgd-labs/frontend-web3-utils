@@ -1,41 +1,22 @@
-[**Library functions**](../../../README.md) • **Docs**
-
-***
-
-[Library functions](../../../modules.md) / [utils/chainInfoHelpers](../README.md) / initChainInformationConfig
-
-# Function: initChainInformationConfig()
+[Modules](../../../README.md) / [utils/chainInfoHelpers](../README.md) / initChainInformationConfig
 
 > **initChainInformationConfig**(`chains`?): `object`
 
 ## Parameters
 
-• **chains?**: `Record`\<`number`, `Chain`\>
+| Parameter | Type |
+| :------ | :------ |
+| `chains`? | `Record`\<`number`, `Chain`\> |
 
 ## Returns
 
 `object`
 
-### clientInstances
-
-> **clientInstances**: `object`
-
-#### Index signature
-
- \[`chainId`: `number`\]: `object`
-
-### getChainParameters()
-
-> **getChainParameters**: (`chainId`) => `Chain`
-
-#### Parameters
-
-• **chainId**: `number`
-
-#### Returns
-
-`Chain`
+| Member | Type |
+| :------ | :------ |
+| `clientInstances` | `object` |
+| `getChainParameters` | (`chainId`) => `Chain` |
 
 ## Source
 
-[src/utils/chainInfoHelpers.ts:28](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/chainInfoHelpers.ts#L28)
+[src/utils/chainInfoHelpers.ts:28](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/utils/chainInfoHelpers.ts#L28)

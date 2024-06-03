@@ -1,17 +1,13 @@
-[**Library functions**](../../../../README.md) • **Docs**
-
-***
-
-[Library functions](../../../../modules.md) / [web3/store/transactionsSlice](../README.md) / ITransactionsSliceWithWallet
-
-# Type alias: ITransactionsSliceWithWallet\<T\>
+[Modules](../../../../README.md) / [web3/store/transactionsSlice](../README.md) / ITransactionsSliceWithWallet
 
 > **ITransactionsSliceWithWallet**\<`T`\>: [`ITransactionsSlice`](ITransactionsSlice.md)\<`T`\> & `Pick`\<[`IWalletSlice`](../../walletSlice/type-aliases/IWalletSlice.md), `"checkAndSwitchNetwork"` \| `"activeWallet"`\>
 
 ## Type parameters
 
-• **T** *extends* [`BaseTx`](../../../adapters/types/type-aliases/BaseTx.md)
+| Type parameter |
+| :------ |
+| `T` *extends* [`BaseTx`](../../../../TransactionAdapters/types/type-aliases/BaseTx.md) |
 
 ## Source
 
-[src/web3/store/transactionsSlice.ts:81](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/store/transactionsSlice.ts#L81)
+[src/web3/store/transactionsSlice.ts:80](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/store/transactionsSlice.ts#L80)

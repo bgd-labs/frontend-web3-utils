@@ -1,20 +1,18 @@
-[**Library functions**](../../../../README.md) • **Docs**
-
-***
-
-[Library functions](../../../../modules.md) / [web3/store/transactionsSelectors](../README.md) / selectPendingTransactions
-
-# Function: selectPendingTransactions()
+[Modules](../../../../README.md) / [web3/store/transactionsSelectors](../README.md) / selectPendingTransactions
 
 > **selectPendingTransactions**\<`T`\>(`transactionsPool`): [`PoolTx`](../../transactionsSlice/type-aliases/PoolTx.md)\<`T`\>[]
 
 ## Type parameters
 
-• **T** *extends* [`BaseTx`](../../../adapters/types/type-aliases/BaseTx.md)
+| Type parameter |
+| :------ |
+| `T` *extends* [`BaseTx`](../../../../TransactionAdapters/types/type-aliases/BaseTx.md) |
 
 ## Parameters
 
-• **transactionsPool**: [`TransactionPool`](../../transactionsSlice/type-aliases/TransactionPool.md)\<[`PoolTx`](../../transactionsSlice/type-aliases/PoolTx.md)\<`T`\>\>
+| Parameter | Type |
+| :------ | :------ |
+| `transactionsPool` | [`TransactionPool`](../../transactionsSlice/type-aliases/TransactionPool.md)\<[`PoolTx`](../../transactionsSlice/type-aliases/PoolTx.md)\<`T`\>\> |
 
 ## Returns
 
@@ -22,4 +20,4 @@
 
 ## Source
 
-[src/web3/store/transactionsSelectors.ts:16](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/store/transactionsSelectors.ts#L16)
+[src/web3/store/transactionsSelectors.ts:16](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/store/transactionsSelectors.ts#L16)

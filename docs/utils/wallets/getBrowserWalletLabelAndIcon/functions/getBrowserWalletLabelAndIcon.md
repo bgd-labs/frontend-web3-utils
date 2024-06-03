@@ -1,10 +1,4 @@
-[**Library functions**](../../../../README.md) • **Docs**
-
-***
-
-[Library functions](../../../../modules.md) / [utils/wallets/getBrowserWalletLabelAndIcon](../README.md) / getBrowserWalletLabelAndIcon
-
-# Function: getBrowserWalletLabelAndIcon()
+[Modules](../../../../README.md) / [utils/wallets/getBrowserWalletLabelAndIcon](../README.md) / getBrowserWalletLabelAndIcon
 
 > **getBrowserWalletLabelAndIcon**(): `object`
 
@@ -12,14 +6,11 @@
 
 `object`
 
-### icon
-
-> **icon**: `string` = `defaultWallet.icon`
-
-### label
-
-> **label**: `string` = `defaultWallet.label`
+| Member | Type | Value |
+| :------ | :------ | :------ |
+| `icon` | `string` | defaultWallet.icon |
+| `label` | `string` | defaultWallet.label |
 
 ## Source
 
-[src/utils/wallets/getBrowserWalletLabelAndIcon.ts:4](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/wallets/getBrowserWalletLabelAndIcon.ts#L4)
+[src/utils/wallets/getBrowserWalletLabelAndIcon.ts:4](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/utils/wallets/getBrowserWalletLabelAndIcon.ts#L4)

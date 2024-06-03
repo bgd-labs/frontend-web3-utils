@@ -1,59 +1,22 @@
-[**Library functions**](../../../README.md) • **Docs**
-
-***
-
-[Library functions](../../../modules.md) / [web3/connectors](../README.md) / AllConnectorsInitProps
-
-# Type alias: AllConnectorsInitProps
+[Modules](../../../README.md) / [web3/connectors](../README.md) / AllConnectorsInitProps
 
 > **AllConnectorsInitProps**: `object`
 
 ## Type declaration
 
-### appName
-
-> **appName**: `string`
-
-### defaultChainId?
-
-> `optional` **defaultChainId**: `number`
-
-### getImpersonatedAccount()?
-
-> `optional` **getImpersonatedAccount**: () => `Hex` \| `undefined`
-
-#### Returns
-
-`Hex` \| `undefined`
-
-### wcParams?
-
-> `optional` **wcParams**: `object`
-
-### wcParams.metadata
-
-> **metadata**: `object`
-
-### wcParams.metadata.description
-
-> **description**: `string`
-
-### wcParams.metadata.icons
-
-> **icons**: `string`[]
-
-### wcParams.metadata.name
-
-> **name**: `string`
-
-### wcParams.metadata.url
-
-> **url**: `string`
-
-### wcParams.projectId
-
-> **projectId**: `string`
+| Member | Type |
+| :------ | :------ |
+| `appName` | `string` |
+| `defaultChainId` | `number` |
+| `getImpersonatedAccount` | () => `Hex` \| `undefined` |
+| `wcParams` | `object` |
+| `wcParams.metadata` | `object` |
+| `wcParams.metadata.description` | `string` |
+| `wcParams.metadata.icons` | `string`[] |
+| `wcParams.metadata.name` | `string` |
+| `wcParams.metadata.url` | `string` |
+| `wcParams.projectId` | `string` |
 
 ## Source
 
-[src/web3/connectors/index.ts:12](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/connectors/index.ts#L12)
+[src/web3/connectors/index.ts:12](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/connectors/index.ts#L12)

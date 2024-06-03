@@ -1,16 +1,12 @@
-[**Library functions**](../../../../README.md) • **Docs**
-
-***
-
-[Library functions](../../../../modules.md) / [web3/components/WagmiZustandSync](../README.md) / WagmiZustandSync
-
-# Function: WagmiZustandSync()
+[Modules](../../../../README.md) / [web3/components/WagmiZustandSync](../README.md) / WagmiZustandSync
 
 > **WagmiZustandSync**(`__namedParameters`): `void`
 
 ## Parameters
 
-• **\_\_namedParameters**: `WagmiZustandSyncProps`
+| Parameter | Type |
+| :------ | :------ |
+| `__namedParameters` | [`WagmiZustandSyncProps`](../interfaces/WagmiZustandSyncProps.md) |
 
 ## Returns
 
@@ -18,4 +14,4 @@
 
 ## Source
 
-[src/web3/components/WagmiZustandSync.tsx:20](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/components/WagmiZustandSync.tsx#L20)
+[src/web3/components/WagmiZustandSync.tsx:20](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/components/WagmiZustandSync.tsx#L20)

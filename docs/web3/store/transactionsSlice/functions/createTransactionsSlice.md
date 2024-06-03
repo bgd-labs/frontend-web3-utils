@@ -1,29 +1,25 @@
-[**Library functions**](../../../../README.md) • **Docs**
+[Modules](../../../../README.md) / [web3/store/transactionsSlice](../README.md) / createTransactionsSlice
 
-***
-
-[Library functions](../../../../modules.md) / [web3/store/transactionsSlice](../README.md) / createTransactionsSlice
-
-# Function: createTransactionsSlice()
-
-> **createTransactionsSlice**\<`T`\>(`__namedParameters`): [`StoreSlice`](../../../../types/store/type-aliases/StoreSlice.md)\<[`ITransactionsSlice`](../type-aliases/ITransactionsSlice.md)\<`T`\>, `Pick`\<[`IWalletSlice`](../../walletSlice/type-aliases/IWalletSlice.md), `"checkAndSwitchNetwork"` \| `"activeWallet"`\>\>
+> **createTransactionsSlice**\<`T`\>(`__namedParameters`): [`StoreSlice`](../../../../GenericTypes/type-aliases/StoreSlice.md)\<[`ITransactionsSlice`](../type-aliases/ITransactionsSlice.md)\<`T`\>, `Pick`\<[`IWalletSlice`](../../walletSlice/type-aliases/IWalletSlice.md), `"checkAndSwitchNetwork"` \| `"activeWallet"`\>\>
 
 ## Type parameters
 
-• **T** *extends* [`BaseTx`](../../../adapters/types/type-aliases/BaseTx.md)
+| Type parameter |
+| :------ |
+| `T` *extends* [`BaseTx`](../../../../TransactionAdapters/types/type-aliases/BaseTx.md) |
 
 ## Parameters
 
-• **\_\_namedParameters**
-
-• **\_\_namedParameters.defaultClients**: [`ClientsRecord`](../../../../types/base/type-aliases/ClientsRecord.md)
-
-• **\_\_namedParameters.txStatusChangedCallback**
+| Parameter | Type |
+| :------ | :------ |
+| `__namedParameters` | `object` |
+| `__namedParameters.defaultClients` | [`ClientsRecord`](../../../../GenericTypes/type-aliases/ClientsRecord.md) |
+| `__namedParameters.txStatusChangedCallback` | (`tx`) => `Promise`\<`void`\> |
 
 ## Returns
 
-[`StoreSlice`](../../../../types/store/type-aliases/StoreSlice.md)\<[`ITransactionsSlice`](../type-aliases/ITransactionsSlice.md)\<`T`\>, `Pick`\<[`IWalletSlice`](../../walletSlice/type-aliases/IWalletSlice.md), `"checkAndSwitchNetwork"` \| `"activeWallet"`\>\>
+[`StoreSlice`](../../../../GenericTypes/type-aliases/StoreSlice.md)\<[`ITransactionsSlice`](../type-aliases/ITransactionsSlice.md)\<`T`\>, `Pick`\<[`IWalletSlice`](../../walletSlice/type-aliases/IWalletSlice.md), `"checkAndSwitchNetwork"` \| `"activeWallet"`\>\>
 
 ## Source
 
-[src/web3/store/transactionsSlice.ts:85](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/web3/store/transactionsSlice.ts#L85)
+[src/web3/store/transactionsSlice.ts:84](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/store/transactionsSlice.ts#L84)

@@ -1,3 +1,8 @@
+/**
+ * Generic functions for check transactions.
+ * @module TransactionAdapters/functions
+ */
+
 import { EthPoolTx, GelatoPoolTx } from '../store/transactionsSlice';
 import { GelatoBaseTx, GelatoTaskState, GelatoTx } from './GelatoAdapter';
 import { SafeTx } from './SafeAdapter';

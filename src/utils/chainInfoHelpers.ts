@@ -1,7 +1,7 @@
 import { Chain, Client, createClient, fallback, http } from 'viem';
 import * as viemChains from 'viem/chains';
 
-import { ClientsRecord } from '../types/base';
+import { ClientsRecord } from '../types';
 
 export const fallBackConfig = {
   rank: false,

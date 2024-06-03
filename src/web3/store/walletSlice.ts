@@ -12,7 +12,7 @@ import { Account, Chain, Client, Hex, isAddress, walletActions } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { getBytecode } from 'viem/actions';
 
-import { StoreSlice } from '../../types/store';
+import { StoreSlice } from '../../types';
 import { VIEM_CHAINS } from '../../utils/chainInfoHelpers';
 import {
   clearWalletConnectV2LocalStorage,

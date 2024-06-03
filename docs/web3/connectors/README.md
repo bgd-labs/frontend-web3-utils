@@ -1,21 +1,21 @@
-[**Library functions**](../../README.md) • **Docs**
-
-***
-
-[Library functions](../../modules.md) / web3/connectors
-
-# web3/connectors
+[Modules](../../README.md) / web3/connectors
 
 ## Index
 
 ### Enumerations
 
-- [WalletType](enumerations/WalletType.md)
+| Enumeration | Description |
+| :------ | :------ |
+| [WalletType](enumerations/WalletType.md) | - |
 
 ### Type Aliases
 
-- [AllConnectorsInitProps](type-aliases/AllConnectorsInitProps.md)
+| Type alias | Description |
+| :------ | :------ |
+| [AllConnectorsInitProps](type-aliases/AllConnectorsInitProps.md) | - |
 
 ### Functions
 
-- [initAllConnectors](functions/initAllConnectors.md)
+| Function | Description |
+| :------ | :------ |
+| [initAllConnectors](functions/initAllConnectors.md) | - |

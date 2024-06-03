@@ -1,3 +1,8 @@
+/**
+ * EthereumAdapter
+ * @module TransactionAdapters/EthereumAdapter
+ */
+
 import { produce } from 'immer';
 import { Hex, isHex, ReplacementReturnType } from 'viem';
 import {

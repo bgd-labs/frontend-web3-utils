@@ -1,27 +1,15 @@
-[**Library functions**](../../../README.md) • **Docs**
-
-***
-
-[Library functions](../../../modules.md) / [utils/chainInfoHelpers](../README.md) / fallBackConfig
-
-# Variable: fallBackConfig
+[Modules](../../../README.md) / [utils/chainInfoHelpers](../README.md) / fallBackConfig
 
 > `const` **fallBackConfig**: `object`
 
 ## Type declaration
 
-### rank
-
-> **rank**: `boolean` = `false`
-
-### retryCount
-
-> **retryCount**: `number` = `5`
-
-### retryDelay
-
-> **retryDelay**: `number` = `100`
+| Member | Type | Value |
+| :------ | :------ | :------ |
+| `rank` | `boolean` | false |
+| `retryCount` | `number` | 5 |
+| `retryDelay` | `number` | 100 |
 
 ## Source
 
-[src/utils/chainInfoHelpers.ts:6](https://github.com/bgd-labs/fe-shared/blob/bcb81f075c57b42adfeb5f3e6c387d13f532f431/src/utils/chainInfoHelpers.ts#L6)
+[src/utils/chainInfoHelpers.ts:6](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/utils/chainInfoHelpers.ts#L6)

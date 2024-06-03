@@ -2,8 +2,7 @@ import dayjs from 'dayjs';
 import { Draft, produce } from 'immer';
 import { Client, Hex, isHex } from 'viem';
 
-import { ClientsRecord } from '../../types/base';
-import { StoreSlice } from '../../types/store';
+import { ClientsRecord, StoreSlice } from '../../types';
 import { SafeTransactionServiceUrls } from '../../utils/constants';
 import {
   getLocalStorageTxPool,
