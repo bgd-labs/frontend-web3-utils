@@ -1,3 +1,8 @@
+/**
+ * Provider for synchronizing wagmi config with zustand store.
+ * @module Providers/WagmiZustandSync
+ */
+
 import { Config, GetAccountReturnType, watchAccount } from '@wagmi/core';
 import { useEffect } from 'react';
 
@@ -17,6 +22,9 @@ export interface WagmiZustandSyncProps {
   };
 }
 
+/**
+ * Provider for synchronizing wagmi config with zustand store.
+ */
 export function WagmiZustandSync({
   wagmiConfig,
   defaultChainId,

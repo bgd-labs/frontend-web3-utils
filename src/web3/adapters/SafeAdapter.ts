@@ -1,5 +1,5 @@
 /**
- * SafeAdapter
+ * Adapter for transaction slice to check transactions from Safe API. (Internal)
  * @module TransactionAdapters/SafeAdapter
  */
 

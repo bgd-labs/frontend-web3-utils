@@ -1,6 +1,14 @@
+/**
+ * Function for getting info about installed browser wallet.
+ * @module Wallets/getBrowserWalletLabelAndIcon
+ */
+
 import { wallets } from './wallets';
 import { defaultWallet } from './wallets/defaultWallet';
 
+/**
+ * Function for getting info about installed browser wallet.
+ */
 export function getBrowserWalletLabelAndIcon() {
   const defaultBrowserWallet = {
     label: defaultWallet.label,

@@ -1,3 +1,8 @@
+/**
+ * Helpers for create wagmi config.
+ * @module CreateWagmiConfig
+ */
+
 import { Config, createConfig, http } from '@wagmi/core';
 import { createClient, fallback, Hex, Transport } from 'viem';
 import { Chain, mainnet } from 'viem/chains';
@@ -13,6 +18,9 @@ export interface ICreateWagmiConfig {
   ssr?: boolean;
 }
 
+/**
+ * Function for creating a wagmi config with all the necessary connectors and parameters.
+ */
 export function createWagmiConfig({
   chains,
   wagmiConfig,

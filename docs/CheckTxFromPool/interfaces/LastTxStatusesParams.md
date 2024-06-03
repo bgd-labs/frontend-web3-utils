@@ -12,5 +12,5 @@
 | :------ | :------ |
 | `activeAddress` | \`0x$\{string\}\` |
 | `payload` | `T`\[`"payload"`\] |
-| `transactionsPool` | [`TransactionPool`](../../web3/store/transactionsSlice/type-aliases/TransactionPool.md)\<[`PoolTx`](../../web3/store/transactionsSlice/type-aliases/PoolTx.md)\<`T`\>\> |
+| `transactionsPool` | [`TransactionPool`](../../Transactions/Slice/type-aliases/TransactionPool.md)\<[`PoolTx`](../../Transactions/Slice/type-aliases/PoolTx.md)\<`T`\>\> |
 | `type` | `T`\[`"type"`\] |

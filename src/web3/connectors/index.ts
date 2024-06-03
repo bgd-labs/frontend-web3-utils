@@ -1,3 +1,8 @@
+/**
+ * A set of parameters and a function for initializing connectors for connecting a wallet.
+ * @module Wallets/ConnectorsInitialize
+ */
+
 import { Hex } from 'viem';
 import {
   coinbaseWallet,
@@ -32,6 +37,9 @@ export enum WalletType {
   Impersonated = 'impersonated',
 }
 
+/**
+ * Function for initializing connectors for connecting a wallet.
+ */
 export const initAllConnectors = (props: AllConnectorsInitProps) => {
   const injectedConnector = injected();
   const coinbaseConnector = coinbaseWallet({

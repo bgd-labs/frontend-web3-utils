@@ -1,6 +1,6 @@
 [Modules](../../README.md) / TransactionAdapters/GelatoAdapter
 
-GelatoAdapter
+Adapter for transaction slice to check transactions from gelato API. (Internal)
 
 ## Index
 

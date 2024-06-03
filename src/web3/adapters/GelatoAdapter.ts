@@ -1,5 +1,5 @@
 /**
- * GelatoAdapter
+ * Adapter for transaction slice to check transactions from gelato API. (Internal)
  * @module TransactionAdapters/GelatoAdapter
  */
 

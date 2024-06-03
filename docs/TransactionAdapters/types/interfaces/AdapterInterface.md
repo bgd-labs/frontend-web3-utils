@@ -10,6 +10,6 @@
 
 | Property | Type |
 | :------ | :------ |
-| `get` | () => [`ITransactionsSliceWithWallet`](../../../web3/store/transactionsSlice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\> |
-| `set` | (`fn`: (`state`) => [`ITransactionsSliceWithWallet`](../../../web3/store/transactionsSlice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\>) => `void` |
-| `startTxTracking` | (`tx`: [`PoolTx`](../../../web3/store/transactionsSlice/type-aliases/PoolTx.md)\<`T`\>) => `Promise`\<`void`\> |
+| `get` | () => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\> |
+| `set` | (`fn`: (`state`) => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\>) => `void` |
+| `startTxTracking` | (`tx`: [`PoolTx`](../../../Transactions/Slice/type-aliases/PoolTx.md)\<`T`\>) => `Promise`\<`void`\> |

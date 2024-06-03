@@ -1,5 +1,5 @@
 /**
- * EthereumAdapter
+ * Adapter for transaction slice to check normal transactions. (Internal)
  * @module TransactionAdapters/EthereumAdapter
  */
 

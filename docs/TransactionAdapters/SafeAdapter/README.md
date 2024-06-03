@@ -1,6 +1,6 @@
 [Modules](../../README.md) / TransactionAdapters/SafeAdapter
 
-SafeAdapter
+Adapter for transaction slice to check transactions from Safe API. (Internal)
 
 ## Index
 

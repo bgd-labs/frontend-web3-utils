@@ -1,3 +1,8 @@
+/**
+ * Types and function for comfortable interaction with the web3 wallet.
+ * @module Wallets/Slice
+ */
+
 import {
   Config,
   connect,
@@ -76,6 +81,9 @@ export type IWalletSlice = {
   ) => Promise<boolean>;
 };
 
+/**
+ * Function that creates logic inside the zustand store related to interaction with the wallet.
+ */
 export function createWalletSlice({
   walletConnected,
 }: {

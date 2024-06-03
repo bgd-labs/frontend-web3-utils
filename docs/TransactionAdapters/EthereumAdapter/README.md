@@ -1,6 +1,6 @@
 [Modules](../../README.md) / TransactionAdapters/EthereumAdapter
 
-EthereumAdapter
+Adapter for transaction slice to check normal transactions. (Internal)
 
 ## Index
 

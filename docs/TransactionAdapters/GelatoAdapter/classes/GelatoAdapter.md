@@ -20,7 +20,7 @@
 
 | Parameter | Type |
 | :------ | :------ |
-| `get` | () => [`ITransactionsSliceWithWallet`](../../../web3/store/transactionsSlice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\> |
+| `get` | () => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\> |
 | `set` | (`fn`) => `void` |
 
 #### Returns
@@ -29,14 +29,14 @@
 
 #### Source
 
-[src/web3/adapters/GelatoAdapter.ts:59](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/adapters/GelatoAdapter.ts#L59)
+[src/web3/adapters/GelatoAdapter.ts:59](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/GelatoAdapter.ts#L59)
 
 ## Properties
 
 | Property | Type | Default value |
 | :------ | :------ | :------ |
-| `get` | () => [`ITransactionsSliceWithWallet`](../../../web3/store/transactionsSlice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\> | `undefined` |
-| `set` | (`fn`: (`state`) => [`ITransactionsSliceWithWallet`](../../../web3/store/transactionsSlice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\>) => `void` | `undefined` |
+| `get` | () => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\> | `undefined` |
+| `set` | (`fn`: (`state`) => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\>) => `void` | `undefined` |
 | `transactionsIntervalsMap` | `Record`\<`string`, `number`\> | `{}` |
 
 ## Methods
@@ -57,7 +57,7 @@
 
 #### Source
 
-[src/web3/adapters/GelatoAdapter.ts:71](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/adapters/GelatoAdapter.ts#L71)
+[src/web3/adapters/GelatoAdapter.ts:71](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/GelatoAdapter.ts#L71)
 
 ***
 
@@ -77,7 +77,7 @@
 
 #### Source
 
-[src/web3/adapters/GelatoAdapter.ts:113](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/adapters/GelatoAdapter.ts#L113)
+[src/web3/adapters/GelatoAdapter.ts:113](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/GelatoAdapter.ts#L113)
 
 ***
 
@@ -89,7 +89,7 @@
 
 | Parameter | Type |
 | :------ | :------ |
-| `tx` | [`PoolTx`](../../../web3/store/transactionsSlice/type-aliases/PoolTx.md)\<`T`\> |
+| `tx` | [`PoolTx`](../../../Transactions/Slice/type-aliases/PoolTx.md)\<`T`\> |
 
 #### Returns
 
@@ -101,7 +101,7 @@
 
 #### Source
 
-[src/web3/adapters/GelatoAdapter.ts:86](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/adapters/GelatoAdapter.ts#L86)
+[src/web3/adapters/GelatoAdapter.ts:86](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/GelatoAdapter.ts#L86)
 
 ***
 
@@ -121,7 +121,7 @@
 
 #### Source
 
-[src/web3/adapters/GelatoAdapter.ts:146](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/adapters/GelatoAdapter.ts#L146)
+[src/web3/adapters/GelatoAdapter.ts:146](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/GelatoAdapter.ts#L146)
 
 ***
 
@@ -142,4 +142,4 @@
 
 #### Source
 
-[src/web3/adapters/GelatoAdapter.ts:152](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/adapters/GelatoAdapter.ts#L152)
+[src/web3/adapters/GelatoAdapter.ts:152](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/GelatoAdapter.ts#L152)

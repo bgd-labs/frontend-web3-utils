@@ -20,7 +20,7 @@
 
 | Parameter | Type |
 | :------ | :------ |
-| `get` | () => [`ITransactionsSliceWithWallet`](../../../web3/store/transactionsSlice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\> |
+| `get` | () => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\> |
 | `set` | (`fn`) => `void` |
 
 #### Returns
@@ -29,14 +29,14 @@
 
 #### Source
 
-[src/web3/adapters/SafeAdapter.ts:49](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/adapters/SafeAdapter.ts#L49)
+[src/web3/adapters/SafeAdapter.ts:49](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/SafeAdapter.ts#L49)
 
 ## Properties
 
 | Property | Type | Default value |
 | :------ | :------ | :------ |
-| `get` | () => [`ITransactionsSliceWithWallet`](../../../web3/store/transactionsSlice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\> | `undefined` |
-| `set` | (`fn`: (`state`) => [`ITransactionsSliceWithWallet`](../../../web3/store/transactionsSlice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\>) => `void` | `undefined` |
+| `get` | () => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\> | `undefined` |
+| `set` | (`fn`: (`state`) => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\>) => `void` | `undefined` |
 | `transactionsIntervalsMap` | `Record`\<`string`, `number`\> | `{}` |
 
 ## Methods
@@ -57,7 +57,7 @@
 
 #### Source
 
-[src/web3/adapters/SafeAdapter.ts:88](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/adapters/SafeAdapter.ts#L88)
+[src/web3/adapters/SafeAdapter.ts:88](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/SafeAdapter.ts#L88)
 
 ***
 
@@ -69,7 +69,7 @@
 
 | Parameter | Type |
 | :------ | :------ |
-| `tx` | [`PoolTx`](../../../web3/store/transactionsSlice/type-aliases/PoolTx.md)\<`T`\> |
+| `tx` | [`PoolTx`](../../../Transactions/Slice/type-aliases/PoolTx.md)\<`T`\> |
 
 #### Returns
 
@@ -81,7 +81,7 @@
 
 #### Source
 
-[src/web3/adapters/SafeAdapter.ts:61](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/adapters/SafeAdapter.ts#L61)
+[src/web3/adapters/SafeAdapter.ts:61](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/SafeAdapter.ts#L61)
 
 ***
 
@@ -101,7 +101,7 @@
 
 #### Source
 
-[src/web3/adapters/SafeAdapter.ts:148](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/adapters/SafeAdapter.ts#L148)
+[src/web3/adapters/SafeAdapter.ts:148](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/SafeAdapter.ts#L148)
 
 ***
 
@@ -123,4 +123,4 @@
 
 #### Source
 
-[src/web3/adapters/SafeAdapter.ts:154](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/adapters/SafeAdapter.ts#L154)
+[src/web3/adapters/SafeAdapter.ts:154](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/SafeAdapter.ts#L154)

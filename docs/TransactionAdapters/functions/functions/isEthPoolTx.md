@@ -6,7 +6,7 @@
 
 | Parameter | Type |
 | :------ | :------ |
-| `tx` | [`EthPoolTx`](../../../web3/store/transactionsSlice/type-aliases/EthPoolTx.md) \| [`GelatoPoolTx`](../../../web3/store/transactionsSlice/type-aliases/GelatoPoolTx.md) |
+| `tx` | [`EthPoolTx`](../../../Transactions/Slice/type-aliases/EthPoolTx.md) \| [`GelatoPoolTx`](../../../Transactions/Slice/type-aliases/GelatoPoolTx.md) |
 
 ## Returns
 
@@ -14,4 +14,4 @@
 
 ## Source
 
-[src/web3/adapters/helpers.ts:11](https://github.com/bgd-labs/fe-shared/blob/a524aad33ec5fce600306d3c3d02439e9803dea0/src/web3/adapters/helpers.ts#L11)
+[src/web3/adapters/helpers.ts:11](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/helpers.ts#L11)
