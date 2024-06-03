@@ -17,9 +17,9 @@ Outside this stack using BGD solutions will be a problem and repo is provided as
 
 Each solution should provide a complete flow with clear boundaries and entry point for custom logic.
 
-### Library module description
+### Docs
 
-[Here](./docs/README.md) you can look at the modules that are in the library..
+[Here](./docs/README.md) you can look at the modules that are in the library.
 
 ### Installation
 
