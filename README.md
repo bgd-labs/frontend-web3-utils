@@ -623,7 +623,3 @@ export const ExampleTxButton = () => {
 -----------
 
 You can find an example of what a React application using this library look like, here: [example repo](https://github.com/bgd-labs/fe-shared-examples/tree/main/front-end).
-
-## P.S
-
-All examples based on next.js app dir, but you can use this library for all React application.
