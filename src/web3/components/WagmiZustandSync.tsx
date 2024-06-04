@@ -46,4 +46,6 @@ export function WagmiZustandSync({
       await store.changeActiveWalletAccount(account);
     },
   });
+
+  return;
 }

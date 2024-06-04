@@ -28,12 +28,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bgd-labs/fe-shared.git"
+    "url": "git+https://github.com/bgd-labs/frontend-web3-utils.git"
   },
   "bugs": {
-    "url": "https://github.com/bgd-labs/fe-shared/issues"
+    "url": "https://github.com/bgd-labs/frontend-web3-utils/issues"
   },
-  "homepage": "https://github.com/bgd-labs/fe-shared#readme",
+  "homepage": "https://github.com/bgd-labs/frontend-web3-utils/blob/main/README.md",
   "scripts": {
     "start": "tsup src/index.tsx --watch",
     "build": "tsup",
@@ -86,27 +86,24 @@
     "prettier": "^3.3.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "size-limit": "^11.1.4",
-    "tsup": "^8.1.0",
     "remark-github": "^12.0.0",
     "remark-toc": "^9.0.0",
+    "size-limit": "^11.1.4",
+    "tsup": "^8.1.0",
     "typedoc": "0.25.13",
     "typedoc-github-wiki-theme": "^2.0.0",
     "typedoc-plugin-frontmatter": "^1.0.0",
     "typedoc-plugin-markdown": "^4.0.3",
     "typedoc-plugin-remark": "^1.0.1",
     "typescript": "^5.4.5",
-    "typescript-eslint": "^7.11.0",
-    "viem": "^2.13.3",
+    "typescript-eslint": "^7.12.0",
+    "viem": "^2.13.5",
     "wagmi": "^2.9.8",
     "zustand": "^4.5.2"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.40.0",
     "dayjs": "^1.11.11"
-  },
-  "overrides": {
-    "eslint": "^9.4.0"
   },
   "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
 }
