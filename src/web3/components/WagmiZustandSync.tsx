@@ -4,7 +4,7 @@
  */
 
 import { Config, GetAccountReturnType, watchAccount } from '@wagmi/core';
-import { useEffect } from 'react';
+import { ReactNode, useEffect } from 'react';
 
 export interface WagmiZustandSyncProps {
   wagmiConfig: Config;
@@ -30,7 +30,7 @@ export function WagmiZustandSync({
   defaultChainId,
   withAutoConnect,
   store,
-}: WagmiZustandSyncProps) {
+}: WagmiZustandSyncProps): ReactNode {
   useEffect(() => {
     if (defaultChainId) {
       store.setDefaultChainId(defaultChainId);
@@ -47,5 +47,5 @@ export function WagmiZustandSync({
     },
   });
 
-  return;
+  return null;
 }
