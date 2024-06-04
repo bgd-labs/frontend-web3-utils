@@ -67,6 +67,8 @@ export const clients: ClientsRecord = Object.entries(chainInfoHelpers.clientInst
 
 There will be logic for interaction with contract transactions, and you can also add “get” requests to contracts here.
 
+Each service should have some sort of `connectSigner` method. If you want to sign data.
+
 `-> @/web3Services/exampleService.ts`
 ```ts
 import { writeContract } from '@wagmi/core';
@@ -111,7 +113,11 @@ export class ExampleService {
 ```
 -------
 ### 3) Create your own transaction slice in your app, base on library slice.
-Library slice will: add, wait, save; transactions data to `localStorage` and do all the necessary logic to check for a "onchain" status and updates.
+`TransactionSlice` will take care of:
+- switching networks before tx execution.
+- add, wait, save; transactions data to `localStorage`.
+- do all the necessary logic to check for a "onchain" status and updates.
+- calling `txStatusChangedCallback` properly typed with all the `payload` data.
 
 `-> @/store/transactionsSlice.ts`
 ```ts
@@ -255,6 +261,8 @@ export const createWeb3Slice: StoreSlice<IWeb3Slice, TransactionsSlice> = (
 `walletConnected` is a callback which will be executed once wallet is connected, meaning get().activeWallet is set.
 
 All the logic is going **through** store and **NOT** through wagmi.sh hooks.
+
+Initializing `Web3Slice` and `TransactionsSlice` which will do the next is typically should be done once per app.
 
 ----------
 ### 5) Create slice to interact with contract, base on created: `TransactionsSlice`, `Web3Slice`.
