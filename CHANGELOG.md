@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.3.0](https://github.com/bgd-labs/frontend-web3-utils/compare/v1.2.1...v1.3.0) (2024-07-01)
+
+
+### Features
+
+* added docs structure; WIP: modules docs ([03bc330](https://github.com/bgd-labs/frontend-web3-utils/commit/03bc330a355b223c3ed02cf6c01042f76cda9f51))
+* initial docs finished ([343b918](https://github.com/bgd-labs/frontend-web3-utils/commit/343b9184b4ec99c7063943f09dc37bb159a9ef75))
+* initial docs WIP ([bcb81f0](https://github.com/bgd-labs/frontend-web3-utils/commit/bcb81f075c57b42adfeb5f3e6c387d13f532f431))
+
+
+### Bug Fixes
+
+* docs ([a524aad](https://github.com/bgd-labs/frontend-web3-utils/commit/a524aad33ec5fce600306d3c3d02439e9803dea0))
+* eslint ([627bff7](https://github.com/bgd-labs/frontend-web3-utils/commit/627bff78519c4db852de96b94e921f5430dea3ad))
+* readme ([be9e3e6](https://github.com/bgd-labs/frontend-web3-utils/commit/be9e3e6adccc4f7fa3424c91690d886f1bf7c051))
+* readme ([0d3893d](https://github.com/bgd-labs/frontend-web3-utils/commit/0d3893d01fa717994df3a68f09092f799177b9bf))
+* readme ([022d31e](https://github.com/bgd-labs/frontend-web3-utils/commit/022d31eeb7e61eeffe2ddf65992458f822122ffc))
+* typo ([9fba570](https://github.com/bgd-labs/frontend-web3-utils/commit/9fba57060d0d09d18d0564e6f8921c7206d93e88))
+* update packages and migrate to eslint latest ([e886a16](https://github.com/bgd-labs/frontend-web3-utils/commit/e886a1669d2205608118df81c68475aa15e1433f))
+* wagmi zustand sync ([e4618ef](https://github.com/bgd-labs/frontend-web3-utils/commit/e4618efa129550245284a4cb555d8e4d97490a0c))
+* wagmi zustand sync ([e1b0d37](https://github.com/bgd-labs/frontend-web3-utils/commit/e1b0d377a5be0f14c728f9e64c313c5a5ded9679))
+
 ## [1.2.1](https://github.com/bgd-labs/fe-shared/compare/v1.2.0...v1.2.1) (2024-04-22)
 
 
