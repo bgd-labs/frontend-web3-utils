@@ -1,3 +1,8 @@
+/**
+ * Generic types for transactions.
+ * @module TransactionAdapters/types
+ */
+
 import { Hex } from 'viem';
 
 import {

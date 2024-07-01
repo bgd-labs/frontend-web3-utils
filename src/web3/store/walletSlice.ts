@@ -1,3 +1,8 @@
+/**
+ * Types and function for comfortable interaction with the web3 wallet.
+ * @module Wallets/Slice
+ */
+
 import {
   Config,
   connect,
@@ -12,7 +17,7 @@ import { Account, Chain, Client, Hex, isAddress, walletActions } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { getBytecode } from 'viem/actions';
 
-import { StoreSlice } from '../../types/store';
+import { StoreSlice } from '../../types';
 import { VIEM_CHAINS } from '../../utils/chainInfoHelpers';
 import {
   clearWalletConnectV2LocalStorage,
@@ -76,6 +81,9 @@ export type IWalletSlice = {
   ) => Promise<boolean>;
 };
 
+/**
+ * Function that creates logic inside the zustand store related to interaction with the wallet.
+ */
 export function createWalletSlice({
   walletConnected,
 }: {
@@ -228,12 +236,12 @@ export function createWalletSlice({
         } catch (e) {
           try {
             const chain = VIEM_CHAINS[chainId];
-            if (!!chain) {
+            if (chain) {
               await activeWallet.connectorClient
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error
                 .extend(walletActions)
-                .addChain({
-                  chain,
-                });
+                .addChain({ chain });
               await switchChain(config, { chainId });
             } else {
               console.error(e);

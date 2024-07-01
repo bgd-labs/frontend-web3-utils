@@ -1,3 +1,8 @@
+/**
+ * Adapter for transaction slice to check transactions from gelato API. (Internal)
+ * @module TransactionAdapters/GelatoAdapter
+ */
+
 import dayjs from 'dayjs';
 import { produce } from 'immer';
 import { Hex } from 'viem';

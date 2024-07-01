@@ -7,8 +7,36 @@
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "allowImportingTsExtensions": true,
-    "jsx": "react"
+    "jsx": "react",
+    "strictNullChecks": false
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "docs"],
+  "typedocOptions": {
+    "entryPoints": [
+      "src/**/useLastTxLocalStatus.tsx",
+      "src/types/**/*.ts",
+      "src/**/getBrowserWalletLabelAndIcon.ts",
+      "src/**/chainInfoHelpers.ts",
+      "src/**/WagmiZustandSync.tsx",
+      "src/web3/adapters/**/*.ts",
+      "src/web3/connectors/index.ts",
+      "src/web3/store/**/*.ts",
+      "src/web3/utils/**/*.ts",
+    ],
+    "name": "Modules",
+    "readme": "none",
+    "hidePageHeader": true,
+    "hidePageTitle": true,
+    "plugin": ["typedoc-plugin-markdown"],
+    "skipErrorChecking": true,
+    "compilerOptions": {
+      "ignoreCompilerErrors": true
+    },
+    "parametersFormat": "table",
+    "propertiesFormat": "table",
+    "enumMembersFormat": "table",
+    "typeDeclarationFormat": "table",
+    "indexFormat": "table",
+  }
 }

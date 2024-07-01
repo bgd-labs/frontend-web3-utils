@@ -1,3 +1,8 @@
+/**
+ * Adapter for transaction slice to check transactions from Safe API. (Internal)
+ * @module TransactionAdapters/SafeAdapter
+ */
+
 import dayjs from 'dayjs';
 import { produce } from 'immer';
 import { Hex, isHex } from 'viem';
@@ -157,7 +162,7 @@ export class SafeAdapter<T extends BaseTx> implements AdapterInterface<T> {
         if (statusResponse.isExecuted || !!replacedHash) {
           if (statusResponse.isSuccessful) {
             status = TransactionStatus.Success;
-          } else if (!!replacedHash) {
+          } else if (replacedHash) {
             status = TransactionStatus.Replaced;
           } else {
             status = TransactionStatus.Reverted;

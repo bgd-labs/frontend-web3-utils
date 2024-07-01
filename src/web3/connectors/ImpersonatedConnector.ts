@@ -38,7 +38,7 @@ export function impersonated(parameters: ImpersonatedParameters) {
   const features = parameters.features ?? {};
 
   type Provider = ReturnType<
-    Transport<'custom', {}, EIP1193RequestFn<WalletRpcSchema>>
+    Transport<'custom', NonNullable<unknown>, EIP1193RequestFn<WalletRpcSchema>>
   >;
   let connected = false;
   let connectedChainId: number;
@@ -58,7 +58,11 @@ export function impersonated(parameters: ImpersonatedParameters) {
         throw features.connectError;
       }
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const provider = await this.getProvider();
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const accounts = await provider.request({
         method: 'eth_requestAccounts',
       });
@@ -80,12 +84,20 @@ export function impersonated(parameters: ImpersonatedParameters) {
     async getAccounts() {
       if (!connected) throw new Error('Not connected connector');
       const provider = await this.getProvider();
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       const accounts = await provider.request({ method: 'eth_accounts' });
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       return accounts.map(getAddress);
     },
     async getChainId() {
       const provider = await this.getProvider();
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       const hexChainId = await provider.request({ method: 'eth_chainId' });
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       return fromHex(hexChainId, 'number');
     },
     async isAuthorized() {
@@ -113,6 +125,7 @@ export function impersonated(parameters: ImpersonatedParameters) {
       const chainId = normalizeChainId(chain);
       config.emitter.emit('change', { chainId });
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async onDisconnect(_error) {
       config.emitter.emit('disconnect');
       connected = false;

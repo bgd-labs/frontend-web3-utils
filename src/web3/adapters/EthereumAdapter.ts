@@ -1,3 +1,8 @@
+/**
+ * Adapter for transaction slice to check normal transactions. (Internal)
+ * @module TransactionAdapters/EthereumAdapter
+ */
+
 import { produce } from 'immer';
 import { Hex, isHex, ReplacementReturnType } from 'viem';
 import {

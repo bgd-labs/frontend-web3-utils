@@ -1,3 +1,8 @@
+/**
+ * Helper functions for comfortable interaction with the transaction pool.
+ * @module Transactions/Selectors
+ */
+
 import isEqual from 'lodash/isEqual.js';
 import { Chain, Hex } from 'viem';
 
@@ -100,7 +105,7 @@ export const selectTxExplorerLink = <T extends BaseTx>(
     }
   };
 
-  if (!!replacedTxHash) {
+  if (replacedTxHash) {
     return returnValue(replacedTxHash);
   } else {
     return returnValue(txHash);

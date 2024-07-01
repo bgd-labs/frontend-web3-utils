@@ -1,9 +1,13 @@
+/**
+ * Types and function for comfortable interaction with the transactions.
+ * @module Transactions/Slice
+ */
+
 import dayjs from 'dayjs';
 import { Draft, produce } from 'immer';
 import { Client, Hex, isHex } from 'viem';
 
-import { ClientsRecord } from '../../types/base';
-import { StoreSlice } from '../../types/store';
+import { ClientsRecord, StoreSlice } from '../../types';
 import { SafeTransactionServiceUrls } from '../../utils/constants';
 import {
   getLocalStorageTxPool,
@@ -82,6 +86,9 @@ export type ITransactionsSliceWithWallet<T extends BaseTx> =
   ITransactionsSlice<T> &
     Pick<IWalletSlice, 'checkAndSwitchNetwork' | 'activeWallet'>;
 
+/**
+ * Function that creates logic inside the zustand store related to transaction processing.
+ */
 export function createTransactionsSlice<T extends BaseTx>({
   txStatusChangedCallback,
   defaultClients,

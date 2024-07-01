@@ -28,17 +28,18 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bgd-labs/fe-shared.git"
+    "url": "git+https://github.com/bgd-labs/frontend-web3-utils.git"
   },
   "bugs": {
-    "url": "https://github.com/bgd-labs/fe-shared/issues"
+    "url": "https://github.com/bgd-labs/frontend-web3-utils/issues"
   },
-  "homepage": "https://github.com/bgd-labs/fe-shared#readme",
+  "homepage": "https://github.com/bgd-labs/frontend-web3-utils/blob/main/README.md",
   "scripts": {
     "start": "tsup src/index.tsx --watch",
     "build": "tsup",
     "size": "size-limit",
     "lint": "npx eslint --fix",
+    "typedoc": "typedoc",
     "ci:publish": "npm run build && npm publish --access=public"
   },
   "files": [
@@ -66,36 +67,43 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
-    "@size-limit/preset-small-lib": "^11.1.2",
-    "@types/lodash": "^4.17.0",
-    "@types/react": "^18.2.74",
-    "@types/react-dom": "^18.2.24",
-    "@typescript-eslint/eslint-plugin": "^7.5.0",
-    "@typescript-eslint/parser": "^7.5.0",
-    "eslint": "^8.57.0",
+    "@size-limit/preset-small-lib": "^11.1.4",
+    "@types/lodash": "^4.17.4",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^9.4.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-prettier": "^5.1.3",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-simple-import-sort": "^12.0.0",
+    "eslint-plugin-react": "^7.34.2",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-simple-import-sort": "^12.1.0",
+    "globals": "^15.3.0",
     "husky": "^9.0.11",
-    "immer": "^10.0.4",
+    "immer": "^10.1.1",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
-    "prettier": "^3.2.5",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "size-limit": "^11.1.2",
-    "tsup": "^8.0.2",
-    "typescript": "^5.4.3",
-    "viem": "^2.9.9",
-    "wagmi": "^2.5.18",
+    "prettier": "^3.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remark-github": "^12.0.0",
+    "remark-toc": "^9.0.0",
+    "size-limit": "^11.1.4",
+    "tsup": "^8.1.0",
+    "typedoc": "0.25.13",
+    "typedoc-github-wiki-theme": "^2.0.0",
+    "typedoc-plugin-frontmatter": "^1.0.0",
+    "typedoc-plugin-markdown": "^4.0.3",
+    "typedoc-plugin-remark": "^1.0.1",
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^7.12.0",
+    "viem": "^2.13.5",
+    "wagmi": "^2.9.8",
     "zustand": "^4.5.2"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.28.14",
-    "dayjs": "^1.11.10"
+    "@tanstack/react-query": "^5.40.0",
+    "dayjs": "^1.11.11"
   },
   "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
 }
