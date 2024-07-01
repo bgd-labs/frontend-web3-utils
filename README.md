@@ -622,4 +622,4 @@ export const ExampleTxButton = () => {
 ```
 -----------
 
-You can find an example of what a React application using this library look like, here: [example repo](https://github.com/bgd-labs/fe-shared-examples/tree/main/front-end).
+You can find an example of what a React application using this library look like, here: [example repo](https://github.com/bgd-labs/fe-shared-examples).
