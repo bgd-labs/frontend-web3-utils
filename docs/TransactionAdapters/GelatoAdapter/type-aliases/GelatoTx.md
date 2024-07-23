@@ -4,10 +4,10 @@
 
 ## Type declaration
 
-| Member | Type |
-| :------ | :------ |
-| `taskId` | `string` |
+| Name | Type | Defined in |
+| ------ | ------ | ------ |
+| `taskId` | `string` | [src/web3/adapters/GelatoAdapter.ts:47](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/GelatoAdapter.ts#L47) |
 
-## Source
+## Defined in
 
-[src/web3/adapters/GelatoAdapter.ts:46](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/GelatoAdapter.ts#L46)
+[src/web3/adapters/GelatoAdapter.ts:46](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/GelatoAdapter.ts#L46)

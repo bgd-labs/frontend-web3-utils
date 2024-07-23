@@ -4,11 +4,11 @@
 
 ## Type declaration
 
-| Member | Type |
-| :------ | :------ |
-| `callbackFunction` | () => `Promise`\<`void`\> |
-| `customErrorMessage` | `string` |
+| Name | Type | Defined in |
+| ------ | ------ | ------ |
+| `callbackFunction` | () => `Promise`\<`void`\> | [src/hooks/useLastTxLocalStatus.tsx:22](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/hooks/useLastTxLocalStatus.tsx#L22) |
+| `customErrorMessage` | `string` | [src/hooks/useLastTxLocalStatus.tsx:21](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/hooks/useLastTxLocalStatus.tsx#L21) |
 
-## Source
+## Defined in
 
-[src/hooks/useLastTxLocalStatus.tsx:20](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/hooks/useLastTxLocalStatus.tsx#L20)
+[src/hooks/useLastTxLocalStatus.tsx:20](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/hooks/useLastTxLocalStatus.tsx#L20)

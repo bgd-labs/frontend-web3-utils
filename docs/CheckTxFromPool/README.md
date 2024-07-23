@@ -7,19 +7,19 @@ Additional module for convenient viewing of transactions with statuses.
 ### Interfaces
 
 | Interface | Description |
-| :------ | :------ |
+| ------ | ------ |
 | [LastTxStatusesParams](interfaces/LastTxStatusesParams.md) | - |
 | [TxLocalStatus](interfaces/TxLocalStatus.md) | - |
 
 ### Type Aliases
 
 | Type alias | Description |
-| :------ | :------ |
+| ------ | ------ |
 | [ExecuteTxWithLocalStatusesParams](type-aliases/ExecuteTxWithLocalStatusesParams.md) | - |
 | [TxLocalStatusTxParams](type-aliases/TxLocalStatusTxParams.md) | - |
 
 ### Functions
 
 | Function | Description |
-| :------ | :------ |
-| [useLastTxLocalStatus](functions/useLastTxLocalStatus.md) | React hook for check last executed tx with statuses. |
+| ------ | ------ |
+| [useLastTxLocalStatus](functions/useLastTxLocalStatus.md) | - |

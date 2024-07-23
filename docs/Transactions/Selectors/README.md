@@ -7,7 +7,7 @@ Helper functions for comfortable interaction with the transaction pool.
 ### Functions
 
 | Function | Description |
-| :------ | :------ |
+| ------ | ------ |
 | [selectAllTransactions](functions/selectAllTransactions.md) | - |
 | [selectAllTransactionsByWallet](functions/selectAllTransactionsByWallet.md) | - |
 | [selectLastTxByTypeAndPayload](functions/selectLastTxByTypeAndPayload.md) | - |

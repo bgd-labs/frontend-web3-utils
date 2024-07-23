@@ -1,9 +1,9 @@
 [Modules](../../../README.md) / [TransactionAdapters/SafeAdapter](../README.md) / SafeAdapter
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` *extends* [`BaseTx`](../../types/type-aliases/BaseTx.md) |
 
 ## Implements
@@ -19,7 +19,7 @@
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `get` | () => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\> |
 | `set` | (`fn`) => `void` |
 
@@ -27,39 +27,19 @@
 
 [`SafeAdapter`](SafeAdapter.md)\<`T`\>
 
-#### Source
+#### Defined in
 
-[src/web3/adapters/SafeAdapter.ts:49](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/SafeAdapter.ts#L49)
+[src/web3/adapters/SafeAdapter.ts:49](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/SafeAdapter.ts#L49)
 
 ## Properties
 
-| Property | Type | Default value |
-| :------ | :------ | :------ |
-| `get` | () => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\> | `undefined` |
-| `set` | (`fn`: (`state`) => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\>) => `void` | `undefined` |
-| `transactionsIntervalsMap` | `Record`\<`string`, `number`\> | `{}` |
+| Property | Type | Default value | Defined in |
+| ------ | ------ | ------ | ------ |
+| `get` | () => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\> | `undefined` | [src/web3/adapters/SafeAdapter.ts:41](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/SafeAdapter.ts#L41) |
+| `set` | (`fn`: (`state`) => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\>) => `void` | `undefined` | [src/web3/adapters/SafeAdapter.ts:42](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/SafeAdapter.ts#L42) |
+| `transactionsIntervalsMap` | `Record`\<`string`, `number`\> | `{}` | [src/web3/adapters/SafeAdapter.ts:47](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/SafeAdapter.ts#L47) |
 
 ## Methods
-
-### fetchSafeTxStatus()
-
-> `private` **fetchSafeTxStatus**(`txKey`): `Promise`\<`Response`\>
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `txKey` | `string` |
-
-#### Returns
-
-`Promise`\<`Response`\>
-
-#### Source
-
-[src/web3/adapters/SafeAdapter.ts:88](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/SafeAdapter.ts#L88)
-
-***
 
 ### startTxTracking()
 
@@ -68,7 +48,7 @@
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `tx` | [`PoolTx`](../../../Transactions/Slice/type-aliases/PoolTx.md)\<`T`\> |
 
 #### Returns
@@ -79,48 +59,6 @@
 
 [`AdapterInterface`](../../types/interfaces/AdapterInterface.md).`startTxTracking`
 
-#### Source
+#### Defined in
 
-[src/web3/adapters/SafeAdapter.ts:61](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/SafeAdapter.ts#L61)
-
-***
-
-### stopPollingSafeTXStatus()
-
-> `private` **stopPollingSafeTXStatus**(`txKey`): `void`
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `txKey` | `string` |
-
-#### Returns
-
-`void`
-
-#### Source
-
-[src/web3/adapters/SafeAdapter.ts:148](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/SafeAdapter.ts#L148)
-
-***
-
-### updateSafeTxStatus()
-
-> `private` **updateSafeTxStatus**(`txKey`, `statusResponse`, `replacedHash`?): `void`
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `txKey` | `string` |
-| `statusResponse` | [`SafeTxStatusResponse`](../type-aliases/SafeTxStatusResponse.md) |
-| `replacedHash`? | \`0x$\{string\}\` |
-
-#### Returns
-
-`void`
-
-#### Source
-
-[src/web3/adapters/SafeAdapter.ts:154](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/SafeAdapter.ts#L154)
+[src/web3/adapters/SafeAdapter.ts:61](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/SafeAdapter.ts#L61)

@@ -2,12 +2,12 @@
 
 > **TransactionPool**\<`T`\>: `Record`\<`string`, `T`\>
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` *extends* [`BaseTx`](../../../TransactionAdapters/types/type-aliases/BaseTx.md) |
 
-## Source
+## Defined in
 
-[src/web3/store/transactionsSlice.ts:39](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/store/transactionsSlice.ts#L39)
+[src/web3/store/transactionsSlice.ts:39](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/store/transactionsSlice.ts#L39)

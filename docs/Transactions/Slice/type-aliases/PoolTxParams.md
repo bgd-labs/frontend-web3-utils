@@ -4,13 +4,13 @@
 
 ## Type declaration
 
-| Member | Type |
-| :------ | :------ |
-| `pending` | `boolean` |
-| `replacedTxHash` | `Hex` |
-| `status` | [`TransactionStatus`](../../../TransactionAdapters/types/enumerations/TransactionStatus.md) |
-| `walletType` | [`WalletType`](../../../Wallets/ConnectorsInitialize/enumerations/WalletType.md) |
+| Name | Type | Defined in |
+| ------ | ------ | ------ |
+| `pending` | `boolean` | [src/web3/store/transactionsSlice.ts:31](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/store/transactionsSlice.ts#L31) |
+| `replacedTxHash` | `Hex` | [src/web3/store/transactionsSlice.ts:34](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/store/transactionsSlice.ts#L34) |
+| `status` | [`TransactionStatus`](../../../TransactionAdapters/types/enumerations/TransactionStatus.md) | [src/web3/store/transactionsSlice.ts:33](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/store/transactionsSlice.ts#L33) |
+| `walletType` | [`WalletType`](../../../Wallets/ConnectorsInitialize/enumerations/WalletType.md) | [src/web3/store/transactionsSlice.ts:32](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/store/transactionsSlice.ts#L32) |
 
-## Source
+## Defined in
 
-[src/web3/store/transactionsSlice.ts:30](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/store/transactionsSlice.ts#L30)
+[src/web3/store/transactionsSlice.ts:30](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/store/transactionsSlice.ts#L30)

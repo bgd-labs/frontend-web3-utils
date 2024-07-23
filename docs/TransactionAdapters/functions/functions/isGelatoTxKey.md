@@ -5,13 +5,13 @@
 ## Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `tx` | [`TxKey`](../../types/type-aliases/TxKey.md) |
 
 ## Returns
 
 `tx is GelatoTx`
 
-## Source
+## Defined in
 
-[src/web3/adapters/helpers.ts:18](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/helpers.ts#L18)
+[src/web3/adapters/helpers.ts:18](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/helpers.ts#L18)

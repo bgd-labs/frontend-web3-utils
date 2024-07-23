@@ -4,12 +4,12 @@
 
 ## Type declaration
 
-| Member | Type |
-| :------ | :------ |
-| `clients` | [`ClientsRecord`](../../../GenericTypes/type-aliases/ClientsRecord.md) |
-| `initTxPool` | () => `void` |
-| `setClient` | (`chainId`, `client`) => `void` |
+| Name | Type | Defined in |
+| ------ | ------ | ------ |
+| `clients` | [`ClientsRecord`](../../../GenericTypes/type-aliases/ClientsRecord.md) | [src/web3/store/transactionsSlice.ts:42](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/store/transactionsSlice.ts#L42) |
+| `initTxPool` | () => `void` | [src/web3/store/transactionsSlice.ts:44](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/store/transactionsSlice.ts#L44) |
+| `setClient` | (`chainId`, `client`) => `void` | [src/web3/store/transactionsSlice.ts:43](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/store/transactionsSlice.ts#L43) |
 
-## Source
+## Defined in
 
-[src/web3/store/transactionsSlice.ts:41](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/store/transactionsSlice.ts#L41)
+[src/web3/store/transactionsSlice.ts:41](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/store/transactionsSlice.ts#L41)

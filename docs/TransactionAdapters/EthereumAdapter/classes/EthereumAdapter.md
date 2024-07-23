@@ -1,9 +1,9 @@
 [Modules](../../../README.md) / [TransactionAdapters/EthereumAdapter](../README.md) / EthereumAdapter
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` *extends* [`BaseTx`](../../types/type-aliases/BaseTx.md) |
 
 ## Implements
@@ -19,7 +19,7 @@
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `get` | () => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\> |
 | `set` | (`fn`) => `void` |
 
@@ -27,17 +27,17 @@
 
 [`EthereumAdapter`](EthereumAdapter.md)\<`T`\>
 
-#### Source
+#### Defined in
 
-[src/web3/adapters/EthereumAdapter.ts:37](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/EthereumAdapter.ts#L37)
+[src/web3/adapters/EthereumAdapter.ts:37](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/EthereumAdapter.ts#L37)
 
 ## Properties
 
-| Property | Type | Default value |
-| :------ | :------ | :------ |
-| `get` | () => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\> | `undefined` |
-| `set` | (`fn`: (`state`) => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\>) => `void` | `undefined` |
-| `transactionsIntervalsMap` | `Record`\<`string`, `number`\> | `{}` |
+| Property | Type | Default value | Defined in |
+| ------ | ------ | ------ | ------ |
+| `get` | () => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\> | `undefined` | [src/web3/adapters/EthereumAdapter.ts:29](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/EthereumAdapter.ts#L29) |
+| `set` | (`fn`: (`state`) => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\>) => `void` | `undefined` | [src/web3/adapters/EthereumAdapter.ts:30](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/EthereumAdapter.ts#L30) |
+| `transactionsIntervalsMap` | `Record`\<`string`, `number`\> | `{}` | [src/web3/adapters/EthereumAdapter.ts:35](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/EthereumAdapter.ts#L35) |
 
 ## Methods
 
@@ -48,7 +48,7 @@
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `tx` | [`PoolTx`](../../../Transactions/Slice/type-aliases/PoolTx.md)\<`T`\> |
 
 #### Returns
@@ -59,34 +59,9 @@
 
 [`AdapterInterface`](../../types/interfaces/AdapterInterface.md).`startTxTracking`
 
-#### Source
+#### Defined in
 
-[src/web3/adapters/EthereumAdapter.ts:49](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/EthereumAdapter.ts#L49)
-
-***
-
-### updateTXStatus()
-
-> `private` **updateTXStatus**(`txKey`, `params`): `void`
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `txKey` | \`0x$\{string\}\` |
-| `params` | `object` |
-| `params.nonce`? | `number` |
-| `params.replacedTxHash`? | \`0x$\{string\}\` |
-| `params.status`? | [`TransactionStatus`](../../types/enumerations/TransactionStatus.md) |
-| `params.to`? | \`0x$\{string\}\` |
-
-#### Returns
-
-`void`
-
-#### Source
-
-[src/web3/adapters/EthereumAdapter.ts:127](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/EthereumAdapter.ts#L127)
+[src/web3/adapters/EthereumAdapter.ts:49](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/EthereumAdapter.ts#L49)
 
 ***
 
@@ -97,7 +72,7 @@
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `txHash` | \`0x$\{string\}\` |
 | `txNonce`? | `number` |
 
@@ -105,6 +80,6 @@
 
 `Promise`\<`void`\>
 
-#### Source
+#### Defined in
 
-[src/web3/adapters/EthereumAdapter.ts:80](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/EthereumAdapter.ts#L80)
+[src/web3/adapters/EthereumAdapter.ts:80](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/EthereumAdapter.ts#L80)
