@@ -7,17 +7,17 @@ A set of parameters and a function for initializing connectors for connecting a 
 ### Enumerations
 
 | Enumeration | Description |
-| :------ | :------ |
+| ------ | ------ |
 | [WalletType](enumerations/WalletType.md) | - |
 
 ### Type Aliases
 
 | Type alias | Description |
-| :------ | :------ |
+| ------ | ------ |
 | [AllConnectorsInitProps](type-aliases/AllConnectorsInitProps.md) | - |
 
 ### Functions
 
 | Function | Description |
-| :------ | :------ |
-| [initAllConnectors](functions/initAllConnectors.md) | Function for initializing connectors for connecting a wallet. |
+| ------ | ------ |
+| [initAllConnectors](functions/initAllConnectors.md) | - |

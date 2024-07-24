@@ -7,7 +7,7 @@ Generic functions for check transactions.
 ### Functions
 
 | Function | Description |
-| :------ | :------ |
+| ------ | ------ |
 | [isEthPoolTx](functions/isEthPoolTx.md) | - |
 | [isGelatoBaseTx](functions/isGelatoBaseTx.md) | - |
 | [isGelatoTXPending](functions/isGelatoTXPending.md) | - |

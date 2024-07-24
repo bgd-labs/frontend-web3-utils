@@ -1,7 +1,7 @@
 ## Modules
 
 | Module | Description |
-| :------ | :------ |
+| ------ | ------ |
 | [Chains](Chains/README.md) | Constants and function for creating a single clients instance with chain parameters, built on viem. |
 | [CheckTxFromPool](CheckTxFromPool/README.md) | Additional module for convenient viewing of transactions with statuses. |
 | [CreateWagmiConfig](CreateWagmiConfig/README.md) | Helpers for create wagmi config. |
@@ -16,4 +16,3 @@
 | [Transactions/Slice](Transactions/Slice/README.md) | Types and function for comfortable interaction with the transactions. |
 | [Wallets/ConnectorsInitialize](Wallets/ConnectorsInitialize/README.md) | A set of parameters and a function for initializing connectors for connecting a wallet. |
 | [Wallets/Slice](Wallets/Slice/README.md) | Types and function for comfortable interaction with the web3 wallet. |
-| [Wallets/getBrowserWalletLabelAndIcon](Wallets/getBrowserWalletLabelAndIcon/README.md) | Function for getting info about installed browser wallet. |

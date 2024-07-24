@@ -1,9 +1,9 @@
 [Modules](../../../README.md) / [TransactionAdapters/GelatoAdapter](../README.md) / GelatoAdapter
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` *extends* [`BaseTx`](../../types/type-aliases/BaseTx.md) |
 
 ## Implements
@@ -19,7 +19,7 @@
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `get` | () => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\> |
 | `set` | (`fn`) => `void` |
 
@@ -27,17 +27,17 @@
 
 [`GelatoAdapter`](GelatoAdapter.md)\<`T`\>
 
-#### Source
+#### Defined in
 
-[src/web3/adapters/GelatoAdapter.ts:59](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/GelatoAdapter.ts#L59)
+[src/web3/adapters/GelatoAdapter.ts:59](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/GelatoAdapter.ts#L59)
 
 ## Properties
 
-| Property | Type | Default value |
-| :------ | :------ | :------ |
-| `get` | () => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\> | `undefined` |
-| `set` | (`fn`: (`state`) => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\>) => `void` | `undefined` |
-| `transactionsIntervalsMap` | `Record`\<`string`, `number`\> | `{}` |
+| Property | Type | Default value | Defined in |
+| ------ | ------ | ------ | ------ |
+| `get` | () => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\> | `undefined` | [src/web3/adapters/GelatoAdapter.ts:51](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/GelatoAdapter.ts#L51) |
+| `set` | (`fn`: (`state`) => [`ITransactionsSliceWithWallet`](../../../Transactions/Slice/type-aliases/ITransactionsSliceWithWallet.md)\<`T`\>) => `void` | `undefined` | [src/web3/adapters/GelatoAdapter.ts:52](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/GelatoAdapter.ts#L52) |
+| `transactionsIntervalsMap` | `Record`\<`string`, `number`\> | `{}` | [src/web3/adapters/GelatoAdapter.ts:57](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/GelatoAdapter.ts#L57) |
 
 ## Methods
 
@@ -48,36 +48,16 @@
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `chainId` | `number` |
 
 #### Returns
 
 `Promise`\<`boolean`\>
 
-#### Source
+#### Defined in
 
-[src/web3/adapters/GelatoAdapter.ts:71](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/GelatoAdapter.ts#L71)
-
-***
-
-### fetchGelatoTXStatus()
-
-> `private` **fetchGelatoTXStatus**(`taskId`): `Promise`\<`Response`\>
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `taskId` | `string` |
-
-#### Returns
-
-`Promise`\<`Response`\>
-
-#### Source
-
-[src/web3/adapters/GelatoAdapter.ts:113](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/GelatoAdapter.ts#L113)
+[src/web3/adapters/GelatoAdapter.ts:71](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/GelatoAdapter.ts#L71)
 
 ***
 
@@ -88,7 +68,7 @@
 #### Parameters
 
 | Parameter | Type |
-| :------ | :------ |
+| ------ | ------ |
 | `tx` | [`PoolTx`](../../../Transactions/Slice/type-aliases/PoolTx.md)\<`T`\> |
 
 #### Returns
@@ -99,47 +79,6 @@
 
 [`AdapterInterface`](../../types/interfaces/AdapterInterface.md).`startTxTracking`
 
-#### Source
+#### Defined in
 
-[src/web3/adapters/GelatoAdapter.ts:86](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/GelatoAdapter.ts#L86)
-
-***
-
-### stopPollingGelatoTXStatus()
-
-> `private` **stopPollingGelatoTXStatus**(`taskId`): `void`
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `taskId` | `string` |
-
-#### Returns
-
-`void`
-
-#### Source
-
-[src/web3/adapters/GelatoAdapter.ts:146](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/GelatoAdapter.ts#L146)
-
-***
-
-### updateGelatoTX()
-
-> `private` **updateGelatoTX**(`taskId`, `statusResponse`): `void`
-
-#### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `taskId` | `string` |
-| `statusResponse` | [`GelatoTaskStatusResponse`](../type-aliases/GelatoTaskStatusResponse.md) |
-
-#### Returns
-
-`void`
-
-#### Source
-
-[src/web3/adapters/GelatoAdapter.ts:152](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/web3/adapters/GelatoAdapter.ts#L152)
+[src/web3/adapters/GelatoAdapter.ts:86](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/web3/adapters/GelatoAdapter.ts#L86)

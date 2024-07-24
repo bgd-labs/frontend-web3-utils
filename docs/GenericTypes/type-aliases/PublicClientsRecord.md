@@ -2,6 +2,6 @@
 
 > **PublicClientsRecord**: `Record`\<`number`, `PublicClient`\>
 
-## Source
+## Defined in
 
-[src/types/index.ts:10](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/types/index.ts#L10)
+[src/types/index.ts:10](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/types/index.ts#L10)

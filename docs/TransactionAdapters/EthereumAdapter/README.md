@@ -7,11 +7,11 @@ Adapter for transaction slice to check normal transactions. (Internal)
 ### Classes
 
 | Class | Description |
-| :------ | :------ |
+| ------ | ------ |
 | [EthereumAdapter](classes/EthereumAdapter.md) | - |
 
 ### Type Aliases
 
 | Type alias | Description |
-| :------ | :------ |
+| ------ | ------ |
 | [EthBaseTx](type-aliases/EthBaseTx.md) | - |

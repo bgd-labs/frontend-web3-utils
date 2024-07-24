@@ -4,18 +4,18 @@
 
 ## Type declaration
 
-| Member | Type |
-| :------ | :------ |
-| `isError` | `boolean` |
-| `isReplaced` | `boolean` |
-| `isSuccess` | `boolean` |
+| Name | Type | Defined in |
+| ------ | ------ | ------ |
+| `isError` | `boolean` | [src/hooks/useLastTxLocalStatus.tsx:26](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/hooks/useLastTxLocalStatus.tsx#L26) |
+| `isReplaced` | `boolean` | [src/hooks/useLastTxLocalStatus.tsx:28](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/hooks/useLastTxLocalStatus.tsx#L28) |
+| `isSuccess` | `boolean` | [src/hooks/useLastTxLocalStatus.tsx:27](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/hooks/useLastTxLocalStatus.tsx#L27) |
 
-## Type parameters
+## Type Parameters
 
-| Type parameter |
-| :------ |
+| Type Parameter |
+| ------ |
 | `T` *extends* [`BaseTx`](../../TransactionAdapters/types/type-aliases/BaseTx.md) |
 
-## Source
+## Defined in
 
-[src/hooks/useLastTxLocalStatus.tsx:25](https://github.com/bgd-labs/fe-shared/blob/9fba57060d0d09d18d0564e6f8921c7206d93e88/src/hooks/useLastTxLocalStatus.tsx#L25)
+[src/hooks/useLastTxLocalStatus.tsx:25](https://github.com/bgd-labs/fe-shared/blob/09fc11c58abae5aa2af4d8b6d7c2f384460843a4/src/hooks/useLastTxLocalStatus.tsx#L25)

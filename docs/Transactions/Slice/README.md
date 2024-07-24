@@ -7,14 +7,14 @@ Types and function for comfortable interaction with the transactions.
 ### Interfaces
 
 | Interface | Description |
-| :------ | :------ |
+| ------ | ------ |
 | [ITransactionsActions](interfaces/ITransactionsActions.md) | - |
 | [ITransactionsState](interfaces/ITransactionsState.md) | - |
 
 ### Type Aliases
 
 | Type alias | Description |
-| :------ | :------ |
+| ------ | ------ |
 | [EthPoolTx](type-aliases/EthPoolTx.md) | - |
 | [GelatoPoolTx](type-aliases/GelatoPoolTx.md) | - |
 | [ITransactionsSlice](type-aliases/ITransactionsSlice.md) | - |
@@ -27,5 +27,5 @@ Types and function for comfortable interaction with the transactions.
 ### Functions
 
 | Function | Description |
-| :------ | :------ |
+| ------ | ------ |
 | [createTransactionsSlice](functions/createTransactionsSlice.md) | Function that creates logic inside the zustand store related to transaction processing. |
