@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.1](https://github.com/bgd-labs/frontend-web3-utils/compare/v1.3.0...v1.3.1) (2024-07-24)
+
+
+### Bug Fixes
+
+* link typo in readme ([e422476](https://github.com/bgd-labs/frontend-web3-utils/commit/e422476e87c34c0358871202b1ee05723890b2fb))
+* remove legacy getBrowserWallet info; update packages; update typedoc ([7f0618d](https://github.com/bgd-labs/frontend-web3-utils/commit/7f0618db13a191637055752319285176f10e819b))
+
 ## [1.3.0](https://github.com/bgd-labs/frontend-web3-utils/compare/v1.2.1...v1.3.0) (2024-07-01)
 
 
