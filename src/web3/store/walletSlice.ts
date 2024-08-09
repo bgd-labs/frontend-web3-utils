@@ -157,7 +157,12 @@ export function createWalletSlice({
         const connector = config.connectors.find(
           (connector) => connector.type === walletType,
         );
-        await connector.getProvider();
+        try {
+          await connector.getProvider();
+        } catch (e) {
+          console.log('Cannot get connector provider. Trying again', e);
+          await connector.getProvider();
+        }
         try {
           if (connector) {
             if (connector.type === WalletType.Impersonated) {
