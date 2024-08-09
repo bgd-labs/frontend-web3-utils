@@ -7,6 +7,7 @@ import { Hex } from 'viem';
 import {
   coinbaseWallet,
   injected,
+  metaMask,
   safe,
   walletConnect,
 } from 'wagmi/connectors';
@@ -31,6 +32,7 @@ export type AllConnectorsInitProps = {
 
 export enum WalletType {
   Injected = 'injected',
+  Metamask = 'metamask',
   WalletConnect = 'walletConnect',
   Coinbase = 'coinbaseWallet',
   Safe = 'safe',
@@ -42,6 +44,7 @@ export enum WalletType {
  */
 export const initAllConnectors = (props: AllConnectorsInitProps) => {
   const injectedConnector = injected();
+  const metamaskConnector = metaMask();
   const coinbaseConnector = coinbaseWallet({
     appName: props.appName,
   });
@@ -51,6 +54,7 @@ export const initAllConnectors = (props: AllConnectorsInitProps) => {
 
   const connectors = [
     injectedConnector,
+    metamaskConnector,
     coinbaseConnector,
     gnosisSafeConnector,
   ];
