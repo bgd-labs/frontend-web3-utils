@@ -44,7 +44,9 @@ export enum WalletType {
  */
 export const initAllConnectors = (props: AllConnectorsInitProps) => {
   const injectedConnector = injected();
-  const metamaskConnector = metaMask();
+  const metamaskConnector = metaMask({
+    dappMetadata: { name: props.appName, url: props.wcParams.metadata.url },
+  });
   const coinbaseConnector = coinbaseWallet({
     appName: props.appName,
   });
