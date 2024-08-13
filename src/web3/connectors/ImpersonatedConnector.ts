@@ -14,11 +14,7 @@ import {
   zeroAddress,
 } from 'viem';
 import { rpc } from 'viem/utils';
-import {
-  ChainNotConfiguredError,
-  createConnector,
-  normalizeChainId,
-} from 'wagmi';
+import { ChainNotConfiguredError, createConnector } from 'wagmi';
 
 export type ImpersonatedParameters = {
   getAccountAddress: () => Hex | undefined;
@@ -51,6 +47,8 @@ export function impersonated(parameters: ImpersonatedParameters) {
     async setup() {
       connectedChainId = config.chains[0].id;
     },
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     async connect({ chainId } = {}) {
       if (features.connectError) {
         if (typeof features.connectError === 'boolean')
@@ -122,7 +120,7 @@ export function impersonated(parameters: ImpersonatedParameters) {
         config.emitter.emit('change', { accounts: accounts.map(getAddress) });
     },
     onChainChanged(chain) {
-      const chainId = normalizeChainId(chain);
+      const chainId = Number(chain);
       config.emitter.emit('change', { chainId });
     },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
