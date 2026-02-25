@@ -3,7 +3,12 @@
  * @module TransactionAdapters/GelatoAdapter
  */
 
-import dayjs from 'dayjs';
+import {
+  createGelatoEvmRelayerClient,
+  type GelatoEvmRelayerClient,
+  TransactionRejectedError,
+  TransactionRevertedError,
+} from '@gelatocloud/gasless';
 import { produce } from 'immer';
 import { Hex } from 'viem';
 
@@ -15,6 +20,8 @@ import {
 import { isGelatoBaseTx, isGelatoTXPending } from './helpers';
 import { AdapterInterface, BaseTx, BasicTx, TransactionStatus } from './types';
 
+const TX_RECEIPT_TIMEOUT = 3_600_000; // 1 hour
+
 export enum GelatoTaskState {
   CheckPending = 'CheckPending',
   ExecPending = 'ExecPending',
@@ -23,19 +30,6 @@ export enum GelatoTaskState {
   ExecReverted = 'ExecReverted',
   Cancelled = 'Cancelled',
 }
-
-export type GelatoTaskStatusResponse = {
-  task: {
-    chainId: number;
-    taskId: string;
-    taskState: GelatoTaskState;
-    creationDate?: string;
-    executionDate?: string;
-    transactionHash?: Hex;
-    blockNumber?: number;
-    lastCheckMessage?: string;
-  };
-};
 
 export type GelatoBaseTx = BasicTx & {
   taskId: string;
@@ -55,6 +49,8 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
     ) => ITransactionsSliceWithWallet<T>,
   ) => void;
   transactionsIntervalsMap: Record<string, number | undefined> = {};
+  apiKeys: Record<number, string> = {};
+  private relayerClients: Record<number, GelatoEvmRelayerClient> = {};
 
   constructor(
     get: () => ITransactionsSliceWithWallet<T>,
@@ -68,15 +64,28 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
     this.set = set;
   }
 
+  setApiKeys = (apiKeys: Record<number, string>) => {
+    this.apiKeys = apiKeys;
+  };
+
+  private getRelayerClient = (
+    chainId: number,
+  ): GelatoEvmRelayerClient | undefined => {
+    if (this.relayerClients[chainId]) return this.relayerClients[chainId];
+    const apiKey = this.apiKeys[chainId];
+    if (!apiKey) return undefined;
+    const client = createGelatoEvmRelayerClient({ apiKey });
+    this.relayerClients[chainId] = client;
+    return client;
+  };
+
   checkIsGelatoAvailable = async (chainId: number) => {
+    const relayer = this.getRelayerClient(chainId);
+    if (!relayer) return false;
+
     try {
-      const response = await fetch(`https://relay.gelato.digital/relays/v2`);
-      if (!response.ok) {
-        return false;
-      } else {
-        const listOfRelays = (await response.json()) as { relays: string[] };
-        return !!listOfRelays.relays.find((id) => +id === chainId);
-      }
+      const capabilities = await relayer.getCapabilities();
+      return !!capabilities[chainId];
     } catch (e) {
       console.error('Check is gelato services available error:', e);
       return false;
@@ -84,105 +93,77 @@ export class GelatoAdapter<T extends BaseTx> implements AdapterInterface<T> {
   };
 
   startTxTracking = async (tx: PoolTx<T>) => {
-    if (isGelatoBaseTx(tx)) {
-      const isPending = isGelatoTXPending(tx.gelatoStatus);
-      if (!isPending) {
-        return;
-      }
+    if (!isGelatoBaseTx(tx)) return;
+    if (!isGelatoTXPending(tx.gelatoStatus)) return;
 
-      this.stopPollingGelatoTXStatus(tx.taskId);
+    const relayer = this.getRelayerClient(tx.chainId);
+    if (!relayer) return;
 
-      let retryCount = 10;
-      const newGelatoInterval = setInterval(async () => {
-        if (retryCount > 0) {
-          const response = await this.fetchGelatoTXStatus(tx.taskId);
-          if (!response.ok) {
-            retryCount--;
-          }
-        } else {
-          this.stopPollingGelatoTXStatus(tx.taskId);
-          this.get().removeTXFromPool(tx.taskId);
-          return;
-        }
-      }, 5000);
+    try {
+      const receipt = await relayer.waitForReceipt(
+        { id: tx.taskId },
+        { throwOnReverted: true, timeout: TX_RECEIPT_TIMEOUT },
+      );
 
-      this.transactionsIntervalsMap[tx.taskId] = Number(newGelatoInterval);
-    }
-  };
-
-  private fetchGelatoTXStatus = async (taskId: string) => {
-    const response = await fetch(
-      `https://api.gelato.digital/tasks/status/${taskId}/`,
-    );
-
-    if (response.ok) {
-      const gelatoStatus = (await response.json()) as GelatoTaskStatusResponse;
-      const isPending = isGelatoTXPending(gelatoStatus.task.taskState);
-
-      // check if more than a day passed and tx wasn't executed still, remove the transaction from the pool
-      if (gelatoStatus.task.creationDate) {
-        const gelatoCreatedData = dayjs(gelatoStatus.task.creationDate);
-        const currentTime = dayjs();
-        const daysPassed = currentTime.diff(gelatoCreatedData, 'day');
-        if (daysPassed >= 1 && isPending) {
-          this.stopPollingGelatoTXStatus(taskId);
-          this.get().removeTXFromPool(taskId);
-          return response;
-        }
-      }
-
-      this.updateGelatoTX(taskId, gelatoStatus);
-
-      if (!isPending) {
-        this.stopPollingGelatoTXStatus(taskId);
-        const tx = this.get().transactionsPool[taskId];
-        this.get().txStatusChangedCallback(tx);
+      this.updateGelatoTX(tx.taskId, {
+        taskState: GelatoTaskState.ExecSuccess,
+        transactionHash: receipt.transactionHash,
+      });
+    } catch (error) {
+      if (error instanceof TransactionRevertedError) {
+        this.updateGelatoTX(tx.taskId, {
+          taskState: GelatoTaskState.ExecReverted,
+          transactionHash: error.receipt.transactionHash,
+          errorMessage: error.errorMessage,
+        });
+      } else if (error instanceof TransactionRejectedError) {
+        this.updateGelatoTX(tx.taskId, {
+          taskState: GelatoTaskState.Cancelled,
+          errorMessage: error.errorMessage,
+        });
+      } else {
+        // Timeout or network error — remove from pool
+        this.get().removeTXFromPool(tx.taskId);
       }
     }
-
-    return response;
-  };
-
-  private stopPollingGelatoTXStatus = (taskId: string) => {
-    const currentInterval = this.transactionsIntervalsMap[taskId];
-    clearInterval(currentInterval);
-    this.transactionsIntervalsMap[taskId] = undefined;
   };
 
   private updateGelatoTX = (
     taskId: string,
-    statusResponse: GelatoTaskStatusResponse,
+    params: {
+      taskState: GelatoTaskState;
+      transactionHash?: Hex;
+      errorMessage?: string;
+    },
   ) => {
+    const pending = isGelatoTXPending(params.taskState);
+    const status =
+      params.taskState === GelatoTaskState.ExecSuccess
+        ? TransactionStatus.Success
+        : pending
+          ? undefined
+          : TransactionStatus.Reverted;
+
     this.set((state) =>
       produce(state, (draft) => {
         if (isGelatoBaseTx(draft.transactionsPool[taskId])) {
-          const pending = isGelatoTXPending(statusResponse.task.taskState);
-          const status =
-            statusResponse.task.taskState === 'ExecSuccess'
-              ? TransactionStatus.Success
-              : pending
-                ? undefined
-                : TransactionStatus.Reverted;
-
           draft.transactionsPool[taskId] = {
             ...draft.transactionsPool[taskId],
             pending,
             status,
-            gelatoStatus: statusResponse.task.taskState,
-            hash: statusResponse.task.transactionHash,
-            timestamp: statusResponse.task.executionDate
-              ? dayjs(statusResponse.task.executionDate).unix()
-              : undefined,
-            errorMessage:
-              statusResponse.task.taskState >
-              GelatoTaskState.WaitingForConfirmation
-                ? statusResponse.task.lastCheckMessage
-                : undefined,
+            gelatoStatus: params.taskState,
+            hash: params.transactionHash,
+            errorMessage: params.errorMessage,
             isError: !pending && status !== TransactionStatus.Success,
           };
         }
       }),
     );
     setLocalStorageTxPool(this.get().transactionsPool);
+
+    if (!pending) {
+      const tx = this.get().transactionsPool[taskId];
+      this.get().txStatusChangedCallback(tx);
+    }
   };
 }

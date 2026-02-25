@@ -57,6 +57,7 @@ export interface ITransactionsState<T extends BaseTx> {
 
   isGelatoAvailable: boolean;
   checkIsGelatoAvailable: (chainId: number) => Promise<void>;
+  setGelatoApiKeys: (apiKeys: Record<number, string>) => void;
 }
 
 export interface ITransactionsActions<T extends BaseTx> {
@@ -274,6 +275,11 @@ export function createTransactionsSlice<T extends BaseTx>({
       const adapter = get().adapters[TxAdapter.Gelato];
       const isAvailable = await adapter?.checkIsGelatoAvailable(chainId);
       set({ isGelatoAvailable: isAvailable });
+    },
+    setGelatoApiKeys: (apiKeys) => {
+      get().setAdapter(TxAdapter.Gelato);
+      const adapter = get().adapters[TxAdapter.Gelato];
+      adapter?.setApiKeys(apiKeys);
     },
   });
 }
