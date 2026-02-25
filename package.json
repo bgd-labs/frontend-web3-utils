@@ -37,6 +37,7 @@
   "scripts": {
     "start": "tsup src/index.tsx --watch",
     "build": "tsup",
+    "prepack": "npm run build",
     "size": "size-limit",
     "lint": "npx eslint --fix",
     "typedoc": "typedoc",
