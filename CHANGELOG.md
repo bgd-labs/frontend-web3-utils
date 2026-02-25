@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/bgd-labs/frontend-web3-utils/compare/v1.3.1...v1.4.0) (2026-02-25)
+
+
+### Features
+
+* migrate to new Gelato SDK ([8656e4a](https://github.com/bgd-labs/frontend-web3-utils/commit/8656e4a2271785169c8d5151863329e59e97be69))
+
 ## [1.3.1](https://github.com/bgd-labs/frontend-web3-utils/compare/v1.3.0...v1.3.1) (2024-07-24)
 
 
