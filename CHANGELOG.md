@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/bgd-labs/frontend-web3-utils/compare/v1.4.0...v1.4.1) (2026-02-25)
+
+
+### Bug Fixes
+
+* add prepack script to build before packaging ([c39dcb3](https://github.com/bgd-labs/frontend-web3-utils/commit/c39dcb3cc8641b6184b3946383f8079a6e5170f0))
+
 ## [1.4.0](https://github.com/bgd-labs/frontend-web3-utils/compare/v1.3.1...v1.4.0) (2026-02-25)
 
 
